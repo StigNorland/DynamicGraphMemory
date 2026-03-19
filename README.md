@@ -41,5 +41,5 @@ everything else is untouched, giving clean experimental control.
 ## Authors
 
 Stig Norland — conceptual architecture  
-Claude (Anthropic) — implementation support
+Claude (Anthropic) — implementation support  
 Bergen, 19 March 2026
