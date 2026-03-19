@@ -40,7 +40,6 @@ everything else is untouched, giving clean experimental control.
 
 ## Authors
 
-Stig [last name] — conceptual architecture  
+Stig Norland — conceptual architecture  
 Claude (Anthropic) — implementation support
-
-*Initial commit establishes conceptual priority — [date]*
+Bergen, 19 March 2026
