@@ -84,7 +84,8 @@ class ConceptGraph:
     # Tunable — POC will determine good values empirically
     MATURITY_THRESHOLD    = 5.0
     LEARNING_RATE         = 0.1
-    SIMILARITY_THRESHOLD  = 0.85
+    SIMILARITY_THRESHOLD  = 0.85   # for concept matching (keep strict)
+    MERGE_THRESHOLD       = 0.30   # for merge detection (intentionally loose)
     HASH_WINDOW           = 8       # recent states for loop detection
 
     def __init__(self):
@@ -341,7 +342,7 @@ class ConceptGraph:
 
         for candidate in candidates:
             similarity = self._signature_similarity(node_id, candidate.id)
-            if similarity >= self.SIMILARITY_THRESHOLD:
+            if similarity >= self.MERGE_THRESHOLD:
                 self._merge(node_id, candidate.id)
                 break  # one merge at a time — cascades handled recursively
 

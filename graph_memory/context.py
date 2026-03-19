@@ -127,6 +127,7 @@ class ContextAssembler:
         context_parts = []
         tokens_used   = 0
         visited       = set()
+        visited_positions = set()
 
         # Priority: high maturity nodes connected to query
         frontier = sorted(query_node_ids, key=lambda x: -x[1])
@@ -142,13 +143,16 @@ class ContextAssembler:
 
             node = self.graph.nodes[node_id]
 
-            # Dereference backing store for this node's origin turn
-            turn_text = self.store.get_text(node.conv_pos)
-            if turn_text:
-                fragment_tokens = self._count_tokens(turn_text)
-                if tokens_used + fragment_tokens <= token_budget:
-                    context_parts.append((node.maturity, turn_text))
-                    tokens_used += fragment_tokens
+            # Dereference backing store — track visited positions
+            # to prevent same turn appearing multiple times
+            if node.conv_pos not in visited_positions:
+                visited_positions.add(node.conv_pos)
+                turn_text = self.store.get_text(node.conv_pos)
+                if turn_text:
+                    fragment_tokens = self._count_tokens(turn_text)
+                    if tokens_used + fragment_tokens <= token_budget:
+                        context_parts.append((node.maturity, turn_text))
+                        tokens_used += fragment_tokens
 
             # Expand neighbors weighted by edge strength * neighbor maturity
             neighbors = self.graph._get_neighbors(node_id)
