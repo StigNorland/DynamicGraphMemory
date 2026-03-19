@@ -85,8 +85,47 @@ class ConceptGraph:
     MATURITY_THRESHOLD    = 5.0
     LEARNING_RATE         = 0.1
     SIMILARITY_THRESHOLD  = 0.85   # for concept matching (keep strict)
-    MERGE_THRESHOLD       = 0.30   # for merge detection (intentionally loose)
     HASH_WINDOW           = 8       # recent states for loop detection
+
+    @property
+    def merge_threshold(self) -> float:
+        """
+        Dynamic merge threshold that scales with graph density.
+
+        A fixed threshold measures graph density as much as semantic
+        similarity — the same degree of conceptual overlap produces
+        different Jaccard scores depending on how many neighbors
+        nodes have accumulated.
+
+        Solution: scale threshold inversely with mean node degree.
+        As graph densifies, threshold lowers, allowing more nuanced
+        merges to fire naturally.
+
+        Early conversation  → sparse graph  → high threshold → only obvious merges
+        Mid conversation    → denser graph  → lower threshold → nuanced merges
+        Late conversation   → mature graph  → stable threshold → self-regulating
+
+        Floor: 0.05  — never merge everything
+        Ceiling: 0.30 — never require perfect overlap
+        """
+        if not self.nodes:
+            return 0.30
+
+        total_degree = sum(
+            len(self._get_neighbors(n_id))
+            for n_id in self.nodes
+        )
+        mean_degree = total_degree / len(self.nodes)
+
+        # Inverse scaling — denser graph, lower threshold
+        # 0.30 / (1 + mean_degree * 0.1) gives:
+        #   mean_degree=0  → 0.30
+        #   mean_degree=5  → 0.20
+        #   mean_degree=10 → 0.15
+        #   mean_degree=20 → 0.10
+        #   mean_degree=50 → 0.06
+        threshold = 0.30 / (1.0 + mean_degree * 0.1)
+        return max(0.05, min(0.30, threshold))
 
     def __init__(self):
         self.nodes:        dict[str, Node]       = {}
@@ -342,7 +381,8 @@ class ConceptGraph:
 
         for candidate in candidates:
             similarity = self._signature_similarity(node_id, candidate.id)
-            if similarity >= self.MERGE_THRESHOLD:
+
+            if similarity >= self.merge_threshold:
                 self._merge(node_id, candidate.id)
                 break  # one merge at a time — cascades handled recursively
 
@@ -461,15 +501,14 @@ class ConceptGraph:
                 if edge.source == node_id:
                     neighbor = self.nodes.get(edge.target)
                     if neighbor:
-                        sig.add((neighbor.label,
-                                 edge.edge_type.value,
-                                 round(edge.weight, 1)))
+                        # weight excluded from tuple —
+                        # two nodes sharing a neighbor match
+                        # regardless of edge strength
+                        sig.add((neighbor.label, edge.edge_type.value))
                 elif edge.target == node_id:
                     neighbor = self.nodes.get(edge.source)
                     if neighbor:
-                        sig.add((neighbor.label,
-                                 edge.edge_type.value,
-                                 round(edge.weight, 1)))
+                        sig.add((neighbor.label, edge.edge_type.value))
             return sig
 
         sig_a = signature(node_a_id)
