@@ -11,7 +11,6 @@ _get_neighbors() is O(degree) rather than O(|edges|). This gives
 Authors: Stig Norland, Claude (Anthropic)
 """
 
-
 import hashlib
 import json
 from collections import defaultdict
@@ -89,8 +88,17 @@ class ConceptGraph:
 
     MATURITY_THRESHOLD    = 5.0
     LEARNING_RATE         = 0.1
-    SIMILARITY_THRESHOLD  = 0.85
     HASH_WINDOW           = 8
+
+    # Retrieval: label similarity required to treat an incoming concept as
+    # the same node rather than a new one.  Pure surface-form comparison —
+    # maturity is irrelevant here.  A match is a match.
+    RETRIEVAL_THRESHOLD   = 0.85
+
+    # Merge: base Jaccard threshold on relational *signature* similarity.
+    # Only stable (mature) nodes are merge candidates — maturity gates
+    # *eligibility*, not the similarity score itself.
+    # The dynamic property merge_threshold scales this with graph density.
 
     @property
     def maturity_threshold(self) -> float:
@@ -133,10 +141,14 @@ class ConceptGraph:
         if match_id is None:
             node_id = self._create_node(label, node_type)
             novelty = True
-        elif similarity >= self.SIMILARITY_THRESHOLD:
+        elif similarity >= self.RETRIEVAL_THRESHOLD:
+            # Same concept — reinforce regardless of maturity.
+            # Maturity measures concept completeness, not retrieval confidence.
             node_id = match_id
             self._reinforce_node(node_id)
         else:
+            # Partial match — create a new node with a delta edge to the
+            # closest existing node, capturing the difference.
             node_id = self._create_node(label, node_type)
             self._add_edge(node_id, match_id, EdgeType.SEMANTIC, weight=similarity)
             novelty = True
@@ -295,6 +307,17 @@ class ConceptGraph:
                 self.edges[edge_key].last_active = self.conv_pos  # track recency
 
     def _update_maturity(self, node_id: str):
+        """
+        Maturity = concept completeness in the current context.
+
+        It measures how well-connected and reinforced a concept is —
+        not how confident we are that the data is correct, and not
+        a retrieval score.  Its only structural role is as the gate
+        for merge eligibility: a node must reach the maturity threshold
+        before it can be a merge candidate (_check_merges).
+
+        Formula: edge_count × mean_edge_weight × neighbourhood_factor
+        """
         neighbours = self._adjacency.get(node_id, {})
         if not neighbours:
             return
@@ -330,10 +353,19 @@ class ConceptGraph:
     # -------------------------------------------------------------------
 
     def _check_merges(self, node_id: str):
+        """
+        Check whether this newly stabilised node shares a relational
+        signature with any other stable node.
+
+        Maturity gates *eligibility* — only stable (non-provisional) nodes
+        participate in merges.  This is the only place maturity influences
+        merge decisions.  The similarity score itself is purely structural
+        (Jaccard on relational signature) and is independent of maturity.
+        """
         node = self.nodes[node_id]
         candidates = [
             n for n in self.nodes.values()
-            if not n.provisional
+            if not n.provisional        # maturity gate: must be stable
                and n.id != node_id
                and n.node_type == node.node_type
         ]
