@@ -10,8 +10,8 @@ Three conditions, identical token budget:
   - BASELINE:   raw recent turns
   - GRAPH_ONLY: graph structure only, backing store discarded
 
-If GRAPH_ONLY beats BASELINE on synthesis and inference questions,
-meaning is in the relational structure, not the raw text.
+Test data lives in testdata/*.json — add a new file there to add
+a new experiment without touching this file.
 
 Authors: Stig Norland, Claude (Anthropic)
 """
@@ -21,135 +21,76 @@ import json
 import time
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
 
 import anthropic
 
-from graph_memory.graph       import ConceptGraph, N
+from graph_memory.graph       import ConceptGraph
 from graph_memory.context     import ContextAssembler, BackingStore
 from graph_memory.convergence import ConvergenceMonitor
 
 
 # -------------------------------------------------------------------
-# Question sets — four levels × two conversations
+# Test data loading
 # -------------------------------------------------------------------
+
+TESTDATA_DIR = Path(__file__).parent / "testdata"
+
 
 @dataclass
 class Question:
     text:         str
     key_concepts: list[str]
-    level:        int          # 1=retrieval 2=synthesis 3=inference 4=cross-domain
+    level:        int
     description:  str
 
 
-MEMORY_QUESTIONS = [
-    # Level 1 — direct retrieval
-    Question(
-        text         = "What causes forgetting according to our conversation?",
-        key_concepts = ["retrieval", "path", "weak"],
-        level        = 1,
-        description  = "Direct retrieval — answer stated explicitly",
-    ),
-    Question(
-        text         = "Where does memory consolidation take place?",
-        key_concepts = ["sleep", "hippocampus"],
-        level        = 1,
-        description  = "Direct retrieval — stated in single turn",
-    ),
-    # Level 2 — synthesis
-    Question(
-        text         = "What do muscle memory and forgetting your keys have in common?",
-        key_concepts = ["retrieval", "mechanism", "same", "path"],
-        level        = 2,
-        description  = "Synthesis — requires connecting turns 1 and 9",
-    ),
-    Question(
-        text         = "How does spaced repetition relate to retrieval paths?",
-        key_concepts = ["repetition", "strengthen", "path", "retrieval"],
-        level        = 2,
-        description  = "Synthesis — connects repetition and path strengthening",
-    ),
-    # Level 3 — inference
-    Question(
-        text         = "Would practicing recalling something help you forget it less? Why?",
-        key_concepts = ["repetition", "strengthen", "path", "retrieval"],
-        level        = 3,
-        description  = "Inference — requires reasoning from relational structure",
-    ),
-    Question(
-        text         = "If retrieval failure differs from storage failure, what does that imply about forgetting?",
-        key_concepts = ["path", "block", "exist", "access"],
-        level        = 3,
-        description  = "Inference — forgetting as blockage not erasure",
-    ),
-    # Level 4 — cross-domain
-    Question(
-        text         = "What is the single most fundamental concept in everything we discussed?",
-        key_concepts = ["retrieval"],
-        level        = 4,
-        description  = "Primitive identification — tests whether graph found the anchor",
-    ),
-    Question(
-        text         = "The conversation describes a structure for memory. What is the closest analogy to a graph node in this model?",
-        key_concepts = ["memory", "concept", "retriev", "encod"],
-        level        = 4,
-        description  = "Cross-domain — maps memory model onto graph structure",
-    ),
-]
+@dataclass
+class TestCase:
+    name:         str
+    description:  str
+    conversation: list[tuple[str, str]]
+    questions:    list[Question]
+    token_budget: int = 200     # override per-file in metadata.token_budget
 
-CROSS_DOMAIN_QUESTIONS = [
-    # Level 1 — direct retrieval
-    Question(
-        text         = "What controls the size of each weight adjustment in neural network training?",
-        key_concepts = ["learning rate", "rate"],
-        level        = 1,
-        description  = "Direct retrieval — stated in turn 4",
-    ),
-    Question(
-        text         = "What happens when a population cannot adapt fast enough to environmental change?",
-        key_concepts = ["extinct", "extinction"],
-        level        = 1,
-        description  = "Direct retrieval — stated in turn 21",
-    ),
-    # Level 2 — synthesis
-    Question(
-        text         = "What do learning rate and mutation rate have in common?",
-        key_concepts = ["rate", "change", "control", "variation"],
-        level        = 2,
-        description  = "Synthesis — requires connecting ML and evolution domains",
-    ),
-    Question(
-        text         = "How does overfitting in neural networks relate to evolutionary traps?",
-        key_concepts = ["stuck", "trap", "memoris", "suboptimal", "local"],
-        level        = 2,
-        description  = "Synthesis — cross-domain structural equivalence",
-    ),
-    # Level 3 — inference
-    Question(
-        text         = "Why might a neural network and a species both get permanently stuck?",
-        key_concepts = ["minimum", "trap", "environment", "adapt", "solution"],
-        level        = 3,
-        description  = "Inference — requires cross-domain structural equivalence",
-    ),
-    Question(
-        text         = "If the training environment defines the task and the environment defines fitness, what is the evolutionary equivalent of a loss function?",
-        key_concepts = ["fitness", "select", "environment", "survival", "adapt"],
-        level        = 3,
-        description  = "Inference — loss function ≈ inverse fitness",
-    ),
-    # Level 4 — cross-domain
-    Question(
-        text         = "Is evolution a kind of learning? Make the case.",
-        key_concepts = ["same", "analog", "equivalent", "both", "process"],
-        level        = 4,
-        description  = "Cross-domain synthesis — the core aha moment question",
-    ),
-    Question(
-        text         = "What concept plays the same structural role in both topics we discussed?",
-        key_concepts = ["environment", "pressure", "selection", "error", "signal"],
-        level        = 4,
-        description  = "Cross-domain primitive — tests whether environment was found",
-    ),
-]
+
+def load_testcase(path: Path) -> TestCase:
+    """Load a single testdata JSON file into a TestCase."""
+    with open(path) as f:
+        data = json.load(f)
+
+    conversation = [tuple(turn) for turn in data["conversation"]]
+    questions = [
+        Question(
+            text         = q["text"],
+            key_concepts = q["key_concepts"],
+            level        = q["level"],
+            description  = q["description"],
+        )
+        for q in data["questions"]
+    ]
+    return TestCase(
+        name         = data["metadata"]["name"],
+        description  = data["metadata"]["description"],
+        conversation = conversation,
+        questions    = questions,
+        token_budget = data["metadata"].get("token_budget", 200),
+    )
+
+
+def load_all_testcases(directory: Path = TESTDATA_DIR) -> list[TestCase]:
+    """Load all *.json files from the testdata directory."""
+    paths = sorted(directory.glob("*.json"))
+    if not paths:
+        raise FileNotFoundError(
+            f"No JSON files found in {directory}. "
+            "Add at least one testdata file."
+        )
+    cases = [load_testcase(p) for p in paths]
+    print(f"Loaded {len(cases)} test case(s) from {directory}:")
+    for c in cases:
+        print(f"  {c.name}: {len(c.conversation)} turns, {len(c.questions)} questions")
+    return cases
 
 
 # -------------------------------------------------------------------
@@ -158,20 +99,18 @@ CROSS_DOMAIN_QUESTIONS = [
 
 class Evaluator:
     """
-    Runs questions against three context conditions and scores answers.
-    Uses Claude claude-sonnet-4-20250514 as the answering model.
+    Runs a single TestCase against three context conditions.
+    Uses Claude Sonnet 4 (temperature 0) as the answering model.
+    Token budget is read from the testcase (set in testdata JSON metadata).
     """
 
-    MODEL        = "claude-sonnet-4-20250514"
-    TOKEN_BUDGET = 200
+    MODEL         = "claude-sonnet-4-20250514"
     ANSWER_TOKENS = 150
+    TEMPERATURE   = 0
 
-    def __init__(self, conversation: list[tuple[str, str]],
-                 questions: list[Question],
-                 label: str = "experiment"):
-        self.conversation = conversation
-        self.questions    = questions
-        self.label        = label
+    def __init__(self, testcase: TestCase):
+        self.testcase     = testcase
+        self.TOKEN_BUDGET = testcase.token_budget
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
             raise ValueError(
@@ -181,16 +120,18 @@ class Evaluator:
         self.client  = anthropic.Anthropic(api_key=api_key)
         self.results = []
 
-    def run(self):
+    def run(self) -> dict:
         print(f"\n{'='*60}")
-        print(f"EVALUATION: {self.label}")
+        print(f"EVALUATION: {self.testcase.name}")
+        print(f"  {self.testcase.description}")
+        print(f"  {len(self.testcase.conversation)} turns  |  "
+              f"{len(self.testcase.questions)} questions  |  "
+              f"budget {self.TOKEN_BUDGET} tokens")
         print(f"{'='*60}")
-        print(f"Questions: {len(self.questions)}")
-        print(f"Token budget per condition: {self.TOKEN_BUDGET}")
 
         graph, assembler, store = self._build_graph()
 
-        for q in self.questions:
+        for q in self.testcase.questions:
             print(f"\n--- L{q.level}: {q.description} ---")
             print(f"Q: {q.text}")
 
@@ -202,27 +143,25 @@ class Evaluator:
             }
 
             for mode in ["graph", "baseline", "graph_only"]:
-                context = self._assemble_context(mode, assembler, store, graph, q.text)
-                answer  = self._ask(context, q.text)
-                score   = self._score(answer, q.key_concepts)
+                ctx    = self._assemble_context(mode, assembler, store, graph, q.text)
+                answer = self._ask(ctx, q.text)
+                score  = self._score(answer, q.key_concepts)
+                hits   = self._key_hits(answer, q.key_concepts)
 
                 result["conditions"][mode] = {
-                    "context_tokens": len(context.split()),
+                    "context_tokens": len(ctx.split()),
                     "answer":         answer,
                     "score":          score,
-                    "key_hits":       self._key_hits(answer, q.key_concepts),
+                    "key_hits":       hits,
                 }
 
-                indicator = "✓" if score >= 0.5 else "~" if score >= 0.25 else "✗"
-                print(f"  {mode:12s} [{indicator}] score={score:.2f}  "
-                      f"tokens={len(context.split())}  "
-                      f"hits={self._key_hits(answer, q.key_concepts)}/{len(q.key_concepts)}")
+                ind = "✓" if score >= 0.5 else "~" if score >= 0.25 else "✗"
+                print(f"  {mode:12s} [{ind}] score={score:.2f}  "
+                      f"tokens={len(ctx.split())}  "
+                      f"hits={hits}/{len(q.key_concepts)}")
 
             self.results.append(result)
             time.sleep(0.5)
-
-        self._final_report()
-        self._save()
 
     # -------------------------------------------------------------------
     # Graph building
@@ -233,7 +172,7 @@ class Evaluator:
         store     = BackingStore()
         assembler = ContextAssembler(graph=graph, store=store, tokenizer=None)
 
-        for speaker, text in self.conversation:
+        for speaker, text in self.testcase.conversation:
             monitor = ConvergenceMonitor(max_passes=20, window=8)
             assembler.ingest(speaker, text)
             while monitor.should_continue():
@@ -242,7 +181,7 @@ class Evaluator:
                 status = graph.end_pass()
                 monitor.record(status)
 
-        print(f"\nGraph built: {len(graph.nodes)} nodes, "
+        print(f"\nGraph: {len(graph.nodes)} nodes, "
               f"{len(graph.edges)} edges, "
               f"{len(graph.merge_events)} merges")
         return graph, assembler, store
@@ -253,10 +192,9 @@ class Evaluator:
             if node is None:
                 continue
             graph._update_maturity(node_id)
-            if node.provisional:
-                if node.maturity >= graph.maturity_threshold:
-                    graph._stabilize(node_id)
-                    graph._write_count += 1
+            if node.provisional and node.maturity >= graph.maturity_threshold:
+                graph._stabilize(node_id)
+                graph._write_count += 1
 
     # -------------------------------------------------------------------
     # Context assembly
@@ -267,18 +205,14 @@ class Evaluator:
                           query: str) -> str:
         if mode == "graph":
             return assembler.assemble_graph(query=query, token_budget=self.TOKEN_BUDGET)
-        elif mode == "baseline":
+        if mode == "baseline":
             return assembler.assemble_baseline(token_budget=self.TOKEN_BUDGET)
-        elif mode == "graph_only":
-            return self._assemble_graph_only(graph, query)
+        if mode == "graph_only":
+            return self._graph_only_context(graph, query)
         return ""
 
-    def _assemble_graph_only(self, graph: ConceptGraph, query: str) -> str:
-        """
-        Relational structure alone — no backing store.
-        The core thesis test: if meaning is in the edges, this should work.
-        """
-        parts  = []
+    def _graph_only_context(self, graph: ConceptGraph, query: str) -> str:
+        parts = []
 
         stable = sorted(
             [n for n in graph.nodes.values() if not n.provisional],
@@ -291,36 +225,30 @@ class Evaluator:
                 for n in stable[:6]
             ))
 
-        top_ids  = {n.id for n in stable[:8]}
+        top_ids   = {n.id for n in stable[:8]}
         key_edges = sorted(
             [e for e in graph.edges.values()
              if e.source in top_ids and e.target in top_ids and e.weight > 0.5],
             key=lambda e: -e.weight
-        )
+        )[:8]
 
         if key_edges:
-            rel_lines = []
-            for edge in key_edges[:8]:
-                src = graph.nodes.get(edge.source)
-                tgt = graph.nodes.get(edge.target)
-                if src and tgt:
-                    rel_lines.append(
-                        f"{src.label} -{edge.edge_type.value}-> {tgt.label}"
-                        f"(w={edge.weight:.2f})"
-                    )
+            rel_lines = [
+                f"{graph.nodes[e.source].label} -{e.edge_type.value}-> "
+                f"{graph.nodes[e.target].label}(w={e.weight:.2f} t={e.last_active})"
+                for e in key_edges
+                if e.source in graph.nodes and e.target in graph.nodes
+            ]
             if rel_lines:
                 parts.append("Key relations: " + "; ".join(rel_lines))
 
         if graph.merge_events:
-            significant = sorted(graph.merge_events, key=lambda e: -e.magnitude)[:3]
-            merge_lines = []
-            for event in significant:
-                node = graph.nodes.get(event.merged_into)
-                if node:
-                    merge_lines.append(
-                        f"'{event.node_a}' unified with '{event.node_b}' "
-                        f"(cascade={event.cascade_depth})"
-                    )
+            top_merges = sorted(graph.merge_events, key=lambda e: -e.magnitude)[:3]
+            merge_lines = [
+                f"'{e.node_a}' unified with '{e.node_b}' (cascade={e.cascade_depth})"
+                for e in top_merges
+                if e.merged_into in graph.nodes
+            ]
             if merge_lines:
                 parts.append("Insights: " + "; ".join(merge_lines))
 
@@ -329,11 +257,11 @@ class Evaluator:
             [n for n in graph.nodes.values()
              if any(w in n.label for w in query_words if len(w) > 3)],
             key=lambda n: -n.maturity
-        )
+        )[:6]
         if relevant:
             parts.append("Query-relevant: " + ", ".join(
                 f"{n.label}(deg={len(graph._get_neighbors(n.id))})"
-                for n in relevant[:6]
+                for n in relevant
             ))
 
         return "\n".join(parts)[:self.TOKEN_BUDGET * 6]
@@ -344,16 +272,17 @@ class Evaluator:
 
     def _ask(self, context: str, question: str) -> str:
         prompt = (
-            f"The following is context from a conversation:\n\n"
+            "The following is context from a conversation:\n\n"
             f"{context}\n\n"
-            f"Based only on this context, answer concisely:\n"
+            "Based only on this context, answer concisely:\n"
             f"{question}"
         )
         try:
             response = self.client.messages.create(
-                model      = self.MODEL,
-                max_tokens = self.ANSWER_TOKENS,
-                messages   = [{"role": "user", "content": prompt}],
+                model       = self.MODEL,
+                max_tokens  = self.ANSWER_TOKENS,
+                temperature = self.TEMPERATURE,
+                messages    = [{"role": "user", "content": prompt}],
             )
             return response.content[0].text.strip()
         except Exception as e:
@@ -368,100 +297,95 @@ class Evaluator:
         return hits / len(key_concepts) if key_concepts else 0.0
 
     def _key_hits(self, answer: str, key_concepts: list[str]) -> int:
-        answer_lower = answer.lower()
-        return sum(1 for c in key_concepts if c.lower() in answer_lower)
+        a = answer.lower()
+        return sum(1 for c in key_concepts if c.lower() in a)
 
     # -------------------------------------------------------------------
-    # Reporting
+    # Reporting and persistence
     # -------------------------------------------------------------------
 
-    def _final_report(self):
-        print(f"\n{'='*60}")
-        print(f"EVALUATION SUMMARY: {self.label}")
-        print(f"{'='*60}")
-
+    def _summarise(self) -> dict:
         levels     = sorted(set(r["level"] for r in self.results))
         conditions = ["graph", "baseline", "graph_only"]
-
-        print(f"\n{'Level':<8}", end="")
-        for c in conditions:
-            print(f"{c:>14}", end="")
-        print()
-        print("-" * 50)
-
-        for level in levels:
-            level_results = [r for r in self.results if r["level"] == level]
-            print(f"L{level:<7}", end="")
-            for c in conditions:
-                scores = [r["conditions"][c]["score"]
-                          for r in level_results if c in r["conditions"]]
-                mean = sum(scores) / len(scores) if scores else 0
-                ind  = "✓" if mean >= 0.5 else "~" if mean >= 0.25 else "✗"
-                print(f"{ind} {mean:>10.2f}", end="")
-            print()
-
-        n = len(self.results)
-        totals = {c: sum(r["conditions"][c]["score"] for r in self.results)
-                  for c in conditions}
-
-        print(f"\nMean scores across all questions:")
-        for c in conditions:
-            print(f"  {c:14s}: {totals[c]/n:.3f}")
-
-        if totals["graph_only"] > totals["baseline"]:
-            print(f"\n*** Graph-only BEATS baseline "
-                  f"({totals['graph_only']/n:.3f} vs {totals['baseline']/n:.3f}) ***")
-            print("    Meaning is in the relational structure.")
-        elif totals["graph_only"] >= totals["baseline"] * 0.9:
-            print(f"\n~ Graph-only matches baseline "
-                  f"({totals['graph_only']/n:.3f} vs {totals['baseline']/n:.3f})")
-        else:
-            print(f"\n  Baseline leads "
-                  f"({totals['baseline']/n:.3f} vs {totals['graph_only']/n:.3f})")
-
-    def _save(self):
-        os.makedirs("experiments", exist_ok=True)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        path      = f"experiments/eval_{self.label}_{timestamp}.json"
-
-        levels     = sorted(set(r["level"] for r in self.results))
-        conditions = ["graph", "baseline", "graph_only"]
-
-        by_level = {
+        by_level   = {
             str(lv): {
-                c: sum(r["conditions"][c]["score"]
-                       for r in self.results if r["level"] == lv
-                       and c in r["conditions"])
-                   / max(1, sum(1 for r in self.results if r["level"] == lv))
+                c: (
+                        sum(r["conditions"][c]["score"]
+                            for r in self.results if r["level"] == lv)
+                        / max(1, sum(1 for r in self.results if r["level"] == lv))
+                )
                 for c in conditions
             }
             for lv in levels
         }
+        n = len(self.results)
+        overall = {
+            c: sum(r["conditions"][c]["score"] for r in self.results) / n
+            for c in conditions
+        }
+        return {"by_level": by_level, "overall": overall}
+
+    def _print_report(self, summary: dict):
+        print(f"\n{'='*60}")
+        print(f"SUMMARY: {self.testcase.name}")
+        print(f"{'='*60}")
+        print(f"\n{'Level':<8}", end="")
+        for c in ["graph", "baseline", "graph_only"]:
+            print(f"{c:>14}", end="")
+        print()
+        print("-" * 50)
+        for lv, scores in sorted(summary["by_level"].items()):
+            print(f"L{lv:<7}", end="")
+            for c in ["graph", "baseline", "graph_only"]:
+                s   = scores[c]
+                ind = "✓" if s >= 0.5 else "~" if s >= 0.25 else "✗"
+                print(f"{ind} {s:>10.2f}", end="")
+            print()
+        o = summary["overall"]
+        print(f"\nOverall — graph: {o['graph']:.3f}  "
+              f"baseline: {o['baseline']:.3f}  "
+              f"graph_only: {o['graph_only']:.3f}")
+        if o["graph_only"] > o["baseline"]:
+            print("*** Graph-only BEATS baseline — meaning is in the structure.")
+        elif o["graph_only"] >= o["baseline"] * 0.9:
+            print("~ Graph-only matches baseline.")
+        else:
+            print("  Baseline leads over graph-only.")
+
+    def save(self) -> dict:
+        summary = self._summarise()
+        self._print_report(summary)
+
+        os.makedirs("experiments", exist_ok=True)
+        ts   = datetime.now().strftime("%Y%m%d_%H%M%S")
+        base = f"experiments/eval_{self.testcase.name}_{ts}"
 
         output = {
             "metadata": {
-                "timestamp":    timestamp,
-                "label":        self.label,
+                "timestamp":    ts,
+                "name":         self.testcase.name,
                 "model":        self.MODEL,
+                "temperature":  self.TEMPERATURE,
                 "token_budget": self.TOKEN_BUDGET,
-                "questions":    len(self.questions),
+                "questions":    len(self.testcase.questions),
+                "turns":        len(self.testcase.conversation),
             },
             "results": self.results,
-            "summary": {"by_level": by_level},
+            "summary": summary,
         }
 
-        with open(path, "w") as f:
+        json_path = f"{base}.json"
+        with open(json_path, "w") as f:
             json.dump(output, f, indent=2)
-        print(f"\nResults saved to {path}")
+        print(f"Results  → {json_path}")
 
-        # Also write LaTeX table
-        self._write_latex_table(by_level, path.replace(".json", "_table.tex"))
+        tex_path = f"{base}_table.tex"
+        self._write_latex_table(summary, tex_path)
+        print(f"LaTeX    → {tex_path}")
 
-    def _write_latex_table(self, by_level: dict, path: str):
-        """
-        Writes Table 4 from the paper directly as a LaTeX snippet.
-        Copy-paste into Section 5.4.
-        """
+        return output
+
+    def _write_latex_table(self, summary: dict, path: str):
         level_labels = {
             "1": "L1 (direct retrieval)",
             "2": "L2 (synthesis)",
@@ -471,41 +395,32 @@ class Evaluator:
         lines = [
             r"\begin{table}[h]",
             r"\centering",
-            rf"\caption{{QA evaluation scores by level and context condition — {self.label}}}",
+            rf"\caption{{QA evaluation — {self.testcase.name}}}",
             r"\begin{tabular}{lccc}",
             r"\toprule",
             r"Level & Graph + store & Baseline & Graph only \\",
             r"\midrule",
         ]
         for lv, label in level_labels.items():
-            if lv in by_level:
-                g  = by_level[lv].get("graph", 0)
-                b  = by_level[lv].get("baseline", 0)
-                go = by_level[lv].get("graph_only", 0)
-                lines.append(rf"{label} & {g:.2f} & {b:.2f} & {go:.2f} \\")
+            if lv in summary["by_level"]:
+                d = summary["by_level"][lv]
+                lines.append(
+                    rf"{label} & {d.get('graph',0):.2f} & "
+                    rf"{d.get('baseline',0):.2f} & "
+                    rf"{d.get('graph_only',0):.2f} \\"
+                )
             else:
                 lines.append(rf"{label} & --- & --- & --- \\")
-
-        # Overall row
-        all_levels = list(by_level.values())
-        if all_levels:
-            og  = sum(d.get("graph", 0)      for d in all_levels) / len(all_levels)
-            ob  = sum(d.get("baseline", 0)   for d in all_levels) / len(all_levels)
-            ogo = sum(d.get("graph_only", 0) for d in all_levels) / len(all_levels)
-            lines += [
-                r"\midrule",
-                rf"Overall & {og:.2f} & {ob:.2f} & {ogo:.2f} \\",
-            ]
-
+        o = summary["overall"]
         lines += [
+            r"\midrule",
+            rf"Overall & {o['graph']:.2f} & {o['baseline']:.2f} & {o['graph_only']:.2f} \\",
             r"\bottomrule",
             r"\end{tabular}",
             r"\end{table}",
         ]
-
         with open(path, "w") as f:
             f.write("\n".join(lines))
-        print(f"LaTeX table written to {path}")
 
 
 # -------------------------------------------------------------------
@@ -513,20 +428,10 @@ class Evaluator:
 # -------------------------------------------------------------------
 
 if __name__ == "__main__":
-    from experiment import CONVERSATION, CONVERSATION_CROSS_DOMAIN
-
-    eval_memory = Evaluator(
-        conversation = CONVERSATION,
-        questions    = MEMORY_QUESTIONS,
-        label        = "memory",
-    )
-    eval_memory.run()
-
-    print("\n" + "=" * 60 + "\n")
-
-    eval_cross = Evaluator(
-        conversation = CONVERSATION_CROSS_DOMAIN,
-        questions    = CROSS_DOMAIN_QUESTIONS,
-        label        = "cross_domain",
-    )
-    eval_cross.run()
+    testcases = load_all_testcases()
+    for tc in testcases:
+        ev = Evaluator(tc)
+        ev.run()
+        ev.save()
+        print()
+    print(f"Done. Results saved to experiments/")

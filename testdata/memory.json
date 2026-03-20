@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "name": "memory",
+    "description": "Dialogue about forgetting, retrieval, and recall. Self-referential by design — the graph builds relational memory structure while the conversation discusses relational memory structure.",
+    "turns": 16,
+    "token_budget": 200,
+    "domain": "cognitive science"
+  },
+  "conversation": [
+    ["user",      "I keep forgetting where I put my keys."],
+    ["assistant", "That's a retrieval failure — the memory exists, you just can't access it."],
+    ["user",      "So the memory is there but I can't find it?"],
+    ["assistant", "Exactly. Encoding was fine, retrieval is the problem."],
+    ["user",      "Is that different from when you forget someone's name?"],
+    ["assistant", "Same mechanism. The name is encoded, the retrieval path is weak."],
+    ["user",      "What makes a retrieval path strong?"],
+    ["assistant", "Repetition. Every time you successfully recall something, that path strengthens."],
+    ["user",      "Like muscle memory?"],
+    ["assistant", "Precisely. Muscle memory is the same process in a different substrate."],
+    ["user",      "So forgetting is just a weak path, not lost information?"],
+    ["assistant", "In most cases yes. The information persists, the access degrades."],
+    ["user",      "That means remembering and recognizing are the same thing?"],
+    ["assistant", "Almost. Recognition is retrieval with a cue present. Recall is retrieval without one."],
+    ["user",      "But both are just... finding what's already there."],
+    ["assistant", "Yes. The difference is in the search, not the storage."]
+  ],
+  "questions": [
+    {
+      "text": "What causes forgetting according to our conversation?",
+      "key_concepts": ["retrieval", "path", "weak"],
+      "level": 1,
+      "description": "Direct retrieval — answer stated explicitly"
+    },
+    {
+      "text": "Where does memory consolidation take place?",
+      "key_concepts": ["sleep", "hippocampus"],
+      "level": 1,
+      "description": "Direct retrieval — stated in single turn"
+    },
+    {
+      "text": "What do muscle memory and forgetting your keys have in common?",
+      "key_concepts": ["retrieval", "mechanism", "same", "path"],
+      "level": 2,
+      "description": "Synthesis — requires connecting turns 1 and 9"
+    },
+    {
+      "text": "How does spaced repetition relate to retrieval paths?",
+      "key_concepts": ["repetition", "strengthen", "path", "retrieval"],
+      "level": 2,
+      "description": "Synthesis — connects repetition and path strengthening"
+    },
+    {
+      "text": "Would practicing recalling something help you forget it less? Why?",
+      "key_concepts": ["repetition", "strengthen", "path", "retrieval"],
+      "level": 3,
+      "description": "Inference — requires reasoning from relational structure"
+    },
+    {
+      "text": "If retrieval failure differs from storage failure, what does that imply about forgetting?",
+      "key_concepts": ["path", "block", "exist", "access"],
+      "level": 3,
+      "description": "Inference — forgetting as blockage not erasure"
+    },
+    {
+      "text": "What is the single most fundamental concept in everything we discussed?",
+      "key_concepts": ["retrieval"],
+      "level": 4,
+      "description": "Primitive identification — tests whether graph found the anchor"
+    },
+    {
+      "text": "The conversation describes a structure for memory. What is the closest analogy to a graph node in this model?",
+      "key_concepts": ["memory", "concept", "retriev", "encod"],
+      "level": 4,
+      "description": "Cross-domain — maps memory model onto graph structure"
+    }
+  ]
+}

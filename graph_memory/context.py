@@ -9,7 +9,7 @@ The key operation: given a query and a token budget,
 traverse the relevant subgraph and assemble context
 from graph structure + selective backing store dereference.
 
-Authors: Stig [last name], Claude (Anthropic)
+Authors: Stig Norland, Claude (Anthropic)
 """
 
 import re
@@ -17,6 +17,15 @@ from dataclasses import dataclass
 from typing import Optional
 
 from .graph import ConceptGraph, NodeType, EdgeType
+
+# ---------------------------------------------------------------------------
+# Typed-triple extractor (replaces stopword filter)
+# ---------------------------------------------------------------------------
+try:
+    from concept_extractor import extract_concepts as _spacy_extract
+    _EXTRACTOR_AVAILABLE = True
+except ImportError:
+    _EXTRACTOR_AVAILABLE = False
 
 
 # -------------------------------------------------------------------
@@ -45,10 +54,6 @@ class BackingStore:
 
     def append(self, speaker: str, text: str,
                nodes: list[str] = None) -> int:
-        """
-        Add a turn to the backing store.
-        Returns position (the pointer stored in graph edges/nodes).
-        """
         pos = len(self.turns)
         self.turns.append(Turn(
             pos     = pos,
@@ -59,18 +64,15 @@ class BackingStore:
         return pos
 
     def get(self, pos: int) -> Optional[Turn]:
-        """Dereference a pointer. Returns None if out of range."""
         if 0 <= pos < len(self.turns):
             return self.turns[pos]
         return None
 
     def get_text(self, pos: int) -> str:
-        """Dereference and return just the text."""
         turn = self.get(pos)
         return f"{turn.speaker}: {turn.text}" if turn else ""
 
     def recent(self, n: int) -> list[Turn]:
-        """Return n most recent turns — used as fallback context."""
         return self.turns[-n:] if self.turns else []
 
     def __len__(self):
@@ -88,48 +90,30 @@ class ContextAssembler:
     Two modes, selectable per inference call:
       - GRAPH:    traverse relevant subgraph, dereference selectively
       - BASELINE: raw recent conversation, standard KV-cache style
-
-    Having both in one class gives clean experimental comparison —
-    same token budget, same backing store, only context assembly differs.
     """
 
     def __init__(self, graph: ConceptGraph, store: BackingStore,
                  tokenizer=None):
         self.graph     = graph
         self.store     = store
-        self.tokenizer = tokenizer  # optional — used for precise budgeting
+        self.tokenizer = tokenizer
 
     def assemble_graph(self, query: str, token_budget: int) -> str:
-        """
-        Graph-mode context assembly.
-
-        1. Extract concept labels from query
-        2. Find matching nodes in graph
-        3. Traverse subgraph outward, weighted by maturity + edge weight
-        4. Dereference backing store for high-value nodes
-        5. Fit within token budget
-        """
-        # Step 1: extract query concepts
-        query_labels  = self._extract_concepts(query)
-
-        # Step 2: find matching graph nodes
+        query_labels   = self._extract_concepts(query)
         query_node_ids = []
         for label in query_labels:
             node_id, score = self.graph._find_match(label, NodeType.CONCEPT)
-            if node_id and score > 0.3:  # loose threshold for query matching
+            if node_id and score > 0.3:
                 query_node_ids.append((node_id, score))
 
-        # Fallback: if no graph match, use recent turns
         if not query_node_ids:
             return self._fallback_context(token_budget)
 
-        # Step 3 & 4: traverse and assemble
-        context_parts = []
-        tokens_used   = 0
-        visited       = set()
+        context_parts     = []
+        tokens_used       = 0
+        visited           = set()
         visited_positions = set()
 
-        # Priority: high maturity nodes connected to query
         frontier = sorted(query_node_ids, key=lambda x: -x[1])
 
         while frontier and tokens_used < token_budget:
@@ -143,8 +127,6 @@ class ContextAssembler:
 
             node = self.graph.nodes[node_id]
 
-            # Dereference backing store — track visited positions
-            # to prevent same turn appearing multiple times
             if node.conv_pos not in visited_positions:
                 visited_positions.add(node.conv_pos)
                 turn_text = self.store.get_text(node.conv_pos)
@@ -154,37 +136,29 @@ class ContextAssembler:
                         context_parts.append((node.maturity, turn_text))
                         tokens_used += fragment_tokens
 
-            # Expand neighbors weighted by edge strength * neighbor maturity
             neighbors = self.graph._get_neighbors(node_id)
-            for neighbor_id, edge_weight in neighbors:
+            total_turns = max(1, self.graph.conv_pos)
+            for neighbor_id, edge_weight, last_active in neighbors:
                 if neighbor_id not in visited and neighbor_id in self.graph.nodes:
                     neighbor_maturity = self.graph.nodes[neighbor_id].maturity
-                    priority = edge_weight * (1.0 + neighbor_maturity * 0.1)
+                    recency  = last_active / total_turns        # 0..1
+                    priority = (edge_weight * 0.7               # base strength
+                                + recency   * 0.2               # recency bias
+                                + neighbor_maturity * 0.1)      # maturity bonus
                     frontier.append((neighbor_id, priority))
 
-            # Keep frontier sorted by priority
             frontier.sort(key=lambda x: -x[1])
 
-        # Also include merge event context — aha moments are high value
         merge_context = self._merge_context(token_budget - tokens_used)
         if merge_context:
-            context_parts.append((999.0, merge_context))  # high priority
+            context_parts.append((999.0, merge_context))
 
-        # Sort by maturity (most established concepts first)
-        # then assemble into string
         context_parts.sort(key=lambda x: -x[0])
         context = "\n".join(text for _, text in context_parts)
 
         return context.strip()
 
     def assemble_baseline(self, token_budget: int) -> str:
-        """
-        Baseline mode: raw recent conversation.
-        Standard KV-cache style — most recent turns up to token budget.
-
-        This is the control condition for experiments.
-        Same backing store, no graph involvement.
-        """
         turns       = []
         tokens_used = 0
 
@@ -200,39 +174,24 @@ class ContextAssembler:
         return "\n".join(turns).strip()
 
     # -------------------------------------------------------------------
-    # Ingestion — process new turns into graph
+    # Ingestion
     # -------------------------------------------------------------------
 
     def ingest(self, speaker: str, text: str) -> dict:
-        """
-        Process a new conversation turn:
-        1. Add to backing store
-        2. Extract concepts
-        3. Write to graph
-        4. Return graph status
-
-        This is the main entry point during conversation.
-        """
-        # Add to backing store first — get position pointer
         pos = self.store.append(speaker, text)
         self.graph.conv_pos = pos
 
-        # Extract and write concepts
-        concepts     = self._extract_concepts(text)
-        written_ids  = []
-        novelties    = []
+        concepts    = self._extract_concepts(text)
+        written_ids = []
+        novelties   = []
 
         self.graph.begin_pass()
 
         prev_id = None
-        for i, concept in enumerate(concepts):
-            # Determine node type heuristically
-            # POC will refine this — for now concept is default
+        for concept in concepts:
             node_type = self._classify_node_type(concept, text)
-
-            # Write with temporal relation to previous concept
-            related = [prev_id] if prev_id else []
-            edge_t  = EdgeType.TEMPORAL if prev_id else EdgeType.SEMANTIC
+            related   = [prev_id] if prev_id else []
+            edge_t    = EdgeType.TEMPORAL if prev_id else EdgeType.SEMANTIC
 
             node_id, is_new = self.graph.write(
                 label      = concept,
@@ -245,7 +204,6 @@ class ContextAssembler:
             novelties.append(is_new)
             prev_id = node_id
 
-        # Update backing store turn with node pointers
         self.store.turns[pos].nodes = written_ids
         self.graph.advance()
 
@@ -257,25 +215,64 @@ class ContextAssembler:
         return status
 
     # -------------------------------------------------------------------
-    # Internal utilities
+    # Concept extraction — spaCy IS-A extractor (with stopword fallback)
     # -------------------------------------------------------------------
 
     def _extract_concepts(self, text: str) -> list[str]:
         """
         Extract concept labels from text.
 
-        Current implementation: simple noun/keyword extraction.
-        POC placeholder — in production this would use a lightweight
-        NLP model or the graph's own pattern recognition.
+        Primary: spaCy-based typed-triple extractor (concept_extractor.py).
+          Returns the subject and object labels of high-confidence IS-A
+          triples, preserving full noun-phrase form
+          (e.g. "dark_matter", "superfluid_vortex").
 
-        Intentionally naive so it doesn't obscure the graph behavior.
+        Fallback: simple stopword filter (original implementation),
+          used when spaCy is not installed.
         """
-        # Lowercase, strip punctuation, split
+        if _EXTRACTOR_AVAILABLE:
+            return self._extract_via_spacy(text)
+        return self._extract_stopword_fallback(text)
+
+    def _extract_via_spacy(self, text: str) -> list[str]:
+        """
+        Use the typed-triple extractor to pull IS-A concept labels.
+
+        Both subject and object of each triple are added as distinct
+        concept nodes — the IS-A relationship itself is encoded as
+        a semantic edge between them when both nodes are written to
+        the graph in sequence.
+        """
+        try:
+            concept_dicts = _spacy_extract(text)
+        except Exception:
+            # Degrade gracefully if extraction fails on a specific turn
+            return self._extract_stopword_fallback(text)
+
+        labels = []
+        seen   = set()
+
+        for concept in concept_dicts:
+            # Add subject
+            subj = concept["label"]
+            if subj and subj not in seen:
+                seen.add(subj)
+                labels.append(subj)
+            # Add object nodes so they enter the graph as real concepts
+            for rel in concept.get("relations", []):
+                obj = rel.get("target", "")
+                if obj and obj not in seen:
+                    seen.add(obj)
+                    labels.append(obj)
+
+        return labels
+
+    def _extract_stopword_fallback(self, text: str) -> list[str]:
+        """Original stopword-filter extractor — used when spaCy unavailable."""
         text    = text.lower()
         text    = re.sub(r'[^\w\s]', ' ', text)
         words   = text.split()
 
-        # Filter stopwords — very basic list, expand as needed
         stopwords = {
             'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be',
             'been', 'being', 'have', 'has', 'had', 'do', 'does',
@@ -290,40 +287,30 @@ class ContextAssembler:
             'as', 'if', 'then', 'because', 'while', 'although',
         }
 
-        concepts = [w for w in words
-                    if w not in stopwords and len(w) > 2]
+        concepts = [w for w in words if w not in stopwords and len(w) > 2]
 
-        # Deduplicate while preserving order
-        seen = set()
+        seen   = set()
         unique = []
         for c in concepts:
             if c not in seen:
                 seen.add(c)
                 unique.append(c)
-
         return unique
 
-    def _classify_node_type(self, concept: str, context: str) -> NodeType:
-        """
-        Heuristic node type classification.
-        Temporal markers → TEMPORAL
-        Causal markers   → CAUSAL
-        Everything else  → CONCEPT
+    # -------------------------------------------------------------------
+    # Internal utilities
+    # -------------------------------------------------------------------
 
-        POC placeholder — graph's own pattern recognition
-        will supersede this as it matures.
-        """
+    def _classify_node_type(self, concept: str, context: str) -> NodeType:
         temporal_markers = {
             'before', 'after', 'when', 'while', 'during',
             'then', 'now', 'later', 'earlier', 'first', 'last',
-            'yesterday', 'tomorrow', 'today', 'always', 'never',
         }
         causal_markers = {
             'because', 'therefore', 'thus', 'hence', 'since',
             'causes', 'leads', 'results', 'produces', 'prevents',
-            'enables', 'requires', 'implies', 'means',
+            'enables', 'requires', 'implies',
         }
-
         if concept in temporal_markers:
             return NodeType.TEMPORAL
         if concept in causal_markers:
@@ -331,21 +318,15 @@ class ContextAssembler:
         return NodeType.CONCEPT
 
     def _merge_context(self, remaining_budget: int) -> str:
-        """
-        Include context about significant merge events.
-        Aha moments are high semantic value — worth including
-        even at the cost of other context.
-        """
         if not self.graph.merge_events:
             return ""
 
-        # Most significant merge first
         significant = sorted(
             self.graph.merge_events,
             key=lambda e: -e.magnitude
         )
 
-        parts = []
+        parts  = []
         tokens = 0
         for event in significant:
             node_a = self.graph.nodes.get(event.merged_into)
@@ -362,15 +343,9 @@ class ContextAssembler:
         return "\n".join(parts)
 
     def _fallback_context(self, token_budget: int) -> str:
-        """No graph match — fall back to recent turns."""
         return self.assemble_baseline(token_budget)
 
     def _count_tokens(self, text: str) -> int:
-        """
-        Count tokens in text.
-        Uses tokenizer if available, otherwise word count as proxy.
-        Word count is good enough for budget management in the POC.
-        """
         if self.tokenizer:
             return len(self.tokenizer.encode(text))
         return len(text.split())
