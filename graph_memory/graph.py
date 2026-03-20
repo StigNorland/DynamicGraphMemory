@@ -7,13 +7,13 @@ entirely by their relationships. Meaning is relational structure.
 Authors: Stig [last name], Claude (Anthropic)
 """
 
-import math
 import hashlib
 import json
 from enum import Enum
 from dataclasses import dataclass, field
 from typing import Optional
-
+from concept_extractor import _spacy_extract
+concepts = _spacy_extract(turn_text)
 
 # -------------------------------------------------------------------
 # Types

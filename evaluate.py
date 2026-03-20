@@ -13,35 +13,36 @@ Three conditions, identical token budget:
 If GRAPH_ONLY beats BASELINE on synthesis and inference questions,
 meaning is in the relational structure, not the raw text.
 
-Authors: Stig [last name], Claude (Anthropic)
+Authors: Stig Norland, Claude (Anthropic)
 """
 
 import os
 import json
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 
 import anthropic
 
-from graph_memory.graph      import ConceptGraph, NodeType, EdgeType
-from graph_memory.context    import ContextAssembler, BackingStore
+from graph_memory.graph       import ConceptGraph, N
+from graph_memory.context     import ContextAssembler, BackingStore
 from graph_memory.convergence import ConvergenceMonitor
 
 
 # -------------------------------------------------------------------
-# Question sets
+# Question sets — four levels × two conversations
 # -------------------------------------------------------------------
 
 @dataclass
 class Question:
-    text:          str
-    key_concepts:  list[str]   # concepts that must appear in answer
-    level:         int         # 1=retrieval 2=synthesis 3=inference 4=cross-domain
-    description:   str         # what this question tests
+    text:         str
+    key_concepts: list[str]
+    level:        int          # 1=retrieval 2=synthesis 3=inference 4=cross-domain
+    description:  str
 
 
 MEMORY_QUESTIONS = [
+    # Level 1 — direct retrieval
     Question(
         text         = "What causes forgetting according to our conversation?",
         key_concepts = ["retrieval", "path", "weak"],
@@ -49,32 +50,80 @@ MEMORY_QUESTIONS = [
         description  = "Direct retrieval — answer stated explicitly",
     ),
     Question(
+        text         = "Where does memory consolidation take place?",
+        key_concepts = ["sleep", "hippocampus"],
+        level        = 1,
+        description  = "Direct retrieval — stated in single turn",
+    ),
+    # Level 2 — synthesis
+    Question(
         text         = "What do muscle memory and forgetting your keys have in common?",
         key_concepts = ["retrieval", "mechanism", "same", "path"],
         level        = 2,
         description  = "Synthesis — requires connecting turns 1 and 9",
     ),
     Question(
-        text         = "Would practicing recalling something help you forget it less? Why?",
-        key_concepts = ["repetition", "strengthens", "path", "retrieval"],
-        level        = 3,
-        description  = "Inference — answer requires reasoning from relational structure",
+        text         = "How does spaced repetition relate to retrieval paths?",
+        key_concepts = ["repetition", "strengthen", "path", "retrieval"],
+        level        = 2,
+        description  = "Synthesis — connects repetition and path strengthening",
     ),
+    # Level 3 — inference
+    Question(
+        text         = "Would practicing recalling something help you forget it less? Why?",
+        key_concepts = ["repetition", "strengthen", "path", "retrieval"],
+        level        = 3,
+        description  = "Inference — requires reasoning from relational structure",
+    ),
+    Question(
+        text         = "If retrieval failure differs from storage failure, what does that imply about forgetting?",
+        key_concepts = ["path", "block", "exist", "access"],
+        level        = 3,
+        description  = "Inference — forgetting as blockage not erasure",
+    ),
+    # Level 4 — cross-domain
     Question(
         text         = "What is the single most fundamental concept in everything we discussed?",
         key_concepts = ["retrieval"],
-        level        = 3,
-        description  = "Primitive identification — tests whether graph found the right anchor",
+        level        = 4,
+        description  = "Primitive identification — tests whether graph found the anchor",
+    ),
+    Question(
+        text         = "The conversation describes a structure for memory. What is the closest analogy to a graph node in this model?",
+        key_concepts = ["memory", "concept", "retriev", "encod"],
+        level        = 4,
+        description  = "Cross-domain — maps memory model onto graph structure",
     ),
 ]
 
 CROSS_DOMAIN_QUESTIONS = [
+    # Level 1 — direct retrieval
+    Question(
+        text         = "What controls the size of each weight adjustment in neural network training?",
+        key_concepts = ["learning rate", "rate"],
+        level        = 1,
+        description  = "Direct retrieval — stated in turn 4",
+    ),
+    Question(
+        text         = "What happens when a population cannot adapt fast enough to environmental change?",
+        key_concepts = ["extinct", "extinction"],
+        level        = 1,
+        description  = "Direct retrieval — stated in turn 21",
+    ),
+    # Level 2 — synthesis
     Question(
         text         = "What do learning rate and mutation rate have in common?",
-        key_concepts = ["rate", "change", "overshoot", "fast", "slow"],
+        key_concepts = ["rate", "change", "control", "variation"],
         level        = 2,
         description  = "Synthesis — requires connecting ML and evolution domains",
     ),
+    Question(
+        text         = "How does overfitting in neural networks relate to evolutionary traps?",
+        key_concepts = ["stuck", "trap", "memoris", "suboptimal", "local"],
+        level        = 2,
+        description  = "Synthesis — cross-domain structural equivalence",
+    ),
+    # Level 3 — inference
     Question(
         text         = "Why might a neural network and a species both get permanently stuck?",
         key_concepts = ["minimum", "trap", "environment", "adapt", "solution"],
@@ -82,15 +131,21 @@ CROSS_DOMAIN_QUESTIONS = [
         description  = "Inference — requires cross-domain structural equivalence",
     ),
     Question(
+        text         = "If the training environment defines the task and the environment defines fitness, what is the evolutionary equivalent of a loss function?",
+        key_concepts = ["fitness", "select", "environment", "survival", "adapt"],
+        level        = 3,
+        description  = "Inference — loss function ≈ inverse fitness",
+    ),
+    # Level 4 — cross-domain
+    Question(
         text         = "Is evolution a kind of learning? Make the case.",
-        key_concepts = ["same", "process", "environment", "selection", "error",
-                        "gradient", "fitness"],
+        key_concepts = ["same", "analog", "equivalent", "both", "process"],
         level        = 4,
         description  = "Cross-domain synthesis — the core aha moment question",
     ),
     Question(
-        text         = "What concept is shared across both topics we discussed?",
-        key_concepts = ["environment", "pressure", "selection", "error"],
+        text         = "What concept plays the same structural role in both topics we discussed?",
+        key_concepts = ["environment", "pressure", "selection", "error", "signal"],
         level        = 4,
         description  = "Cross-domain primitive — tests whether environment was found",
     ),
@@ -107,9 +162,9 @@ class Evaluator:
     Uses Claude claude-sonnet-4-20250514 as the answering model.
     """
 
-    MODEL          = "claude-sonnet-4-20250514"
-    TOKEN_BUDGET   = 200
-    ANSWER_TOKENS  = 150
+    MODEL        = "claude-sonnet-4-20250514"
+    TOKEN_BUDGET = 200
+    ANSWER_TOKENS = 150
 
     def __init__(self, conversation: list[tuple[str, str]],
                  questions: list[Question],
@@ -121,10 +176,10 @@ class Evaluator:
         if not api_key:
             raise ValueError(
                 "ANTHROPIC_API_KEY environment variable not set.\n"
-                "Set it with: set ANTHROPIC_API_KEY=your_key_here"
+                "Set it with: export ANTHROPIC_API_KEY=your_key_here"
             )
-        self.client = anthropic.Anthropic(api_key=api_key)
-        self.results      = []
+        self.client  = anthropic.Anthropic(api_key=api_key)
+        self.results = []
 
     def run(self):
         print(f"\n{'='*60}")
@@ -133,11 +188,10 @@ class Evaluator:
         print(f"Questions: {len(self.questions)}")
         print(f"Token budget per condition: {self.TOKEN_BUDGET}")
 
-        # Build graph from conversation
         graph, assembler, store = self._build_graph()
 
         for q in self.questions:
-            print(f"\n--- Level {q.level}: {q.description} ---")
+            print(f"\n--- L{q.level}: {q.description} ---")
             print(f"Q: {q.text}")
 
             result = {
@@ -147,11 +201,8 @@ class Evaluator:
                 "conditions":  {},
             }
 
-            # Run all three conditions
             for mode in ["graph", "baseline", "graph_only"]:
-                context = self._assemble_context(
-                    mode, assembler, store, graph, q.text
-                )
+                context = self._assemble_context(mode, assembler, store, graph, q.text)
                 answer  = self._ask(context, q.text)
                 score   = self._score(answer, q.key_concepts)
 
@@ -163,12 +214,12 @@ class Evaluator:
                 }
 
                 indicator = "✓" if score >= 0.5 else "~" if score >= 0.25 else "✗"
-                print(f"  {mode:12s} [{indicator}] score={score:.2f} "
-                      f"tokens={len(context.split())} "
-                      f"hits={self._key_hits(answer, q.key_concepts)}")
+                print(f"  {mode:12s} [{indicator}] score={score:.2f}  "
+                      f"tokens={len(context.split())}  "
+                      f"hits={self._key_hits(answer, q.key_concepts)}/{len(q.key_concepts)}")
 
             self.results.append(result)
-            time.sleep(0.5)  # rate limit courtesy
+            time.sleep(0.5)
 
         self._final_report()
         self._save()
@@ -180,11 +231,7 @@ class Evaluator:
     def _build_graph(self) -> tuple:
         graph     = ConceptGraph()
         store     = BackingStore()
-        assembler = ContextAssembler(
-            graph     = graph,
-            store     = store,
-            tokenizer = None,
-        )
+        assembler = ContextAssembler(graph=graph, store=store, tokenizer=None)
 
         for speaker, text in self.conversation:
             monitor = ConvergenceMonitor(max_passes=20, window=8)
@@ -212,63 +259,44 @@ class Evaluator:
                     graph._write_count += 1
 
     # -------------------------------------------------------------------
-    # Context assembly per condition
+    # Context assembly
     # -------------------------------------------------------------------
 
-    def _assemble_context(self, mode: str,
-                          assembler: ContextAssembler,
-                          store: BackingStore,
-                          graph: ConceptGraph,
+    def _assemble_context(self, mode: str, assembler: ContextAssembler,
+                          store: BackingStore, graph: ConceptGraph,
                           query: str) -> str:
         if mode == "graph":
-            return assembler.assemble_graph(
-                query        = query,
-                token_budget = self.TOKEN_BUDGET,
-            )
-
+            return assembler.assemble_graph(query=query, token_budget=self.TOKEN_BUDGET)
         elif mode == "baseline":
-            return assembler.assemble_baseline(
-                token_budget = self.TOKEN_BUDGET,
-            )
-
+            return assembler.assemble_baseline(token_budget=self.TOKEN_BUDGET)
         elif mode == "graph_only":
             return self._assemble_graph_only(graph, query)
-
         return ""
 
-    def _assemble_graph_only(self, graph: ConceptGraph,
-                             query: str) -> str:
+    def _assemble_graph_only(self, graph: ConceptGraph, query: str) -> str:
         """
-        Reconstruct context from graph structure alone.
-        Backing store is never touched.
-
-        This is the key test: if the model can answer from
-        this alone, meaning lives in the relational structure.
+        Relational structure alone — no backing store.
+        The core thesis test: if meaning is in the edges, this should work.
         """
-        parts = []
-        budget = self.TOKEN_BUDGET
+        parts  = []
 
-        # 1. Most mature stable nodes — the primitives
         stable = sorted(
             [n for n in graph.nodes.values() if not n.provisional],
             key=lambda n: -n.maturity
         )[:10]
 
         if stable:
-            primitive_line = "Core concepts: " + ", ".join(
+            parts.append("Core concepts: " + ", ".join(
                 f"{n.label}(maturity={n.maturity:.1f})"
                 for n in stable[:6]
-            )
-            parts.append(primitive_line)
+            ))
 
-        # 2. Key relationships between top nodes
-        top_ids = {n.id for n in stable[:8]}
-        key_edges = [
-            e for e in graph.edges.values()
-            if e.source in top_ids and e.target in top_ids
-               and e.weight > 0.5
-        ]
-        key_edges.sort(key=lambda e: -e.weight)
+        top_ids  = {n.id for n in stable[:8]}
+        key_edges = sorted(
+            [e for e in graph.edges.values()
+             if e.source in top_ids and e.target in top_ids and e.weight > 0.5],
+            key=lambda e: -e.weight
+        )
 
         if key_edges:
             rel_lines = []
@@ -283,12 +311,8 @@ class Evaluator:
             if rel_lines:
                 parts.append("Key relations: " + "; ".join(rel_lines))
 
-        # 3. Merge events — the aha moments
         if graph.merge_events:
-            significant = sorted(
-                graph.merge_events,
-                key=lambda e: -e.magnitude
-            )[:3]
+            significant = sorted(graph.merge_events, key=lambda e: -e.magnitude)[:3]
             merge_lines = []
             for event in significant:
                 node = graph.nodes.get(event.merged_into)
@@ -300,36 +324,31 @@ class Evaluator:
             if merge_lines:
                 parts.append("Insights: " + "; ".join(merge_lines))
 
-        # 4. Query-relevant nodes
-        query_labels = query.lower().split()
-        relevant = [
-            n for n in graph.nodes.values()
-            if any(w in n.label for w in query_labels
-                   if len(w) > 3)
-        ]
-        relevant.sort(key=lambda n: -n.maturity)
+        query_words = query.lower().split()
+        relevant = sorted(
+            [n for n in graph.nodes.values()
+             if any(w in n.label for w in query_words if len(w) > 3)],
+            key=lambda n: -n.maturity
+        )
         if relevant:
-            rel_concepts = "Query-relevant: " + ", ".join(
+            parts.append("Query-relevant: " + ", ".join(
                 f"{n.label}(deg={len(graph._get_neighbors(n.id))})"
                 for n in relevant[:6]
-            )
-            parts.append(rel_concepts)
+            ))
 
-        return "\n".join(parts)[:budget * 6]  # rough char budget
+        return "\n".join(parts)[:self.TOKEN_BUDGET * 6]
 
     # -------------------------------------------------------------------
     # Model call
     # -------------------------------------------------------------------
 
     def _ask(self, context: str, question: str) -> str:
-        """Ask the model a question given the context."""
         prompt = (
             f"The following is context from a conversation:\n\n"
             f"{context}\n\n"
             f"Based only on this context, answer concisely:\n"
             f"{question}"
         )
-
         try:
             response = self.client.messages.create(
                 model      = self.MODEL,
@@ -345,19 +364,12 @@ class Evaluator:
     # -------------------------------------------------------------------
 
     def _score(self, answer: str, key_concepts: list[str]) -> float:
-        """
-        Score answer by key concept coverage.
-        Simple but transparent — good for a paper.
-        """
         hits = self._key_hits(answer, key_concepts)
         return hits / len(key_concepts) if key_concepts else 0.0
 
     def _key_hits(self, answer: str, key_concepts: list[str]) -> int:
         answer_lower = answer.lower()
-        return sum(
-            1 for concept in key_concepts
-            if concept.lower() in answer_lower
-        )
+        return sum(1 for c in key_concepts if c.lower() in answer_lower)
 
     # -------------------------------------------------------------------
     # Reporting
@@ -368,8 +380,7 @@ class Evaluator:
         print(f"EVALUATION SUMMARY: {self.label}")
         print(f"{'='*60}")
 
-        # Scores by level and condition
-        levels = sorted(set(r["level"] for r in self.results))
+        levels     = sorted(set(r["level"] for r in self.results))
         conditions = ["graph", "baseline", "graph_only"]
 
         print(f"\n{'Level':<8}", end="")
@@ -383,88 +394,118 @@ class Evaluator:
             print(f"L{level:<7}", end="")
             for c in conditions:
                 scores = [r["conditions"][c]["score"]
-                          for r in level_results
-                          if c in r["conditions"]]
+                          for r in level_results if c in r["conditions"]]
                 mean = sum(scores) / len(scores) if scores else 0
-                indicator = "✓" if mean >= 0.5 else "~" if mean >= 0.25 else "✗"
-                print(f"{indicator} {mean:>10.2f}", end="")
+                ind  = "✓" if mean >= 0.5 else "~" if mean >= 0.25 else "✗"
+                print(f"{ind} {mean:>10.2f}", end="")
             print()
 
-        print()
-
-        # The key comparison
-        graph_total    = sum(
-            r["conditions"]["graph"]["score"]
-            for r in self.results
-        )
-        baseline_total = sum(
-            r["conditions"]["baseline"]["score"]
-            for r in self.results
-        )
-        graphonly_total = sum(
-            r["conditions"]["graph_only"]["score"]
-            for r in self.results
-        )
         n = len(self.results)
+        totals = {c: sum(r["conditions"][c]["score"] for r in self.results)
+                  for c in conditions}
 
-        print(f"Mean scores across all questions:")
-        print(f"  Graph + store:  {graph_total/n:.3f}")
-        print(f"  Baseline:       {baseline_total/n:.3f}")
-        print(f"  Graph only:     {graphonly_total/n:.3f}")
+        print(f"\nMean scores across all questions:")
+        for c in conditions:
+            print(f"  {c:14s}: {totals[c]/n:.3f}")
 
-        # The headline result
-        if graphonly_total > baseline_total:
+        if totals["graph_only"] > totals["baseline"]:
             print(f"\n*** Graph-only BEATS baseline "
-                  f"({graphonly_total/n:.3f} vs {baseline_total/n:.3f}) ***")
+                  f"({totals['graph_only']/n:.3f} vs {totals['baseline']/n:.3f}) ***")
             print("    Meaning is in the relational structure.")
-        elif graphonly_total >= baseline_total * 0.9:
+        elif totals["graph_only"] >= totals["baseline"] * 0.9:
             print(f"\n~ Graph-only matches baseline "
-                  f"({graphonly_total/n:.3f} vs {baseline_total/n:.3f})")
-            print("  Relational structure preserves most meaning.")
+                  f"({totals['graph_only']/n:.3f} vs {totals['baseline']/n:.3f})")
         else:
             print(f"\n  Baseline leads "
-                  f"({baseline_total/n:.3f} vs {graphonly_total/n:.3f})")
-            print("  Graph structure alone insufficient — "
-                  "backing store contributes.")
+                  f"({totals['baseline']/n:.3f} vs {totals['graph_only']/n:.3f})")
 
     def _save(self):
         os.makedirs("experiments", exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        path = f"experiments/eval_{self.label}_{timestamp}.json"
+        path      = f"experiments/eval_{self.label}_{timestamp}.json"
+
+        levels     = sorted(set(r["level"] for r in self.results))
+        conditions = ["graph", "baseline", "graph_only"]
+
+        by_level = {
+            str(lv): {
+                c: sum(r["conditions"][c]["score"]
+                       for r in self.results if r["level"] == lv
+                       and c in r["conditions"])
+                   / max(1, sum(1 for r in self.results if r["level"] == lv))
+                for c in conditions
+            }
+            for lv in levels
+        }
 
         output = {
             "metadata": {
-                "timestamp":   timestamp,
-                "label":       self.label,
-                "model":       self.MODEL,
+                "timestamp":    timestamp,
+                "label":        self.label,
+                "model":        self.MODEL,
                 "token_budget": self.TOKEN_BUDGET,
-                "questions":   len(self.questions),
+                "questions":    len(self.questions),
             },
             "results": self.results,
-            "summary": {
-                "by_level": {
-                    str(level): {
-                        c: sum(
-                            r["conditions"][c]["score"]
-                            for r in self.results
-                            if r["level"] == level
-                            and c in r["conditions"]
-                        ) / max(1, sum(
-                            1 for r in self.results
-                            if r["level"] == level
-                        ))
-                        for c in ["graph", "baseline", "graph_only"]
-                    }
-                    for level in sorted(set(
-                        r["level"] for r in self.results
-                    ))
-                }
-            },
+            "summary": {"by_level": by_level},
         }
 
         with open(path, "w") as f:
             json.dump(output, f, indent=2)
         print(f"\nResults saved to {path}")
+
+        # Also write LaTeX table
+        self._write_latex_table(by_level, path.replace(".json", "_table.tex"))
+
+    def _write_latex_table(self, by_level: dict, path: str):
+        """
+        Writes Table 4 from the paper directly as a LaTeX snippet.
+        Copy-paste into Section 5.4.
+        """
+        level_labels = {
+            "1": "L1 (direct retrieval)",
+            "2": "L2 (synthesis)",
+            "3": "L3 (inference)",
+            "4": "L4 (cross-domain)",
+        }
+        lines = [
+            r"\begin{table}[h]",
+            r"\centering",
+            rf"\caption{{QA evaluation scores by level and context condition — {self.label}}}",
+            r"\begin{tabular}{lccc}",
+            r"\toprule",
+            r"Level & Graph + store & Baseline & Graph only \\",
+            r"\midrule",
+        ]
+        for lv, label in level_labels.items():
+            if lv in by_level:
+                g  = by_level[lv].get("graph", 0)
+                b  = by_level[lv].get("baseline", 0)
+                go = by_level[lv].get("graph_only", 0)
+                lines.append(rf"{label} & {g:.2f} & {b:.2f} & {go:.2f} \\")
+            else:
+                lines.append(rf"{label} & --- & --- & --- \\")
+
+        # Overall row
+        all_levels = list(by_level.values())
+        if all_levels:
+            og  = sum(d.get("graph", 0)      for d in all_levels) / len(all_levels)
+            ob  = sum(d.get("baseline", 0)   for d in all_levels) / len(all_levels)
+            ogo = sum(d.get("graph_only", 0) for d in all_levels) / len(all_levels)
+            lines += [
+                r"\midrule",
+                rf"Overall & {og:.2f} & {ob:.2f} & {ogo:.2f} \\",
+            ]
+
+        lines += [
+            r"\bottomrule",
+            r"\end{tabular}",
+            r"\end{table}",
+        ]
+
+        with open(path, "w") as f:
+            f.write("\n".join(lines))
+        print(f"LaTeX table written to {path}")
 
 
 # -------------------------------------------------------------------
@@ -472,10 +513,8 @@ class Evaluator:
 # -------------------------------------------------------------------
 
 if __name__ == "__main__":
-    # Import conversations from experiment.py
     from experiment import CONVERSATION, CONVERSATION_CROSS_DOMAIN
 
-    # Run memory evaluation
     eval_memory = Evaluator(
         conversation = CONVERSATION,
         questions    = MEMORY_QUESTIONS,
@@ -483,9 +522,8 @@ if __name__ == "__main__":
     )
     eval_memory.run()
 
-    print("\n" + "="*60 + "\n")
+    print("\n" + "=" * 60 + "\n")
 
-    # Run cross-domain evaluation
     eval_cross = Evaluator(
         conversation = CONVERSATION_CROSS_DOMAIN,
         questions    = CROSS_DOMAIN_QUESTIONS,
