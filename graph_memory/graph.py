@@ -87,6 +87,14 @@ class ConceptGraph:
     SIMILARITY_THRESHOLD  = 0.85   # for concept matching (keep strict)
     HASH_WINDOW           = 8       # recent states for loop detection
 
+
+    @property
+    def maturity_threshold(self) -> float:
+        """Scale maturity threshold with graph size."""
+        base = 5.0
+        size_factor = max(1.0, len(self.nodes) / 60)
+        return base * (1.0 / size_factor ** 0.3)
+
     @property
     def merge_threshold(self) -> float:
         """
@@ -184,7 +192,7 @@ class ConceptGraph:
         # Update maturity and check for stabilization
         self._update_maturity(node_id)
         if self.nodes[node_id].provisional:
-            if self.nodes[node_id].maturity >= self.MATURITY_THRESHOLD:
+            if self.nodes[node_id].maturity >= self.maturity_threshold:
                 self._stabilize(node_id)
 
         if novelty:
