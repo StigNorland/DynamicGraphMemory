@@ -21,11 +21,11 @@ import json
 import tiktoken
 from datetime import datetime
 
-from src.graph      import ConceptGraph, NodeType, EdgeType
-from src.context    import ContextAssembler, BackingStore
-from src.convergence import ConvergenceMonitor, analyze_tension
+from library.graph      import ConceptGraph, NodeType, EdgeType
+from library.context    import ContextAssembler, BackingStore
+from library.convergence import ConvergenceMonitor, analyze_tension
 
-import src.graph as _g
+import library.graph as _g
 
 # -------------------------------------------------------------------
 # Synthetic conversation — memory as domain
