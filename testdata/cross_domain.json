@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "name": "cross_domain",
+    "description": "Dialogue that discusses neural network training for 10 turns, then introduces biological evolution as 'a completely different topic.' The two domains share deep structural equivalences never made explicit.",
+    "turns": 26,
+    "token_budget": 200,
+    "domain": "machine learning / evolutionary biology"
+  },
+  "conversation": [
+    ["user",      "How does a neural network actually learn?"],
+    ["assistant", "It makes predictions, measures how wrong they are, then adjusts its weights to be less wrong next time."],
+    ["user",      "What drives the adjustment?"],
+    ["assistant", "The error signal. The gradient tells each weight which direction to move to reduce the mistake."],
+    ["user",      "So it's just minimizing errors repeatedly?"],
+    ["assistant", "Exactly. Each iteration the network gets slightly better at the task it's being trained on."],
+    ["user",      "What if the adjustments are too large?"],
+    ["assistant", "It overshoots. The network becomes unstable, bouncing around without settling on a solution."],
+    ["user",      "And too small?"],
+    ["assistant", "It converges too slowly, or gets stuck in a local minimum and stops improving."],
+    ["user",      "Completely different topic — how does evolution work?"],
+    ["assistant", "Organisms vary randomly. Those better suited to their environment survive and reproduce more."],
+    ["user",      "What creates the variation?"],
+    ["assistant", "Mutation mostly. Random changes to the genome that get passed to offspring."],
+    ["user",      "Most mutations are harmful though?"],
+    ["assistant", "Yes. But occasionally one improves survival. That variant spreads through the population."],
+    ["user",      "What determines if a variant spreads?"],
+    ["assistant", "Selection pressure. How harsh the environment is, how much the trait helps, how fast generations turn over."],
+    ["user",      "So the environment is doing the selecting?"],
+    ["assistant", "The environment defines what counts as fit. Fitness has no meaning outside that context."],
+    ["user",      "What happens when the environment changes?"],
+    ["assistant", "The population has to adapt or die. Traits that were advantageous can become liabilities."],
+    ["user",      "Is there such a thing as evolving too fast?"],
+    ["assistant", "Yes — too much mutation destroys the information accumulated by previous generations."],
+    ["user",      "And too slow?"],
+    ["assistant", "The population can't adapt to environmental shifts. It gets locked into solutions that no longer fit."],
+    ["user",      "That sounds familiar somehow."],
+    ["assistant", "Most deep patterns do, once you see them."]
+  ],
+  "questions": [
+    {
+      "text": "What controls the size of each weight adjustment in neural network training?",
+      "key_concepts": ["learning rate", "rate"],
+      "level": 1,
+      "description": "Direct retrieval — stated in turn 4"
+    },
+    {
+      "text": "What happens when a population cannot adapt fast enough to environmental change?",
+      "key_concepts": ["extinct", "extinction"],
+      "level": 1,
+      "description": "Direct retrieval — stated in turn 21"
+    },
+    {
+      "text": "What do learning rate and mutation rate have in common?",
+      "key_concepts": ["rate", "change", "control", "variation"],
+      "level": 2,
+      "description": "Synthesis — requires connecting ML and evolution domains"
+    },
+    {
+      "text": "How does overfitting in neural networks relate to evolutionary traps?",
+      "key_concepts": ["stuck", "trap", "memoris", "suboptimal", "local"],
+      "level": 2,
+      "description": "Synthesis — cross-domain structural equivalence"
+    },
+    {
+      "text": "Why might a neural network and a species both get permanently stuck?",
+      "key_concepts": ["minimum", "trap", "environment", "adapt", "solution"],
+      "level": 3,
+      "description": "Inference — requires cross-domain structural equivalence"
+    },
+    {
+      "text": "If the training environment defines the task and the environment defines fitness, what is the evolutionary equivalent of a loss function?",
+      "key_concepts": ["fitness", "select", "environment", "survival", "adapt"],
+      "level": 3,
+      "description": "Inference — loss function ≈ inverse fitness"
+    },
+    {
+      "text": "Is evolution a kind of learning? Make the case.",
+      "key_concepts": ["same", "analog", "equivalent", "both", "process"],
+      "level": 4,
+      "description": "Cross-domain synthesis — the core aha moment question"
+    },
+    {
+      "text": "What concept plays the same structural role in both topics we discussed?",
+      "key_concepts": ["environment", "pressure", "selection", "error", "signal"],
+      "level": 4,
+      "description": "Cross-domain primitive — tests whether environment was found"
+    }
+  ]
+}
