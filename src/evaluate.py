@@ -25,9 +25,9 @@ from pathlib import Path
 
 import anthropic
 
-from graph_memory.graph       import ConceptGraph
-from graph_memory.context     import ContextAssembler, BackingStore
-from graph_memory.convergence import ConvergenceMonitor
+from src.graph       import ConceptGraph, NodeType, EdgeType
+from src.context     import ContextAssembler, BackingStore
+from src.convergence import ConvergenceMonitor
 
 
 # -------------------------------------------------------------------
@@ -131,7 +131,10 @@ class Evaluator:
 
         graph, assembler, store = self._build_graph()
 
-        for q in self.testcase.questions:
+        total_questions = len(self.testcase.questions)
+        api_times = []
+
+        for qi, q in enumerate(self.testcase.questions, 1):
             print(f"\n--- L{q.level}: {q.description} ---")
             print(f"Q: {q.text}")
 
@@ -144,7 +147,9 @@ class Evaluator:
 
             for mode in ["graph", "baseline", "graph_only"]:
                 ctx    = self._assemble_context(mode, assembler, store, graph, q.text)
+                t0     = time.perf_counter()
                 answer = self._ask(ctx, q.text)
+                api_times.append(time.perf_counter() - t0)
                 score  = self._score(answer, q.key_concepts)
                 hits   = self._key_hits(answer, q.key_concepts)
 
@@ -158,10 +163,21 @@ class Evaluator:
                 ind = "✓" if score >= 0.5 else "~" if score >= 0.25 else "✗"
                 print(f"  {mode:12s} [{ind}] score={score:.2f}  "
                       f"tokens={len(ctx.split())}  "
-                      f"hits={hits}/{len(q.key_concepts)}")
+                      f"hits={hits}/{len(q.key_concepts)}  "
+                      f"({api_times[-1]:.1f}s API)")
 
             self.results.append(result)
             time.sleep(0.5)
+
+        # Timing breakdown — so users understand where time goes
+        n_calls = len(api_times)
+        api_total = sum(api_times)
+        print(f"\n{'─'*60}")
+        print(f"Timing breakdown ({total_questions} questions × 3 conditions = {n_calls} API calls):")
+        print(f"  API calls:      {api_total:6.1f}s  ({api_total/n_calls:.1f}s avg per call)")
+        print(f"  Sleep pauses:   {total_questions * 0.5:6.1f}s  (rate-limit courtesy, 0.5s/question)")
+        print(f"  Graph + other:  remainder")
+        print(f"  Note: slowness is API latency, not graph construction or Python.")
 
     # -------------------------------------------------------------------
     # Graph building
@@ -172,6 +188,7 @@ class Evaluator:
         store     = BackingStore()
         assembler = ContextAssembler(graph=graph, store=store, tokenizer=None)
 
+        t0 = time.perf_counter()
         for speaker, text in self.testcase.conversation:
             monitor = ConvergenceMonitor(max_passes=20, window=8)
             assembler.ingest(speaker, text)
@@ -180,8 +197,9 @@ class Evaluator:
                 self._propagation_pass(graph)
                 status = graph.end_pass()
                 monitor.record(status)
+        graph_time = time.perf_counter() - t0
 
-        print(f"\nGraph: {len(graph.nodes)} nodes, "
+        print(f"\nGraph built in {graph_time:.2f}s: {len(graph.nodes)} nodes, "
               f"{len(graph.edges)} edges, "
               f"{len(graph.merge_events)} merges")
         return graph, assembler, store

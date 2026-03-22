@@ -16,7 +16,7 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
-from graph_memory.graph import ConceptGraph, NodeType, EdgeType
+from src.graph import ConceptGraph, NodeType, EdgeType
 
 # ---------------------------------------------------------------------------
 # Typed-triple extractor (replaces stopword filter)
