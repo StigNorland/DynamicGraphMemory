@@ -25,16 +25,16 @@ from pathlib import Path
 
 import anthropic
 
-from src.graph       import ConceptGraph, NodeType, EdgeType
-from src.context     import ContextAssembler, BackingStore
-from src.convergence import ConvergenceMonitor
+from library.graph       import ConceptGraph, NodeType, EdgeType
+from library.context     import ContextAssembler, BackingStore
+from library.convergence import ConvergenceMonitor
 
 
 # -------------------------------------------------------------------
 # Test data loading
 # -------------------------------------------------------------------
 
-TESTDATA_DIR = Path(__file__).parent / "testdata"
+TESTDATA_DIR = Path(__file__).parent.parent / "testdata"
 
 
 @dataclass
@@ -102,15 +102,41 @@ class Evaluator:
     Runs a single TestCase against three context conditions.
     Uses Claude Sonnet 4 (temperature 0) as the answering model.
     Token budget is read from the testcase (set in testdata JSON metadata).
+
+    Optional upgrades:
+      use_llm_extraction=True  — LLM-assisted triple + property extraction
+                                  per turn (llm_extractor.py). Richer relation
+                                  types + numerical facts in the graph.
+      use_rich_payloads=True   — One-time LLM synthesis pass per mature node
+                                  (payload.py). Injects canonical_summaries
+                                  and fact_dicts into graph-only context.
+                                  Expected to lift graph-only L1 scores
+                                  significantly.
+      use_field=True           — Bioelectric field layer (field.py).
+                                  Levin-inspired holographic distributed memory.
+                                  Each mature node stores a local projection of
+                                  a global TF-IDF field. Graph-only assembly
+                                  reconstructs dominant themes from any
+                                  fragment of nodes.
+
+    Both flags default to False for backwards-compatibility. When enabled,
+    timing output reports extra API calls separately so users understand cost.
     """
 
     MODEL         = "claude-sonnet-4-20250514"
     ANSWER_TOKENS = 150
     TEMPERATURE   = 0
 
-    def __init__(self, testcase: TestCase):
-        self.testcase     = testcase
-        self.TOKEN_BUDGET = testcase.token_budget
+    def __init__(self, testcase: TestCase,
+                 use_llm_extraction: bool = False,
+                 use_rich_payloads:  bool = False,
+                 use_field:          bool = False):
+        self.testcase            = testcase
+        self.TOKEN_BUDGET        = testcase.token_budget
+        self.use_llm_extraction  = use_llm_extraction
+        self.use_rich_payloads   = use_rich_payloads
+        self.use_field           = use_field
+
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
             raise ValueError(
@@ -121,12 +147,18 @@ class Evaluator:
         self.results = []
 
     def run(self) -> dict:
+        upgrades = []
+        if self.use_llm_extraction: upgrades.append("llm-extraction")
+        if self.use_rich_payloads:  upgrades.append("rich-payloads")
+        if self.use_field:          upgrades.append("field")
+        upgrade_str = f"  upgrades: [{', '.join(upgrades)}]" if upgrades else ""
+
         print(f"\n{'='*60}")
         print(f"EVALUATION: {self.testcase.name}")
         print(f"  {self.testcase.description}")
         print(f"  {len(self.testcase.conversation)} turns  |  "
               f"{len(self.testcase.questions)} questions  |  "
-              f"budget {self.TOKEN_BUDGET} tokens")
+              f"budget {self.TOKEN_BUDGET} tokens{upgrade_str}")
         print(f"{'='*60}")
 
         graph, assembler, store = self._build_graph()
@@ -170,13 +202,27 @@ class Evaluator:
             time.sleep(0.5)
 
         # Timing breakdown — so users understand where time goes
-        n_calls = len(api_times)
+        n_calls   = len(api_times)
         api_total = sum(api_times)
         print(f"\n{'─'*60}")
         print(f"Timing breakdown ({total_questions} questions × 3 conditions = {n_calls} API calls):")
-        print(f"  API calls:      {api_total:6.1f}s  ({api_total/n_calls:.1f}s avg per call)")
-        print(f"  Sleep pauses:   {total_questions * 0.5:6.1f}s  (rate-limit courtesy, 0.5s/question)")
-        print(f"  Graph + other:  remainder")
+        print(f"  Answer API calls:  {api_total:6.1f}s  ({api_total/n_calls:.1f}s avg per call)")
+        print(f"  Sleep pauses:      {total_questions * 0.5:6.1f}s  (rate-limit courtesy)")
+        if self.use_rich_payloads or self.use_llm_extraction or self.use_field:
+            synth = getattr(assembler, '_payload_synth', None)
+            extr  = getattr(assembler, '_llm_extractor', None)
+            field = getattr(assembler, '_field', None)
+            if synth:
+                print(f"  Payload synthesis: {synth.stats['calls']} calls  "
+                      f"({synth.stats['errors']} errors)")
+            if extr:
+                print(f"  LLM extraction:    {extr.stats['calls']} calls  "
+                      f"({extr.stats['errors']} errors)")
+            if field:
+                fs = field.stats()
+                print(f"  Field layer:       vocab={fs['vocab_size']}  "
+                      f"projected={fs['n_projected']}  "
+                      f"norm={fs['field_norm']}")
         print(f"  Note: slowness is API latency, not graph construction or Python.")
 
     # -------------------------------------------------------------------
@@ -186,22 +232,40 @@ class Evaluator:
     def _build_graph(self) -> tuple:
         graph     = ConceptGraph()
         store     = BackingStore()
-        assembler = ContextAssembler(graph=graph, store=store, tokenizer=None)
+        assembler = ContextAssembler(
+            graph               = graph,
+            store               = store,
+            tokenizer           = None,
+            llm_client          = self.client,
+            use_llm_extraction  = self.use_llm_extraction,
+            use_rich_payloads   = self.use_rich_payloads,
+            use_field           = self.use_field,
+        )
 
         t0 = time.perf_counter()
-        for speaker, text in self.testcase.conversation:
-            monitor = ConvergenceMonitor(max_passes=20, window=8)
-            assembler.ingest(speaker, text)
-            while monitor.should_continue():
-                graph.begin_pass()
-                self._propagation_pass(graph)
-                status = graph.end_pass()
-                monitor.record(status)
-        graph_time = time.perf_counter() - t0
+        monitor = ConvergenceMonitor(max_passes=20, window=8)  # once, outside
 
+        for i, (speaker, text) in enumerate(self.testcase.conversation):
+            assembler.ingest(speaker, text)
+            # one propagation pass per turn, not 20
+            graph.begin_pass()
+            self._propagation_pass(graph)
+            status = graph.end_pass()
+            monitor.record(status)
+            print(f"  turn {i+1:3d}  nodes={len(graph.nodes)}  edges={len(graph.edges)}  status={status}")
+
+        # final convergence sweep after all turns ingested
+        while monitor.should_continue():
+            graph.begin_pass()
+            self._propagation_pass(graph)
+            status = graph.end_pass()
+            monitor.record(status)
+
+        n_payloads = sum(1 for n in graph.nodes.values() if "payload" in n.meta)
         print(f"\nGraph built in {graph_time:.2f}s: {len(graph.nodes)} nodes, "
               f"{len(graph.edges)} edges, "
-              f"{len(graph.merge_events)} merges")
+              f"{len(graph.merge_events)} merges"
+              + (f", {n_payloads} payloads" if self.use_rich_payloads else ""))
         return graph, assembler, store
 
     def _propagation_pass(self, graph: ConceptGraph):
@@ -226,6 +290,10 @@ class Evaluator:
         if mode == "baseline":
             return assembler.assemble_baseline(token_budget=self.TOKEN_BUDGET)
         if mode == "graph_only":
+            # Use the upgraded assembler method when rich payloads are enabled
+            if self.use_rich_payloads and hasattr(assembler, 'assemble_graph_only'):
+                return assembler.assemble_graph_only(query=query,
+                                                     token_budget=self.TOKEN_BUDGET)
             return self._graph_only_context(graph, query)
         return ""
 
@@ -328,9 +396,9 @@ class Evaluator:
         by_level   = {
             str(lv): {
                 c: (
-                        sum(r["conditions"][c]["score"]
-                            for r in self.results if r["level"] == lv)
-                        / max(1, sum(1 for r in self.results if r["level"] == lv))
+                    sum(r["conditions"][c]["score"]
+                        for r in self.results if r["level"] == lv)
+                    / max(1, sum(1 for r in self.results if r["level"] == lv))
                 )
                 for c in conditions
             }
@@ -380,13 +448,16 @@ class Evaluator:
 
         output = {
             "metadata": {
-                "timestamp":    ts,
-                "name":         self.testcase.name,
-                "model":        self.MODEL,
-                "temperature":  self.TEMPERATURE,
-                "token_budget": self.TOKEN_BUDGET,
-                "questions":    len(self.testcase.questions),
-                "turns":        len(self.testcase.conversation),
+                "timestamp":           ts,
+                "name":                self.testcase.name,
+                "model":               self.MODEL,
+                "temperature":         self.TEMPERATURE,
+                "token_budget":        self.TOKEN_BUDGET,
+                "questions":           len(self.testcase.questions),
+                "turns":               len(self.testcase.conversation),
+                "use_llm_extraction":  self.use_llm_extraction,
+                "use_rich_payloads":   self.use_rich_payloads,
+                "use_field":           self.use_field,
             },
             "results": self.results,
             "summary": summary,
@@ -446,10 +517,54 @@ class Evaluator:
 # -------------------------------------------------------------------
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="RGM QA Evaluation — runs all testdata/*.json files"
+    )
+    parser.add_argument(
+        "--rich", action="store_true",
+        help="Enable rich payload synthesis (use_rich_payloads=True). "
+             "Runs a one-shot LLM synthesis call per mature node. "
+             "Expected to lift graph-only L1 scores significantly."
+    )
+    parser.add_argument(
+        "--field", action="store_true",
+        help="Enable bioelectric field layer (use_field=True). "
+             "Levin-inspired holographic memory: each mature node stores a "
+             "local projection of a global TF-IDF field. Graph-only assembly "
+             "reconstructs dominant themes from any fragment of nodes. "
+             "Pure stdlib — no API calls, no external dependencies."
+    )
+    parser.add_argument(
+        "--llm-extract", action="store_true",
+        help="Enable LLM-assisted triple extraction (use_llm_extraction=True). "
+             "Augments spaCy with a per-turn LLM call for richer relation types "
+             "and numerical facts."
+    )
+    parser.add_argument(
+        "--testcase", type=str, default=None,
+        help="Run only a specific testcase by name (e.g. 'memory'). "
+             "Default: run all."
+    )
+    args = parser.parse_args()
+
     testcases = load_all_testcases()
+    if args.testcase:
+        testcases = [tc for tc in testcases if tc.name == args.testcase]
+        if not testcases:
+            print(f"No testcase named '{args.testcase}' found.")
+            raise SystemExit(1)
+
     for tc in testcases:
-        ev = Evaluator(tc)
+        ev = Evaluator(
+            tc,
+            use_llm_extraction = args.llm_extract,
+            use_rich_payloads  = args.rich,
+            use_field          = args.field,
+        )
         ev.run()
         ev.save()
         print()
+
     print(f"Done. Results saved to experiments/")
