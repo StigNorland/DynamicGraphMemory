@@ -11,6 +11,7 @@ _get_neighbors() is O(degree) rather than O(|edges|). This gives
 Authors: Stig Norland, Claude (Anthropic)
 """
 
+import math
 import hashlib
 import json
 from collections import defaultdict
@@ -365,7 +366,7 @@ class ConceptGraph:
         node = self.nodes[node_id]
         candidates = [
             n for n in self.nodes.values()
-            if not n.provisional        # maturity gate: must be stable
+            if not n.provisional
                and n.id != node_id
                and n.node_type == node.node_type
         ]
