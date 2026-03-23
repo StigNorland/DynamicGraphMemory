@@ -261,6 +261,7 @@ class Evaluator:
             status = graph.end_pass()
             monitor.record(status)
 
+        graph_time = time.perf_counter() - t0
         n_payloads = sum(1 for n in graph.nodes.values() if "payload" in n.meta)
         print(f"\nGraph built in {graph_time:.2f}s: {len(graph.nodes)} nodes, "
               f"{len(graph.edges)} edges, "
