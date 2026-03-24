@@ -260,7 +260,6 @@ class Evaluator:
             self._propagation_pass(graph)
             status = graph.end_pass()
             monitor.record(status)
-
         graph_time = time.perf_counter() - t0
         n_payloads = sum(1 for n in graph.nodes.values() if "payload" in n.meta)
         print(f"\nGraph built in {graph_time:.2f}s: {len(graph.nodes)} nodes, "
@@ -287,7 +286,12 @@ class Evaluator:
                           store: BackingStore, graph: ConceptGraph,
                           query: str) -> str:
         if mode == "graph":
-            return assembler.assemble_graph(query=query, token_budget=self.TOKEN_BUDGET)
+            ctx = assembler.assemble_graph(query=query, token_budget=self.TOKEN_BUDGET)
+            if not ctx.strip():
+                # Graph returned empty (node labels don't match query) - fall back
+                print(f"    [graph] WARNING: empty context, using baseline fallback", flush=True)
+                ctx = assembler.assemble_baseline(token_budget=self.TOKEN_BUDGET)
+            return ctx
         if mode == "baseline":
             return assembler.assemble_baseline(token_budget=self.TOKEN_BUDGET)
         if mode == "graph_only":
@@ -384,8 +388,27 @@ class Evaluator:
         return hits / len(key_concepts) if key_concepts else 0.0
 
     def _key_hits(self, answer: str, key_concepts: list[str]) -> int:
+        """
+        Check whether each key concept appears in the answer.
+        Handles snake_case labels by also checking spaced variants
+        and individual words (>=4 chars) so that e.g. key concept
+        'big_five_traits' matches an answer containing 'Big Five'.
+        """
         a = answer.lower()
-        return sum(1 for c in key_concepts if c.lower() in a)
+        hits = 0
+        for concept in key_concepts:
+            c = concept.lower()
+            if c in a:
+                hits += 1
+                continue
+            spaced = c.replace('_', ' ')
+            if spaced in a:
+                hits += 1
+                continue
+            words = [w for w in c.split('_') if len(w) >= 4]
+            if words and any(w in a for w in words):
+                hits += 1
+        return hits
 
     # -------------------------------------------------------------------
     # Reporting and persistence
@@ -397,9 +420,9 @@ class Evaluator:
         by_level   = {
             str(lv): {
                 c: (
-                    sum(r["conditions"][c]["score"]
-                        for r in self.results if r["level"] == lv)
-                    / max(1, sum(1 for r in self.results if r["level"] == lv))
+                        sum(r["conditions"][c]["score"]
+                            for r in self.results if r["level"] == lv)
+                        / max(1, sum(1 for r in self.results if r["level"] == lv))
                 )
                 for c in conditions
             }

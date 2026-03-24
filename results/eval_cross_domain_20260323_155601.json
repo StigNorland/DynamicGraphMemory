@@ -1,0 +1,245 @@
+{
+  "metadata": {
+    "timestamp": "20260323_155601",
+    "name": "cross_domain",
+    "model": "claude-sonnet-4-20250514",
+    "temperature": 0,
+    "token_budget": 200,
+    "questions": 8,
+    "turns": 28,
+    "use_llm_extraction": false,
+    "use_rich_payloads": true,
+    "use_field": true
+  },
+  "results": [
+    {
+      "question": "What controls the size of each weight adjustment in neural network training?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 stated in turn 4",
+      "conditions": {
+        "graph": {
+          "context_tokens": 200,
+          "answer": "Based on the context, the gradient controls the size of each weight adjustment. The conversation mentions \"The gradient tells each weight which direction to move to reduce the mistake.\"",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 188,
+          "answer": "Based only on the provided context, I cannot answer what controls the size of each weight adjustment in neural network training. The conversation is entirely about biological evolution and doesn't mention neural networks, weight adjustments, or machine learning concepts.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 153,
+          "answer": "Based on the context provided, the size of each weight adjustment in neural network training is controlled by the **gradient** and the **gradient descent** process. \n\nThe context shows that weight_optimization is directly related to \"gradient_descent\" and \"gradient,\" and gradient_descent is connected to \"weight_optimization\" and \"backpropagation.\" The gradient (calculated through backpropagation) determines both the direction and magnitude of weight adjustments during the optimization process.",
+          "score": 0.0,
+          "key_hits": 0
+        }
+      }
+    },
+    {
+      "question": "What happens when a population cannot adapt fast enough to environmental change?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 stated in turn 21",
+      "conditions": {
+        "graph": {
+          "context_tokens": 198,
+          "answer": "Based on the context, when a population cannot adapt fast enough to environmental change, \"The population has to adapt or die\" and \"The population can't adapt to environmental shifts. It gets locked into solutions that no longer fit.\"\n\nSo the population dies if it cannot adapt quickly enough to the changing environment.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 188,
+          "answer": "Based on the context, when a population cannot adapt fast enough to environmental change, it gets locked into solutions that no longer fit and faces the prospect of dying out.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 151,
+          "answer": "Based on the context provided, when a population cannot adapt fast enough to environmental change, the system becomes \"stuck\" - one of the dominant themes mentioned in the field reconstruction. \n\nThe context shows that adaptation is closely linked to genetic_variation, mutation, and natural_selection, while environmental_change creates selective_pressure on evolutionary_fitness. When the rate of environmental change exceeds the population's adaptive capacity through these mechanisms, the population would face reduced fitness and potentially fail to maintain viable trait combinations in the gene_pool.\n\nThe analogy to gradient_descent suggests that like an optimization algorithm that can get \"stuck\" in local minima when the learning rate is mismatched to the problem landscape, populations may become trapped in sub",
+          "score": 0.0,
+          "key_hits": 0
+        }
+      }
+    },
+    {
+      "question": "What do learning rate and mutation rate have in common?",
+      "level": 2,
+      "description": "Synthesis \u2014 requires connecting ML and evolution domains",
+      "conditions": {
+        "graph": {
+          "context_tokens": 200,
+          "answer": "Based on the context, both learning rate and mutation rate can cause instability if set too high - the learning rate makes the neural network \"overshoot\" and become unstable, while too much mutation \"destroys the information accumulated by previous generations.\"",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 188,
+          "answer": "Both can be too high (destroying accumulated information/learning) or too low (preventing adaptation to new conditions). They represent the same fundamental tradeoff between stability and adaptability.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 153,
+          "answer": "Based on the context provided, learning rate and mutation rate both appear to be **parameter tuning mechanisms that control the rate of change** in their respective optimization processes.\n\nFrom the context:\n- **Mutation rate** (deg=3, mat=2.8) is connected to mutation, which drives adaptation and fitness in evolutionary processes\n- **Learning rate** would be related to gradient_descent and weight_optimization (mat=8.4), controlling how much parameters change during neural network training\n\nThe dominant themes of \"drives, random, overshoots, stuck, becomes\" suggest both rates face similar challenges: if set too high, they cause overshooting and instability; if too low, the system gets stuck and",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "How does overfitting in neural networks relate to evolutionary traps?",
+      "level": 2,
+      "description": "Synthesis \u2014 cross-domain structural equivalence",
+      "conditions": {
+        "graph": {
+          "context_tokens": 198,
+          "answer": "Based on the context provided, I cannot determine how overfitting in neural networks relates to evolutionary traps. The conversation fragments discuss evolution and neural network learning separately, but don't make any explicit connections between overfitting and evolutionary traps.",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 188,
+          "answer": "Based on the context, both involve getting \"locked into solutions that no longer fit\" when conditions change. Overfitting is like evolving too specifically for one environment (training data) - the model becomes too specialized and can't adapt to new situations, just as populations can become trapped in evolutionary solutions that worked before but fail when the environment shifts.",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 153,
+          "answer": "Based on the context provided, both overfitting in neural networks and evolutionary traps represent scenarios where optimization processes become \"stuck\" in suboptimal solutions.\n\nIn neural networks, overfitting occurs when gradient descent and weight optimization become too specialized to training data, creating a local optimum that doesn't generalize well. The system \"overshoots\" optimal generalization.\n\nSimilarly, evolutionary traps occur when natural selection drives populations toward fitness peaks on the fitness_landscape that are locally optimal but globally suboptimal. The population becomes constrained by its current genetic_variation and cannot easily escape to better solutions.\n\nBoth phenomena illustrate how optimization mechanisms (gradient descent vs. natural selection) can lead systems into configurations where further improvement",
+          "score": 0.8,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "Why might a neural network and a species both get permanently stuck?",
+      "level": 3,
+      "description": "Inference \u2014 requires cross-domain structural equivalence",
+      "conditions": {
+        "graph": {
+          "context_tokens": 200,
+          "answer": "Based on the context, both can get stuck when they become too specialized for their current situation and can't adapt when conditions change. A neural network might get trapped in a local minimum (overshooting and becoming unstable), while a species might have traits that become liabilities when the environment changes, forcing them to \"adapt or die.\"",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 188,
+          "answer": "Both can get trapped in local optima - solutions that work well enough in their current context but prevent them from reaching better solutions. The neural network gets stuck in local minima during training, while the species gets locked into traits that worked in past environments but can't adapt when conditions change.",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "graph_only": {
+          "context_tokens": 153,
+          "answer": "Based on the context, both neural networks and species can get permanently stuck due to similar optimization challenges:\n\n**Neural networks** can get stuck when gradient descent finds local minima in the fitness landscape - the algorithm converges to suboptimal weight configurations where small changes don't improve performance, even though better solutions exist elsewhere.\n\n**Species** can get stuck when natural selection drives them into evolutionary dead ends - populations become trapped by their current genetic variations and fitness constraints, unable to access better adaptations that would require crossing through less-fit intermediate states.\n\nBoth systems face the fundamental problem of local optimization: they improve incrementally from their current state but cannot make the \"leap\" to dramatically different but superior configurations, becoming permanently trapped in subopt",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "If the training environment defines the task and the environment defines fitness, what is the evolutionary equivalent of a loss function?",
+      "level": 3,
+      "description": "Inference \u2014 loss function \u2248 inverse fitness",
+      "conditions": {
+        "graph": {
+          "context_tokens": 200,
+          "answer": "Based on the context, the evolutionary equivalent of a loss function would be survival and reproductive success in the environment. Just as a neural network minimizes prediction errors, evolution \"minimizes\" traits that reduce an organism's ability to survive and reproduce, with the environment determining what constitutes success or failure.",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 188,
+          "answer": "Selection pressure - it measures how well variants perform in the environment and determines which ones survive to reproduce.",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 151,
+          "answer": "Based on the context, the evolutionary equivalent of a loss function would be **fitness** or the **fitness landscape**.\n\nJust as a loss function measures how far a neural network's performance is from the desired outcome in a training environment, fitness measures how well an organism performs in its environment. The context shows fitness is related to \"trait_fitness\" and \"fitness_landscape,\" and connects to mutation and adaptation - indicating it serves as the measure that drives evolutionary optimization, analogous to how loss functions drive gradient descent optimization.",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "Is evolution a kind of learning? Make the case.",
+      "level": 4,
+      "description": "Cross-domain synthesis \u2014 the core aha moment question",
+      "conditions": {
+        "graph": {
+          "context_tokens": 198,
+          "answer": "Based on this context, yes - evolution appears to be a kind of learning system.\n\nThe parallels are clear:\n\n**Both minimize errors through feedback**: Neural networks \"measure how wrong they are, then adjust\" while evolution eliminates variants that don't survive - both use error signals to improve.\n\n**Both use iterative refinement**: Networks adjust weights repeatedly to \"be less wrong next time,\" while evolution continuously selects better-suited variants over generations.\n\n**Both adapt to environmental feedback**: The network learns from training data while \"the environment is doing the selecting\" in evolution - both systems improve performance based on external criteria.\n\n**Both balance exploration and exploitation**: Networks adjust based on gradients while evolution generates random mutations, then",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 188,
+          "answer": "Yes. Evolution is learning at the species level:\n\n- **Information storage**: Genomes encode \"knowledge\" about what works in an environment\n- **Trial and error**: Random mutations test new solutions\n- **Feedback mechanism**: Selection pressure provides \"grades\" - survival/reproduction rates\n- **Memory**: Successful adaptations are retained and passed down\n- **Forgetting**: Harmful traits are eliminated over time\n- **Overfitting risk**: Too much change destroys accumulated wisdom\n- **Underfitting risk**: Too little change fails to adapt to new conditions\n\nThe population collectively \"learns\" how to survive in its environment through the same basic process as other learning systems - generate variations, test them,",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 153,
+          "answer": "Based on this context, yes - evolution can be viewed as a kind of learning system. Here's the case:\n\n**Structural Parallels:**\n- Both evolution and neural networks use **optimization processes**: natural selection parallels gradient descent, both seeking better solutions through iterative improvement\n- **Variation and selection**: Evolution uses genetic variation + natural selection; neural networks use weight variations + gradient-based selection of better parameters\n- **Fitness landscapes**: Evolution optimizes organism fitness; neural networks optimize loss functions - both navigate solution spaces\n\n**Learning Mechanisms:**\n- **Adaptation** (highest maturity at 10.5) connects to both genetic processes and environmental learning\n- **Weight optimization** and **learning mechanisms",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "What concept plays the same structural role in both topics we discussed?",
+      "level": 4,
+      "description": "Cross-domain primitive \u2014 tests whether environment was found",
+      "conditions": {
+        "graph": {
+          "context_tokens": 188,
+          "answer": "Based on the context provided, I can see that evolution was discussed, but I don't have information about what the first topic was that you're comparing it to. The conversation starts with \"Completely different topic \u2014 how does evolution work?\" which suggests there was a previous topic, but that earlier discussion isn't included in the context you've given me.\n\nWithout knowing what the first topic was, I can't identify what concept plays the same structural role in both topics.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 188,
+          "answer": "Based on the context provided, I can see that evolution was discussed, but I don't have information about what the first topic was that you're comparing it to. The conversation starts with \"Completely different topic \u2014 how does evolution work?\" which suggests there was a previous topic, but that earlier discussion isn't included in the context you've given me.\n\nWithout knowing what the first topic was, I can't identify what concept plays the same structural role in both topics.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 140,
+          "answer": "Based on the context, **variation** plays the same structural role in both topics. \n\nIn evolutionary biology, it appears as \"genetic_variation\" and \"organism_variation\" - providing the raw material that natural selection acts upon for adaptation.\n\nIn neural networks, variation manifests in the iterative changes to weights during gradient descent and backpropagation, providing the mechanism for learning and optimization.\n\nBoth represent the essential variability that drives improvement processes in their respective domains.",
+          "score": 0.2,
+          "key_hits": 1
+        }
+      }
+    }
+  ],
+  "summary": {
+    "by_level": {
+      "1": {
+        "graph": 0.0,
+        "baseline": 0.0,
+        "graph_only": 0.0
+      },
+      "2": {
+        "graph": 0.225,
+        "baseline": 0.1,
+        "graph_only": 0.775
+      },
+      "3": {
+        "graph": 0.6000000000000001,
+        "baseline": 0.6000000000000001,
+        "graph_only": 0.6
+      },
+      "4": {
+        "graph": 0.1,
+        "baseline": 0.2,
+        "graph_only": 0.30000000000000004
+      }
+    },
+    "overall": {
+      "graph": 0.23125,
+      "baseline": 0.225,
+      "graph_only": 0.41875
+    }
+  }
+}

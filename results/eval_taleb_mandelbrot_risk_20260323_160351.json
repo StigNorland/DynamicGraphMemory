@@ -1,0 +1,345 @@
+{
+  "metadata": {
+    "timestamp": "20260323_160351",
+    "name": "taleb_mandelbrot_risk",
+    "model": "claude-sonnet-4-20250514",
+    "temperature": 0,
+    "token_budget": 600,
+    "questions": 12,
+    "turns": 11,
+    "use_llm_extraction": false,
+    "use_rich_payloads": true,
+    "use_field": true
+  },
+  "results": [
+    {
+      "question": "What are Taleb's four main pillars of critique against modern risk models?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 listed in turn 2",
+      "conditions": {
+        "graph": {
+          "context_tokens": 578,
+          "answer": "Based on the context provided, I cannot identify Taleb's \"four main pillars of critique\" as a specific framework, since this exact formulation isn't mentioned in the conversation. \n\nHowever, from the discussion, I can identify key elements of Taleb's critique of modern risk models:\n\n1. **Gaussian assumption fallacy** - Standard models wrongly assume normal distributions when financial data follows fat-tailed, power-law distributions\n\n2. **Black Swan underestimation** - Conventional statistics systematically underestimate the probability and impact of rare, high-consequence events\n\n3. **Invalid risk measures** - Using variance-based measures like VaR when variance may be infinite in fat-",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the provided context, I cannot identify Taleb's four main pillars of critique against modern risk models. The context only mentions one specific point attributed to Taleb - that models built on Mandelbrotian assumptions acknowledge epistemic uncertainty in a way that Gaussian models disguise, leading to honest acknowledgment of wider uncertainty bounds rather than false precision.\n\nThe context discusses various critiques of standard risk models (invalid variance measures, problems with diversification assumptions, VaR limitations, Black-Scholes underpricing, etc.), but it doesn't organize these into Taleb's specific \"four main pillars\" framework.",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 215,
+          "answer": "Based on the context provided, I cannot identify Taleb's four specific main pillars of critique against modern risk models. The context shows various interconnected concepts related to his critique of financial modeling - including fat-tailed distributions, model fragility, gaussian distribution assumptions, tail risk, and statistical model assumptions - but it doesn't explicitly organize these into four distinct pillars or provide the specific framework you're asking about.\n\nThe context suggests his critique involves issues with gaussian assumptions, fat tails, model fragility, and statistical model assumptions, but without more explicit information, I cannot definitively state what his four main pillars are.",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "What does the Hurst exponent measure and what value corresponds to a random walk?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 defined in turn 4",
+      "conditions": {
+        "graph": {
+          "context_tokens": 578,
+          "answer": "Based on the context provided, the Hurst exponent measures the persistence or anti-persistence of correlations in financial time series - specifically how correlations decay over time.\n\nA value of H = 0.5 corresponds to a random walk (independent, memoryless process). Values greater than 0.5 indicate persistent trends (long memory with positive correlations), while values less than 0.5 indicate mean reversion (anti-persistent behavior).",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the provided context, I cannot answer this question. The Hurst exponent is not mentioned or discussed in the given text about Mandelbrotian models for portfolio construction and risk management.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 219,
+          "answer": "Based on the context provided, I can see that the Hurst exponent is query-relevant with a degree of 5 and materiality of 5.9, and it appears in a system analyzing fractal properties and time series behavior.\n\nHowever, the context does not explicitly define what the Hurst exponent measures or specify what value corresponds to a random walk. While I can see that random_walk is connected to concepts like self_similarity, persistence, and volatility_persistence in this knowledge graph, the specific measurement definition and the critical value (typically 0.5 for a random walk) are not stated in the provided context.\n\nThe context suggests the Hurst exponent is related to fractal",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What are the four parameters of an alpha-stable distribution?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 listed in turn 5",
+      "conditions": {
+        "graph": {
+          "context_tokens": 578,
+          "answer": "Based on the context provided, I cannot identify the four specific parameters of an alpha-stable distribution. While the conversation mentions alpha-stable distributions and references the stability index as one parameter, it does not explicitly list or describe all four parameters that characterize these distributions. The context focuses more on the conceptual differences from Gaussian distributions and their applications to financial modeling rather than their mathematical parameterization.",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the provided context, I cannot answer what the four parameters of an alpha-stable distribution are. The context only mentions two parameters:\n\n1. **Alpha** (\u03b1) - the stability parameter that determines tail thickness\n2. **Gamma** (\u03b3) - the scale parameter that serves as the risk measure (analogous to variance in Gaussian distributions)\n\nThe context does not identify or discuss the other two parameters of an alpha-stable distribution.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 217,
+          "answer": "Based on the context provided, I cannot identify the four specific parameters of an alpha-stable distribution. The context mentions some related concepts like \"stability_index\" and \"scale_parameter_gamma,\" but it doesn't explicitly list all four parameters of an alpha-stable distribution. The context focuses more on the relationships between alpha-stable distributions and other statistical concepts rather than providing the technical parameter specifications.",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "How does Mandelbrot's multifractal model of asset returns address the fat-tail and volatility clustering problems simultaneously?",
+      "level": 2,
+      "description": "Synthesis \u2014 requires connecting turns 3 and 5",
+      "conditions": {
+        "graph": {
+          "context_tokens": 578,
+          "answer": "Based on the context provided, Mandelbrot's multifractal model of asset returns (MMAR) addresses both problems through **subordinated time**:\n\nInstead of using regular clock time, MMAR uses \"trading time\" - a subordinated process where:\n- The clock runs **faster during volatile periods** \n- The clock runs **slower during calm periods**\n\nThis single mechanism produces both phenomena naturally:\n\n1. **Fat tails**: By compressing more price movements into volatile periods, the model generates the extreme moves that create fat-tailed distributions\n\n2. **Volatility clustering**: The varying speed of the trading time clock naturally creates periods where volatility clusters together, followed by calmer",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the provided context, I cannot answer this question about Mandelbrot's multifractal model specifically. The context discusses Mandelbrotian models in general terms, focusing on alpha-stable distributions and their practical implications for finance, but it does not mention multifractal models or explain how they simultaneously address fat-tail and volatility clustering problems.\n\nThe context does address fat-tail problems (through alpha-stable distributions with infinite variance) and mentions stochastic volatility models separately, but does not discuss multifractal approaches or how they handle both issues together.",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 219,
+          "answer": "Based on the context provided, Mandelbrot's multifractal model addresses both problems through **self-similarity** and **fractal scaling** properties that replace Gaussian assumptions.\n\nThe model simultaneously tackles:\n\n1. **Fat-tail problem**: By incorporating **alpha stable distributions** and **power law tails** instead of Gaussian distributions, capturing the extreme values that Gaussian models underestimate\n\n2. **Volatility clustering**: Through **self-similarity** across time scales and **fractal scaling**, where volatility patterns repeat at different temporal resolutions\n\nThe key insight is that the model uses **subordinated processes** and **scaling properties** that naturally generate both fat tails and volatility clustering as emerg",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "Why does diversification reduce tail risk more slowly in a Mandelbrotian world than in a Gaussian world?",
+      "level": 2,
+      "description": "Synthesis \u2014 requires connecting turns 3 and 6",
+      "conditions": {
+        "graph": {
+          "context_tokens": 578,
+          "answer": "In a Mandelbrotian world, diversification reduces tail risk more slowly because alpha-stable distributions with infinite variance violate the assumptions underlying traditional diversification benefits.\n\nIn Gaussian models, risk reduction follows the square root law - doubling the number of assets reduces portfolio variance by half. This works because individual asset returns have finite variance and are assumed independent.\n\nHowever, with alpha-stable distributions that have infinite variance and fat tails, the central limit theorem doesn't apply in the same way. The stability index (alpha) determines the rate of convergence - when alpha < 2, variance is infinite and diversification benefits decay much more slowly than the Gaussian case.\n\nAdditionally, Mandelbrotian models capture the",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the context, diversification reduces tail risk more slowly in a Mandelbrotian world because:\n\n1. **The square root of N law breaks down** - In Gaussian models, risk decreases proportionally to \u221aN as you add assets, but this relationship doesn't hold for fat-tailed distributions.\n\n2. **Tail risk persists even in diversified portfolios** - Unlike Gaussian distributions where diversification effectively eliminates extreme outcomes, fat-tailed distributions retain significant tail risk regardless of portfolio size.\n\n3. **Correlations spike during crises** - The correlations between fat-tailed assets become unstable and increase precisely when diversification is most needed (during market stress),",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "graph_only": {
+          "context_tokens": 219,
+          "answer": "Based on the context provided, diversification reduces tail risk more slowly in a Mandelbrotian world than in a Gaussian world due to the fundamental differences in how extreme events behave under these different statistical frameworks.\n\nIn a Gaussian world, extreme events are rare and independent, allowing diversification to work effectively through the law of large numbers. However, in a Mandelbrotian world characterized by:\n\n- **Fat-tailed distributions** and **power law tails** that generate more frequent extreme events\n- **Self-similarity** and **scaling properties** that create fractal-like behavior across time scales\n- **Long-range dependence** that means events are not truly independent\n\nThese properties mean that extreme",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "How does the Hurst exponent greater than 0.5 affect the effective sample size for parameter estimation?",
+      "level": 2,
+      "description": "Synthesis \u2014 stated in turn 4",
+      "conditions": {
+        "graph": {
+          "context_tokens": 578,
+          "answer": "Based on the context provided, I cannot give a specific answer about how the Hurst exponent greater than 0.5 affects effective sample size for parameter estimation. \n\nThe context only mentions that H > 0.5 indicates persistent trends and long memory where correlations decay slowly following a power law rather than exponentially, but it doesn't discuss the implications for effective sample size or parameter estimation specifically.",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the provided context, I cannot answer this question. The context discusses Mandelbrotian models and their practical implications for finance, but it does not mention the Hurst exponent or its relationship to effective sample size for parameter estimation.",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 217,
+          "answer": "Based on the context provided, when the Hurst exponent is greater than 0.5, it indicates **long-range dependence** and **persistence** in the time series, which are key concepts connected to **self_similarity** in the knowledge graph.\n\nThis long-range dependence significantly **reduces the effective sample size** for parameter estimation because:\n\n1. **Observations are not independent** - consecutive data points are positively correlated over long periods\n2. **Self-similarity** creates scaling properties that make the data contain less independent information than the nominal sample size suggests\n3. **Persistence** means trends continue longer than in random walks, reducing the effective degrees of freedom\n\nThe context shows strong connections",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "VaR tells you the loss you will not exceed 99% of the time. Why is this the wrong question to ask in a Mandelbrotian world?",
+      "level": 3,
+      "description": "Inference \u2014 requires reasoning from turns 2 and 6",
+      "conditions": {
+        "graph": {
+          "context_tokens": 457,
+          "answer": "In a Mandelbrotian world with fat-tailed distributions, VaR asks the wrong question because it focuses on the 99% of \"normal\" times while ignoring the catastrophic 1% tail where the real damage occurs. \n\nWith power-law distributions, losses in that remaining 1% can be theoretically infinite - there's no upper bound. So knowing you won't lose more than X amount 99% of the time is meaningless when the 1% of exceptions can wipe you out entirely. \n\nThe right question isn't \"what's the maximum I'll lose most of the time?\" but rather \"what's my maximum possible loss in the tail, and can I survive it?\"",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "In a Mandelbrotian world, VaR asks the wrong question because it only tells you the threshold but ignores what happens in the catastrophic 1% of cases. With power-law tails, there is \"no natural scale for how bad the worst case can be\" - the extreme losses can be arbitrarily large. \n\nVaR essentially says \"99% of the time losses won't exceed X\" but remains silent about whether the remaining 1% involves losses of 2X, 10X, or 100X. In fat-tailed distributions, it's precisely those extreme tail events that dominate risk, making the threshold itself less meaningful than understanding the severity of what lies beyond it",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 219,
+          "answer": "Based on the context, VaR asks the wrong question in a Mandelbrotian world because it focuses on the 99% of \"normal\" times while ignoring the fat tails where the real damage occurs.\n\nIn a Mandelbrotian world characterized by fat_tailed_distributions, alpha_stable_distributions, and power_law_tails, the extreme 1% of events don't behave like Gaussian outliers - they follow power laws and can be catastrophically large. VaR's 99% confidence interval assumes away precisely the tail_risk and black_swan_events that dominate total risk.\n\nThe context shows gaussian_distribution connected to model_fragility, while fat",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "The volatility smile in options markets is described as the market's correction for Black-Scholes. What specifically is being corrected?",
+      "level": 3,
+      "description": "Inference \u2014 requires reasoning from turn 6",
+      "conditions": {
+        "graph": {
+          "context_tokens": 569,
+          "answer": "Based on the context, the volatility smile corrects for Black-Scholes systematically underpricing out-of-the-money options. Specifically, it corrects the model's assumption that assigns \"negligible probability to large moves\" - the market prices these options with higher implied volatility to compensate for the greater likelihood of extreme price movements that the Gaussian-based Black-Scholes model fails to capture.",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the context, the volatility smile corrects for Black-Scholes systematically underpricing out-of-the-money options. Specifically, it corrects for the Black-Scholes model assigning negligible probability to large price moves, when in reality such moves occur more frequently than the model predicts. The higher implied volatility for deep out-of-the-money options reflects the market pricing in the true probability of extreme price movements that Black-Scholes fails to capture.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 217,
+          "answer": "Based on the context provided, the volatility smile corrects for the **Gaussian distribution assumption** in Black-Scholes models.\n\nSpecifically, it's correcting for:\n\n1. **Fat-tailed distribution reality** - The context shows strong connections between gaussian_distribution and fat_tailed_distribution, indicating markets exhibit fat tails rather than the thin tails assumed by Gaussian models\n\n2. **Model fragility** - Listed as directly related to gaussian_distribution, suggesting the Gaussian assumption creates fragile models\n\n3. **Statistical model assumptions** - The context shows this concept unified with \"gaussian_assumption,\" indicating the market is pricing in the inadequacy of these foundational assumptions\n\nThe volatility",
+          "score": 0.2,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "Why does honest Mandelbrotian risk management produce wider uncertainty bounds rather than tighter ones compared to Gaussian models?",
+      "level": 3,
+      "description": "Inference \u2014 the epistemic implication in turn 6",
+      "conditions": {
+        "graph": {
+          "context_tokens": 578,
+          "answer": "Based on the context provided, honest Mandelbrotian risk management produces wider uncertainty bounds because:\n\n1. **Infinite variance**: Alpha-stable distributions used in Mandelbrotian models have infinite variance, unlike Gaussian distributions with finite variance. This means the spread of possible outcomes is fundamentally unbounded.\n\n2. **Fat tails carry disproportionate weight**: In Mandelbrotian models, rare events in the tails of the distribution have much higher probability and impact than Gaussian models predict, requiring wider bounds to capture realistic tail risk.\n\n3. **Power law scaling**: The power law nature of these distributions means extreme events are not statistical anomalies but natural features of the system, necessit",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the context, honest Mandelbrotian risk management produces wider uncertainty bounds because the parameters of a power-law distribution are harder to estimate reliably than Gaussian parameters. This creates greater epistemic uncertainty - uncertainty about the model itself - which Gaussian models disguise with false precision. Mandelbrotian models honestly acknowledge this fundamental difficulty in parameter estimation, leading to appropriately wider uncertainty bounds rather than the misleading precision that Gaussian models provide.",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "graph_only": {
+          "context_tokens": 219,
+          "answer": "Based on the context, honest Mandelbrotian risk management produces wider uncertainty bounds because:\n\n1. **Fat-tailed distributions vs. Gaussian assumptions**: Mandelbrotian models acknowledge fat-tailed distributions and power law tails, while Gaussian models underestimate tail risk through their thin-tailed assumptions.\n\n2. **Self-similarity and scaling properties**: The context shows Mandelbrotian models incorporate self-similarity and fractal scaling, which capture long-range dependence and persistence that Gaussian models miss.\n\n3. **Model fragility recognition**: The connections indicate Gaussian distributions are linked to \"model_fragility,\" suggesting they break down under real-world conditions, while Mand",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "What single concept connects Taleb's Black Swan, Mandelbrot's fat tails, the Hurst exponent, and the failure of VaR?",
+      "level": 4,
+      "description": "Cross-domain primitive \u2014 fat-tailed distributions are the unifying thread",
+      "conditions": {
+        "graph": {
+          "context_tokens": 578,
+          "answer": "**Power law distributions.**\n\nAll these concepts stem from the fundamental reality that financial markets follow power laws rather than Gaussian distributions. Black Swans emerge naturally from power law tails, Mandelbrot's fat tails are the visual manifestation of power law decay, the Hurst exponent measures the power law scaling of correlations over time, and VaR fails because it assumes finite variance when power laws often have infinite variance. The power law is the mathematical thread connecting market persistence, tail risk, and the systematic failure of Gaussian-based risk models.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the context provided, the single concept that connects these elements is **power-law distributions with infinite variance**.\n\nThe context explains that when alpha < 2 in alpha-stable distributions, variance becomes infinite and never converges - this creates fat tails that make extreme events more probable than Gaussian models predict, causes VaR to fail as a risk measure (requiring Expected Shortfall instead), and represents the mathematical foundation underlying these phenomena where \"there is no natural scale for how bad the worst case can be.\"",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 219,
+          "answer": "Based on the context, **fat_tailed_distribution** is the single concept that connects all these elements.\n\nThe context shows that fat_tailed_distribution is directly related to black_swan_event, connects to gaussian_distribution (whose assumptions VaR relies on), links to alpha_stable_distributions (Mandelbrot's framework), and relates to self_similarity (which connects to the Hurst exponent through scaling_properties and long_range_dependence). The failure of VaR stems from its gaussian assumptions being inadequate for fat-tailed market realities that produce both Black Swans and the persistence patterns measured by the Hurst exponent.",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "Mandelbrot's fractal self-similarity across time scales and the Hurst exponent both point to the same property of financial time series. What is it?",
+      "level": 4,
+      "description": "Cross-domain synthesis \u2014 scale invariance connects fractals and long memory",
+      "conditions": {
+        "graph": {
+          "context_tokens": 578,
+          "answer": "Based on the context, both Mandelbrot's fractal self-similarity across time scales and the Hurst exponent point to **long memory** in financial time series.\n\nThe fractal self-similarity means the same patterns of volatility clustering and fat tails appear whether examining minute-by-minute or decade-by-decade data, while the Hurst exponent (when H \u2260 0.5) indicates that correlations decay slowly following a power law rather than exponentially - both reflecting the persistent, long-range dependence structure in financial markets rather than the independent, memoryless behavior assumed by Gaussian models.",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the context provided, I cannot answer this question concisely. The context discusses Mandelbrotian models and their practical implications for finance, but it does not mention fractal self-similarity across time scales or the Hurst exponent, nor does it identify what property these concepts point to in financial time series.",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 219,
+          "answer": "Based on the context, both Mandelbrot's fractal self-similarity and the Hurst exponent point to **scaling properties** in financial time series.\n\nThe context shows that self_similarity is directly related to scaling_properties, and the Hurst exponent (hurst_exponent) appears in the query-relevant concepts alongside scaling_properties. Both concepts indicate that financial time series exhibit similar statistical patterns when viewed at different time scales - a fundamental characteristic of fractal behavior in markets.",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "The conversation on neutron stars and this conversation both involve a system where standard models fail catastrophically at extremes. What structural insight is shared?",
+      "level": 4,
+      "description": "Cross-domain \u2014 connects to neutron star physics: both involve quantities that diverge at extremes where standard models break down",
+      "conditions": {
+        "graph": {
+          "context_tokens": 578,
+          "answer": "Both conversations reveal that **scale invariance breaks down catastrophically when systems encounter extreme conditions that expose the fundamental inadequacy of their underlying mathematical assumptions**.\n\nIn neutron stars, general relativity's scale-invariant spacetime geometry fails when matter density approaches the Planck scale, requiring quantum gravity corrections that standard models cannot provide.\n\nIn financial markets, Gaussian-based risk models fail when markets encounter extreme volatility regimes where the scale-invariant assumption of finite variance breaks down, revealing the power-law structure that Mandelbrotian models capture.\n\nThe shared structural insight is that **apparent stability at normal scales masks fundamental model breakdown at extremes** - whether physical (neutron star cores) or statistical (market tail",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 345,
+          "answer": "Based on the context provided, I can only speak to the Mandelbrotian models discussion, as no information about neutron stars is included in the context.\n\nHowever, the structural insight from the Mandelbrotian models is that **standard mathematical frameworks break down precisely when you need them most** - during extreme events. The models fail catastrophically because they assume finite variance and stable correlations, but these assumptions collapse during crises when tail risks dominate and correlations spike.\n\nThe deeper structural insight is **epistemic**: the failure isn't just computational but reveals fundamental limits in our ability to model complex systems using simplified assumptions that work well in normal conditions but become meaningless at extremes.\n\nWithout the neutron star context",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 211,
+          "answer": "Based on the context, the shared structural insight is that **systems with fat-tailed distributions and extreme value behavior cannot be adequately modeled by Gaussian assumptions**, leading to catastrophic model fragility at the extremes.\n\nJust as neutron stars represent extreme physical conditions where standard models break down, the financial/statistical systems described here show that Gaussian distributions fail catastrophically when dealing with tail risk and black swan events. The key insight is that **self-similarity and scaling properties persist across different scales**, but the underlying distributional assumptions (whether physical laws or statistical models) that work in \"normal\" ranges become dangerously inadequate at extremes.\n\nThe structural parallel is: **normal-range models \u2192 extreme conditions \u2192",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    }
+  ],
+  "summary": {
+    "by_level": {
+      "1": {
+        "graph": 0.6,
+        "baseline": 0.3333333333333333,
+        "graph_only": 0.5333333333333333
+      },
+      "2": {
+        "graph": 0.8666666666666667,
+        "baseline": 0.46666666666666673,
+        "graph_only": 0.4000000000000001
+      },
+      "3": {
+        "graph": 0.46666666666666673,
+        "baseline": 0.7333333333333334,
+        "graph_only": 0.3333333333333333
+      },
+      "4": {
+        "graph": 0.6666666666666666,
+        "baseline": 0.4666666666666666,
+        "graph_only": 0.4666666666666666
+      }
+    },
+    "overall": {
+      "graph": 0.65,
+      "baseline": 0.5,
+      "graph_only": 0.43333333333333335
+    }
+  }
+}

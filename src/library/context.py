@@ -37,6 +37,8 @@ from pathlib import Path as _Path
 _CONCEPT_CACHE_DIR = _Path(".concept_cache")
 
 _CONCEPT_PROMPT = """\
+IMPORTANT: Output ONLY a raw JSON array. No markdown, no code fences, no explanation.
+First character must be [ and last character must be ]
 Extract the key concepts from this conversation turn as a JSON array of strings.
 
 A concept is a domain term that:
@@ -75,7 +77,6 @@ def _extract_concepts_llm(text: str, speaker: str, client,
         except Exception:
             pass
 
-    # LLM call
     try:
         response = client.messages.create(
             model      = model,
@@ -88,14 +89,18 @@ def _extract_concepts_llm(text: str, speaker: str, client,
                 ),
             }],
         )
-        raw      = response.content[0].text.strip()
+        raw = re.sub(r'^```(?:json)?\s*|\s*```$', '',
+                     response.content[0].text.strip(),
+                     flags=re.MULTILINE).strip()
+        print(f"    [llm_raw] {repr(raw[:80])}", flush=True)  # ← add this
         concepts = _json.loads(raw)
         if not isinstance(concepts, list):
             return []
         result = [str(c).lower().strip() for c in concepts[:12] if c]
         cache_file.write_text(_json.dumps(result))
         return result
-    except Exception:
+    except Exception as e:
+        print(f"    [llm_error] {e}", flush=True)  # ← and this
         return []
 
 # ---------------------------------------------------------------------------
@@ -376,21 +381,28 @@ class ContextAssembler:
         All paths return a flat list of canonical concept labels.
         """
         # 1. Direct LLM concept extraction (preferred — simple and clean)
+        print(f"    [extract] llm_client={self._llm_client is not None}", flush=True)
         if self._llm_client is not None:
             result = _extract_concepts_llm(text, speaker, self._llm_client)
+            print(f"    [extract] LLM → {len(result)} concepts: {result[:3]}", flush=True)
             if result:
                 return result
 
         # 2. LLM triple extractor
         if self._llm_extractor is not None:
+            print(f"    [extract] → triple extractor", flush=True)
             return self._extract_via_llm(text)
 
         # 3. spaCy
         if _EXTRACTOR_AVAILABLE:
-            return self._extract_via_spacy(text)
+            result = self._extract_via_spacy(text)
+            print(f"    [extract] → spaCy {len(result)} concepts", flush=True)
+            return result
 
         # 4. Stopword fallback
-        return self._extract_stopword_fallback(text)
+        result = self._extract_stopword_fallback(text)
+        print(f"    [extract] → stopword {len(result)} concepts", flush=True)
+        return result
 
     def _extract_via_llm(self, text: str) -> list[str]:
         """Use LLM extractor (falls back to spaCy internally on failure)."""

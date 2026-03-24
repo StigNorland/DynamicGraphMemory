@@ -1,0 +1,809 @@
+{
+  "metadata": {
+    "name": "memory",
+    "timestamp": "20260324_084604",
+    "damage_levels": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "token_budget": 600,
+    "questions": 8,
+    "turns": 16
+  },
+  "by_damage_level": {
+    "damage_25pct": {
+      "intact_graph_only": 0.323,
+      "damaged_no_field": 0.354,
+      "damaged_with_field": 0.125,
+      "baseline": 0.781
+    },
+    "damage_50pct": {
+      "intact_graph_only": 0.323,
+      "damaged_no_field": 0.354,
+      "damaged_with_field": 0.125,
+      "baseline": 0.781
+    },
+    "damage_75pct": {
+      "intact_graph_only": 0.323,
+      "damaged_no_field": 0.292,
+      "damaged_with_field": 0.125,
+      "baseline": 0.781
+    }
+  },
+  "field_recovery_ratio": {
+    "damage_25pct": 0.0,
+    "damage_50pct": 0.0,
+    "damage_75pct": -0.517
+  },
+  "results": [
+    {
+      "damage_pct": 25,
+      "question": "What causes forgetting according to our conversation?",
+      "level": 1,
+      "description": "Direct retrieval — answer stated explicitly",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, forgetting appears to be caused by:\n\n1. **Retrieval failure** (degree 4, materiality 0.1) - This seems to be a primary cause given its high degree rating, suggesting that forgetting often occurs not because memories are lost, but because we cannot access them.\n\n2. **Encoding issues** (degree 3, materiality 1.9) - Problems during the initial encoding phase can lead to forgetting, with high materiality indicating this is a substantial factor.\n\n3. **Storage mechanism problems** (degree 3, materiality 1.7) - Issues with how memories are stored can contribute to forgetting.\n\n4. **Memory recall difficulties** (degree 3, materiality 0.6) - Problems during the recall process itself can result in forgetting.\n\n5. **Synaptic consolidation issues** (degree 2, materiality 1.3) - Problems with the biological process of strengthening memory connections can lead to forgetting.\n\nThe general process of **forgetting** itself is rated at degree 2 with materiality 0.5, suggesting it's a multifaceted phenomenon influenced by these various mechanisms.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "damaged_no_field": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, forgetting appears to be caused by **retrieval failure**. The context shows retrieval_failure with a high degree (deg=3), which suggests it's a significant factor in the forgetting process according to your conversation.\n\nThe context also shows forgetting itself as a concept (deg=2), but retrieval_failure stands out as the specific mechanism that causes forgetting to occur.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I don't have access to any context about our previous conversation regarding what causes forgetting. The context field appears to be empty, so I cannot provide an answer based on our prior discussion about forgetting. \n\nIf you'd like to discuss what causes forgetting, I'd be happy to share general information about forgetting from psychological research, but I cannot reference what we may have discussed previously without that context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "According to our conversation, forgetting is caused by weak retrieval paths, not lost information. The assistant explains that \"the information persists, the access degrades\" and describes forgetting as \"a weak path, not lost information.\" The memory itself exists and was properly encoded, but the pathway to access it becomes weak over time, making it difficult to retrieve even though the information is still stored.",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "damage_pct": 25,
+      "question": "Where does memory consolidation take place?",
+      "level": 1,
+      "description": "Direct retrieval — stated in single turn",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 7,
+          "answer": "I cannot answer where memory consolidation takes place based solely on the provided context. The context only contains technical parameters related to synaptic consolidation and memory retention (with degree and matrix values), but does not specify any anatomical locations or brain regions where these processes occur.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_no_field": {
+          "context_tokens": 7,
+          "answer": "I cannot answer where memory consolidation takes place based solely on the provided context. The context only contains technical parameters about synaptic consolidation and memory retention (with degree and material values), but does not specify any anatomical locations or brain regions where these processes occur.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question because the context provided is empty (field reconstruction returned empty). To provide an accurate answer about where memory consolidation takes place, I would need relevant information about neuroscience and brain structures to be included in the context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "The context provided does not mention where memory consolidation takes place. The conversation focuses on retrieval mechanisms, encoding, and the difference between recall and recognition, but does not discuss the location or process of memory consolidation.",
+          "score": 0.0,
+          "key_hits": 0
+        }
+      }
+    },
+    {
+      "damage_pct": 25,
+      "question": "What do muscle memory and forgetting your keys have in common?",
+      "level": 2,
+      "description": "Synthesis — requires connecting turns 1 and 9",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, I can see that both muscle_memory and forgetting are listed as query-relevant concepts, but the context doesn't explicitly state what they have in common. \n\nThe context only provides degree and materiality values for these concepts:\n- muscle_memory (deg=3, mat=1.6)\n- forgetting (deg=2, mat=0.5)\n\nWithout additional information in the context explaining the relationship between these concepts, I cannot determine what muscle memory and forgetting your keys have in common based solely on the provided context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_no_field": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, muscle memory and forgetting both have a degree (deg) of 2, indicating they share the same level of complexity or classification within this system. However, the context shows they differ significantly in their material values (mat) - muscle memory has a mat value of 1.6 while forgetting has a mat value of 0.5. \n\nThe context doesn't provide enough information to explain what these shared or different values specifically mean in terms of the underlying commonalities between muscle memory and forgetting your keys.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question based on the provided context, as the field reconstruction returned empty and there is no information available about muscle memory or forgetting keys.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, muscle memory and forgetting your keys both involve the same underlying mechanism - retrieval paths in memory. The assistant explains that muscle memory \"is the same process in a different substrate,\" referring to how repetition strengthens retrieval paths. Both involve accessing stored information through these pathways, with the strength of the path determining how easily the information can be retrieved.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "damage_pct": 25,
+      "question": "How does spaced repetition relate to retrieval paths?",
+      "level": 2,
+      "description": "Synthesis — connects repetition and path strengthening",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 11,
+          "answer": "Based on the context provided, I can see that both retrieval paths and repetition effects are present in the data, but the context doesn't explicitly explain the relationship between spaced repetition and retrieval paths.\n\nFrom the available information:\n- Retrieval paths show high values (deg=4, mat=3.2)\n- Repetition effect shows moderate values (deg=3, mat=1.5)\n\nHowever, the context doesn't contain sufficient information to explain how spaced repetition specifically relates to retrieval paths. To properly answer this question, I would need additional context that directly addresses the connection between these two concepts.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "damaged_no_field": {
+          "context_tokens": 11,
+          "answer": "Based on the context provided, I can see that both retrieval paths and repetition effects are present in the data, but the context doesn't explicitly explain how spaced repetition relates to retrieval paths.\n\nThe context shows:\n- retrieval_path(deg=2, mat=3.2) - indicating retrieval paths have a degree of 2 and materiality of 3.2\n- repetition_effect(deg=3, mat=1.5) - indicating repetition effects have a degree of 3 and materiality of 1.5\n\nHowever, the specific relationship between spaced repetition and retrieval paths is not detailed in the provided context. I cannot make assumptions about their relationship beyond what is explicitly stated in the given information.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question based on the provided context, as the field reconstruction returned empty and no relevant information about spaced repetition or retrieval paths is available in the context.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context provided, spaced repetition would strengthen retrieval paths through repetition. The context states that \"every time you successfully recall something, that path strengthens\" and that \"repetition\" is what makes a retrieval path strong. So spaced repetition - which involves repeatedly recalling information at intervals - would be exercising and strengthening those retrieval paths each time you successfully access the stored information.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "damage_pct": 25,
+      "question": "Would practicing recalling something help you forget it less? Why?",
+      "level": 3,
+      "description": "Inference — requires reasoning from relational structure",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, yes, practicing recalling something would help you forget it less. Here's why:\n\nThe context shows several interconnected memory processes that support this:\n\n1. **Memory recall and retrieval strengthen retention**: The presence of `memory_recall` (degree 3, magnitude 0.6) and `retrieval_path` (degree 4, magnitude 3.2) alongside `memory_retention` (degree 3, magnitude 1.7) suggests that the act of recalling information creates and strengthens neural pathways that support long-term retention.\n\n2. **Repetition reinforces memory**: The `repetition_effect` (degree 3, magnitude 1.5) indicates that repeated practice of recall acts as a form of repetition, which strengthens memory traces.\n\n3. **Synaptic consolidation**: The `synaptic_consolidation` (degree 2, magnitude 1.3) suggests that the process of retrieving memories helps consolidate them at the synaptic level, making them more resistant to forgetting.\n\n4. **Counteracts natural forgetting**: While `forgetting` (degree 2, magnitude 0.5) is a natural process, the practice of recall appears to work against this tendency by reinforcing the memory through multiple mechanisms.\n\nThe relatively high degree and magnitude values for retrieval_path suggest that creating strong retrieval pathways through practice is particularly effective at maintaining memories over time.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "damaged_no_field": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, yes, practicing recalling something would help you forget it less.\n\nThe evidence for this comes from several interconnected memory processes shown in the data:\n\n1. **Retrieval practice strengthens memory**: The retrieval_path shows high materialization (mat=3.2), indicating that the act of retrieving information from memory creates strong, well-established pathways.\n\n2. **Repetition reinforces retention**: The repetition_effect has both high degree (deg=3) and strong materialization (mat=1.5), suggesting that repeated practice significantly strengthens memory traces.\n\n3. **Enhanced consolidation**: Synaptic_consolidation (mat=1.3) indicates that repeated retrieval helps solidify memories at the neural level.\n\n4. **Improved specific recall**: Name_recall shows that practicing retrieval improves your ability to access specific information (mat=0.2, though this appears to represent reduced difficulty in recall).\n\nThe relationship works because each time you practice recalling information, you strengthen the neural pathways associated with that memory through the retrieval process. This repeated activation leads to better synaptic consolidation and creates a repetition effect that directly counters the natural forgetting process (which shows deg=2, mat=0.5 in the data). Essentially, active retrieval practice builds stronger, more durable memory traces that are more resistant to forgetting.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot provide an answer based on the context provided, as the field reconstruction returned empty and there is no contextual information available to draw from. To properly answer your question about whether practicing recall helps with retention and the mechanisms behind it, I would need relevant context about memory, learning, or cognitive science research.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Yes, practicing recalling something would help you forget it less. According to the context, \"every time you successfully recall something, that path strengthens.\" Since forgetting is described as \"a weak path, not lost information,\" and the problem is that \"the retrieval path is weak,\" repeatedly practicing recall would strengthen those retrieval paths, making the information easier to access in the future.\n\nThe context establishes that the information persists but \"the access degrades,\" so strengthening the access through repetition would reduce forgetting.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "damage_pct": 25,
+      "question": "If retrieval failure differs from storage failure, what does that imply about forgetting?",
+      "level": 3,
+      "description": "Inference — forgetting as blockage not erasure",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, I cannot definitively answer what the difference between retrieval failure and storage failure implies about forgetting. \n\nThe context shows retrieval_failure with degree 4 and materiality 0.1, and forgetting with degree 2 and materiality 0.5, along with other memory-related processes like encoding, memory_cue, and retrieval_path. However, there is no mention of \"storage failure\" in the provided context, so I cannot make comparisons between retrieval failure and storage failure or draw implications about forgetting from such a comparison.\n\nTo properly answer this question, I would need additional context that specifically addresses storage failure and its relationship to both retrieval failure and forgetting.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_no_field": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, I cannot definitively answer what the distinction between retrieval failure and storage failure implies about forgetting. \n\nThe context shows that retrieval failure appears multiple times with low materiality values (deg=3, mat=0.1), and forgetting is mentioned once (deg=2, mat=0.5), along with related concepts like retrieval_path, memory_cue, and process. However, the context does not contain any information about storage failure or explicit explanations of how these different types of failure relate to forgetting mechanisms.\n\nTo properly answer this question about the implications of distinguishing retrieval failure from storage failure for understanding forgetting, I would need additional context that specifically addresses storage failure and explains the theoretical relationships between these concepts.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot provide an answer to this question because the context field returned empty. To properly address what the distinction between retrieval failure and storage failure implies about forgetting, I would need relevant information about memory processes, theories of forgetting, or related psychological concepts to be provided in the context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, if retrieval failure differs from storage failure, it implies that forgetting is primarily about losing access to information rather than losing the information itself. \n\nThe context establishes that \"the information persists, the access degrades\" and that forgetting is \"just a weak path, not lost information.\" This suggests that most forgetting occurs because the retrieval pathways become weak or inaccessible, while the underlying memories remain stored. The problem isn't that the memory was never properly encoded or that it disappeared from storage - it's that we can no longer find the path to access what's still there.\n\nThis reframes forgetting as fundamentally a search problem rather than a storage problem.",
+          "score": 0.5,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "damage_pct": 25,
+      "question": "What is the single most fundamental concept in everything we discussed?",
+      "level": 4,
+      "description": "Primitive identification — tests whether graph found the anchor",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 6,
+          "answer": "I don't have any context available to draw from, as indicated by the \"(graph empty — no context available)\" note. Without knowing what was previously discussed, I cannot identify the most fundamental concept from our conversation. \n\nTo answer your question accurately, I would need access to the prior discussion or context you're referring to.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_no_field": {
+          "context_tokens": 6,
+          "answer": "I don't have any context available to draw from, as indicated by the \"(graph empty — no context available)\" note. Without knowing what was previously discussed, I cannot identify the most fundamental concept from our conversation. \n\nTo answer your question accurately, I would need access to the prior discussion or context you're referring to.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question because the context field shows \"(field reconstruction returned empty)\" - meaning there is no discussion content available for me to analyze. Without any context about what was previously discussed, I cannot identify any fundamental concepts, let alone determine which one might be most important.\n\nTo provide a meaningful answer, I would need the actual content of your previous discussion.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, the single most fundamental concept is **retrieval** - the process of accessing information that's already stored in memory. Everything discussed centers around this: forgetting keys is a retrieval failure, remembering names involves retrieval paths, recognition and recall are both forms of retrieval (with or without cues), and even the distinction between remembering and forgetting comes down to successful versus failed retrieval of existing information.",
+          "score": 1.0,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "damage_pct": 25,
+      "question": "The conversation describes a structure for memory. What is the closest analogy to a graph node in this model?",
+      "level": 4,
+      "description": "Cross-domain — maps memory model onto graph structure",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 5,
+          "answer": "Based on the context provided, I cannot determine what the closest analogy to a graph node would be in this memory model. The context only shows some memory-related parameters (memory_cue and memory_path_strength with their respective degree and material values), but it doesn't describe the actual structure of the memory model or identify what components would correspond to graph nodes.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_no_field": {
+          "context_tokens": 5,
+          "answer": "Based on the context provided, I cannot determine what the closest analogy to a graph node would be in this memory model. The context only shows some memory-related parameters (memory_cue and memory_path_strength with their respective degree and material values), but it doesn't describe the actual structure of the memory model or identify what components would correspond to graph nodes.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question because the context field appears to be empty - it shows \"(field reconstruction returned empty)\". Without access to the conversation that describes the memory structure model, I cannot determine what would be analogous to a graph node in that specific model.\n\nTo properly answer this question, I would need the actual content of the conversation that discusses the memory structure.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context provided, the closest analogy to a graph node in this memory model would be the stored information or memory itself. \n\nThe conversation describes memory as having information that \"persists\" and \"is there\" but may have weak or strong \"retrieval paths\" to access it. This suggests a structure where:\n\n- The nodes would be the encoded memories/information that exist in storage\n- The edges would be the \"retrieval paths\" that can be weak or strong, and that get strengthened through \"repetition\" and successful recall\n\nThe assistant states \"the information persists, the access degrades\" and \"the difference is in the search, not the storage,\" which supports the idea that there are discrete stored items (nodes) connected by pathways (edges) that vary in strength.",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "damage_pct": 50,
+      "question": "What causes forgetting according to our conversation?",
+      "level": 1,
+      "description": "Direct retrieval — answer stated explicitly",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, forgetting appears to be caused by:\n\n1. **Retrieval failure** (degree 4, materiality 0.1) - This seems to be a primary cause given its high degree rating, suggesting that forgetting often occurs not because memories are lost, but because we cannot access them.\n\n2. **Encoding issues** (degree 3, materiality 1.9) - Problems during the initial encoding phase can lead to forgetting, with high materiality indicating this is a substantial factor.\n\n3. **Storage mechanism problems** (degree 3, materiality 1.7) - Issues with how memories are stored can contribute to forgetting.\n\n4. **Memory recall difficulties** (degree 3, materiality 0.6) - Problems during the recall process itself can result in forgetting.\n\n5. **Synaptic consolidation issues** (degree 2, materiality 1.3) - Problems with the biological process of strengthening memory connections can lead to forgetting.\n\nThe general process of **forgetting** itself is rated at degree 2 with materiality 0.5, suggesting it's a multifaceted phenomenon influenced by these various mechanisms.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "damaged_no_field": {
+          "context_tokens": 9,
+          "answer": "Based on the context provided, forgetting appears to be caused by:\n\n1. **Forgetting** itself (degree 1, materiality 0.5) - suggesting there's a direct forgetting process\n2. **Retrieval failure** (degree 2, materiality 0.1) - indicating that sometimes memories aren't actually lost but rather cannot be accessed or retrieved properly\n\nThe context also shows related memory processes like synaptic consolidation and memory cues, but the two primary causes of forgetting mentioned are the direct forgetting process and retrieval failure, with retrieval failure having a higher degree rating (2 vs 1).",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I don't have access to any context about our previous conversation regarding what causes forgetting. The context field appears to be empty, so I cannot provide an answer based on our prior discussion about forgetting. \n\nIf you'd like to discuss what causes forgetting, I'd be happy to share general information about forgetting from psychological research, but I cannot reference what we may have discussed previously without that context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "According to our conversation, forgetting is caused by weak retrieval paths, not lost information. The assistant explains that \"the information persists, the access degrades\" and describes forgetting as \"a weak path, not lost information.\" The memory itself exists and was properly encoded, but the pathway to access it becomes weak over time, making it difficult to retrieve even though the information is still stored.",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "damage_pct": 50,
+      "question": "Where does memory consolidation take place?",
+      "level": 1,
+      "description": "Direct retrieval — stated in single turn",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 7,
+          "answer": "I cannot answer where memory consolidation takes place based solely on the provided context. The context only contains technical parameters related to synaptic consolidation and memory retention (with degree and matrix values), but does not specify any anatomical locations or brain regions where these processes occur.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_no_field": {
+          "context_tokens": 5,
+          "answer": "Based on the context provided, I can only see references to \"synaptic_consolidation\" which suggests that memory consolidation involves synapses. However, the context is very limited and doesn't provide enough information to give a complete answer about where memory consolidation takes place. The context only shows technical notation about synaptic consolidation with specific parameters, but doesn't describe the anatomical locations or brain regions involved in memory consolidation.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question because the context provided is empty (field reconstruction returned empty). To provide an accurate answer about where memory consolidation takes place, I would need relevant information about neuroscience and brain structures to be included in the context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "The context provided does not mention where memory consolidation takes place. The conversation focuses on retrieval mechanisms, encoding, and the difference between recall and recognition, but does not discuss the location or process of memory consolidation.",
+          "score": 0.0,
+          "key_hits": 0
+        }
+      }
+    },
+    {
+      "damage_pct": 50,
+      "question": "What do muscle memory and forgetting your keys have in common?",
+      "level": 2,
+      "description": "Synthesis — requires connecting turns 1 and 9",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, I can see that both muscle_memory and forgetting are listed as query-relevant concepts, but the context doesn't explicitly state what they have in common. \n\nThe context only provides degree and materiality values for these concepts:\n- muscle_memory (deg=3, mat=1.6)\n- forgetting (deg=2, mat=0.5)\n\nWithout additional information in the context explaining the relationship between these concepts, I cannot determine what muscle memory and forgetting your keys have in common based solely on the provided context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_no_field": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, I cannot determine what muscle memory and forgetting your keys have in common. The context only provides numerical values (degrees and material values) for various cognitive and learning processes including muscle_memory, forgetting, retrieval, synaptic_consolidation, cognitive_equivalence, and procedural_learning, but it doesn't contain any descriptive information about the relationships or commonalities between these concepts.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question based on the provided context, as the field reconstruction returned empty and there is no information available about muscle memory or forgetting keys.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, muscle memory and forgetting your keys both involve the same underlying mechanism - retrieval paths in memory. The assistant explains that muscle memory \"is the same process in a different substrate,\" referring to how repetition strengthens retrieval paths. Both involve accessing stored information through these pathways, with the strength of the path determining how easily the information can be retrieved.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "damage_pct": 50,
+      "question": "How does spaced repetition relate to retrieval paths?",
+      "level": 2,
+      "description": "Synthesis — connects repetition and path strengthening",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 11,
+          "answer": "Based on the context provided, I can see that both retrieval paths and repetition effects are present in the data, but the context doesn't explicitly explain the relationship between spaced repetition and retrieval paths.\n\nFrom the available information:\n- Retrieval paths show high values (deg=4, mat=3.2)\n- Repetition effect shows moderate values (deg=3, mat=1.5)\n\nHowever, the context doesn't contain sufficient information to explain how spaced repetition specifically relates to retrieval paths. To properly answer this question, I would need additional context that directly addresses the connection between these two concepts.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "damaged_no_field": {
+          "context_tokens": 9,
+          "answer": "Based on the context provided, I can see that retrieval_path has a degree of 2 and materiality of 3.2, indicating it's a significant concept. However, the context doesn't contain any information that directly explains how spaced repetition relates to retrieval paths. The context only provides numerical parameters for retrieval_path and other neural processes (forgetting, synaptic_consolidation, and neural_pathway_strengthening) without describing the relationships between these concepts or mentioning spaced repetition at all.\n\nI cannot answer how spaced repetition relates to retrieval paths based solely on the context provided.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question based on the provided context, as the field reconstruction returned empty and no relevant information about spaced repetition or retrieval paths is available in the context.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context provided, spaced repetition would strengthen retrieval paths through repetition. The context states that \"every time you successfully recall something, that path strengthens\" and that \"repetition\" is what makes a retrieval path strong. So spaced repetition - which involves repeatedly recalling information at intervals - would be exercising and strengthening those retrieval paths each time you successfully access the stored information.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "damage_pct": 50,
+      "question": "Would practicing recalling something help you forget it less? Why?",
+      "level": 3,
+      "description": "Inference — requires reasoning from relational structure",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, yes, practicing recalling something would help you forget it less. Here's why:\n\nThe context shows several interconnected memory processes that support this:\n\n1. **Memory recall and retrieval strengthen retention**: The presence of `memory_recall` (degree 3, magnitude 0.6) and `retrieval_path` (degree 4, magnitude 3.2) alongside `memory_retention` (degree 3, magnitude 1.7) suggests that the act of recalling information creates and strengthens neural pathways that support long-term retention.\n\n2. **Repetition reinforces memory**: The `repetition_effect` (degree 3, magnitude 1.5) indicates that repeated practice of recall acts as a form of repetition, which strengthens memory traces.\n\n3. **Synaptic consolidation**: The presence of `synaptic_consolidation` (degree 2, magnitude 1.3) suggests that the retrieval process helps consolidate memories at the synaptic level, making them more stable and less susceptible to forgetting.\n\n4. **Counteracts forgetting**: While `forgetting` is present in the system (degree 2, magnitude 0.5), the practice of recall appears to work against this natural forgetting process by reinforcing the memory through multiple pathways.\n\nThe higher degree and magnitude values for retrieval-related processes compared to forgetting suggest that active recall practice creates stronger, more resilient memory networks that are better able to resist decay over time.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "damaged_no_field": {
+          "context_tokens": 11,
+          "answer": "Based on the context provided, yes, practicing recalling something would help you forget it less.\n\nThe context shows that retrieval_path has a very high materialization value (mat=3.2) compared to forgetting (mat=0.5). This suggests that when retrieval pathways are strengthened through practice, they become much more robust and established in the memory system than the natural forgetting processes.\n\nAdditionally, the context indicates that name_recall, which represents a specific type of retrieval practice, has a low materialization value (mat=0.2), suggesting that the act of recall itself doesn't require much \"effort\" from the memory system, but the retrieval_path it strengthens becomes highly materialized and resistant to forgetting.\n\nThe high degree value (deg=2) for retrieval_path also suggests it has more connections within the memory network compared to forgetting (deg=1), indicating that practiced recall creates more interconnected and therefore more durable memory traces.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot provide an answer based on the context provided, as the field reconstruction returned empty and there is no contextual information available to draw from. To properly answer your question about whether practicing recall helps with retention and the mechanisms behind it, I would need relevant context about memory, learning, or cognitive science research.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Yes, practicing recalling something would help you forget it less. According to the context, \"every time you successfully recall something, that path strengthens.\" Since forgetting is described as \"a weak path, not lost information,\" and the problem is that \"the retrieval path is weak,\" repeatedly practicing recall would strengthen those retrieval paths, making the information easier to access in the future.\n\nThe context establishes that the information persists but \"the access degrades,\" so strengthening the access through repetition would reduce forgetting.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "damage_pct": 50,
+      "question": "If retrieval failure differs from storage failure, what does that imply about forgetting?",
+      "level": 3,
+      "description": "Inference — forgetting as blockage not erasure",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, I cannot definitively answer what the difference between retrieval failure and storage failure implies about forgetting. \n\nThe context shows retrieval_failure with degree 4 and materiality 0.1, and forgetting with degree 2 and materiality 0.5, along with other memory-related processes like encoding, memory_cue, and retrieval_path. However, there is no mention of \"storage failure\" in the provided context, so I cannot make comparisons between retrieval failure and storage failure or draw implications about forgetting from such a comparison.\n\nTo properly answer this question, I would need additional context that specifically addresses storage failure and its relationship to both retrieval failure and forgetting.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_no_field": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, I cannot definitively answer what the distinction between retrieval failure and storage failure implies about forgetting. \n\nThe context shows that retrieval_failure appears twice with identical parameters (deg=2, mat=0.1) and forgetting appears once (deg=1, mat=0.5), along with related concepts like retrieval_path, memory_cue, and process. However, the context does not contain any information about storage failure or explain the relationship between these different types of failure and their implications for forgetting.\n\nTo answer this question, I would need additional context that explicitly discusses storage failure and explains how distinguishing it from retrieval failure affects our understanding of forgetting processes.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot provide an answer to this question because the context field returned empty. To properly address what the distinction between retrieval failure and storage failure implies about forgetting, I would need relevant information about memory processes, theories of forgetting, or related psychological concepts to be provided in the context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, if retrieval failure differs from storage failure, it implies that forgetting is primarily about losing access to information rather than losing the information itself. \n\nThe context establishes that \"the information persists, the access degrades\" and that forgetting is \"just a weak path, not lost information.\" This suggests that most forgetting occurs because the retrieval pathways become weak or inaccessible, while the underlying memories remain stored. The problem isn't that the memory was never properly encoded or that it disappeared from storage - it's that we can no longer find the path to access what's still there.\n\nThis reframes forgetting as fundamentally a search problem rather than a storage problem.",
+          "score": 0.5,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "damage_pct": 50,
+      "question": "What is the single most fundamental concept in everything we discussed?",
+      "level": 4,
+      "description": "Primitive identification — tests whether graph found the anchor",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 6,
+          "answer": "I don't have any context available to draw from, as indicated by the \"(graph empty — no context available)\" note. Without knowing what was previously discussed, I cannot identify the most fundamental concept from our conversation. \n\nTo answer your question accurately, I would need access to the prior discussion or context you're referring to.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_no_field": {
+          "context_tokens": 6,
+          "answer": "I don't have any context available to draw from, as indicated by the \"(graph empty — no context available)\" note. Without knowing what was previously discussed, I cannot identify the most fundamental concept from our conversation. \n\nTo answer your question accurately, I would need access to the prior discussion or context you're referring to.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question because the context field shows \"(field reconstruction returned empty)\" - meaning there is no discussion content available for me to analyze. Without any context about what was previously discussed, I cannot identify any fundamental concepts, let alone determine which one might be most important.\n\nTo provide a meaningful answer, I would need the actual content of your previous discussion.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, the single most fundamental concept is **retrieval** - the process of accessing information that's already stored in memory. Everything discussed centers around this: forgetting keys is a retrieval failure, remembering names involves retrieval paths, recognition and recall are both forms of retrieval (with or without cues), and even the distinction between remembering and forgetting comes down to successful versus failed retrieval of existing information.",
+          "score": 1.0,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "damage_pct": 50,
+      "question": "The conversation describes a structure for memory. What is the closest analogy to a graph node in this model?",
+      "level": 4,
+      "description": "Cross-domain — maps memory model onto graph structure",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 5,
+          "answer": "Based on the context provided, I cannot determine what the closest analogy to a graph node would be in this memory model. The context only shows some memory-related parameters (memory_cue and memory_path_strength with their respective degree and material values), but doesn't describe the actual structure of the memory model or explain what components might correspond to graph nodes.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_no_field": {
+          "context_tokens": 5,
+          "answer": "Based on the context provided, I cannot determine what the closest analogy to a graph node would be in this memory model. The context only shows memory_cue entries with degree and material parameters (deg=1, mat=1.6), but doesn't provide enough information about the overall structure or components of the memory model to identify what element would correspond to a graph node.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question because the context field appears to be empty - it shows \"(field reconstruction returned empty)\". Without access to the conversation that describes the memory structure model, I cannot determine what would be analogous to a graph node in that specific model.\n\nTo properly answer this question, I would need the actual content of the conversation that discusses the memory structure.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context provided, the closest analogy to a graph node in this memory model would be the stored information or memory itself. \n\nThe conversation describes memory as having information that \"persists\" and \"is there\" but may have weak or strong \"retrieval paths\" to access it. This suggests a structure where:\n\n- The nodes would be the encoded memories/information that exist in storage\n- The edges would be the \"retrieval paths\" that can be weak or strong, and that get strengthened through \"repetition\" and successful recall\n\nThe assistant states \"the information persists, the access degrades\" and \"the difference is in the search, not the storage,\" which supports the idea that there are discrete stored items (nodes) connected by pathways (edges) that vary in strength.",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "damage_pct": 75,
+      "question": "What causes forgetting according to our conversation?",
+      "level": 1,
+      "description": "Direct retrieval — answer stated explicitly",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, forgetting appears to be caused by:\n\n1. **Retrieval failure** (degree 4, materiality 0.1) - This seems to be a primary cause given its high degree rating, suggesting that forgetting often occurs not because memories are lost, but because we cannot access them.\n\n2. **Encoding issues** (degree 3, materiality 1.9) - Problems during the initial encoding phase can lead to forgetting, with high materiality indicating this is a substantial factor.\n\n3. **Storage mechanism problems** (degree 3, materiality 1.7) - Issues with how memories are stored can contribute to forgetting.\n\n4. **Memory recall difficulties** (degree 3, materiality 0.6) - Problems during the recall process itself can result in forgetting.\n\n5. **Synaptic consolidation issues** (degree 2, materiality 1.3) - Problems with the biological process of strengthening memory connections can lead to forgetting.\n\nThe general process of **forgetting** itself is rated at degree 2 with materiality 0.5, suggesting it's a multifaceted phenomenon influenced by these various mechanisms.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "damaged_no_field": {
+          "context_tokens": 7,
+          "answer": "Based on the context provided, forgetting is caused by:\n\n1. **Retrieval failure** (degree=2, materiality=0.1) - This appears to be a significant cause of forgetting, suggesting that information may still be stored in memory but cannot be accessed or retrieved when needed.\n\n2. **Memory access** issues (degree=2, materiality=1.3) - This also shows a high degree of association with forgetting and has the highest materiality score, indicating that difficulties in accessing stored memories are a major factor in forgetting.\n\nThe context suggests that forgetting is primarily due to problems with retrieving and accessing information that may still be present in memory, rather than the information being completely lost.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I don't have access to any context about our previous conversation regarding what causes forgetting. The context field appears to be empty, so I cannot provide an answer based on our prior discussion about forgetting. \n\nIf you'd like to discuss what causes forgetting, I'd be happy to share general information about forgetting from psychological research, but I cannot reference what we may have discussed previously without that context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "According to our conversation, forgetting is caused by weak retrieval paths, not lost information. The assistant explains that \"the information persists, the access degrades\" and describes forgetting as \"a weak path, not lost information.\" The memory itself exists and was properly encoded, but the pathway to access it becomes weak over time, making it difficult to retrieve even though the information is still stored.",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "damage_pct": 75,
+      "question": "Where does memory consolidation take place?",
+      "level": 1,
+      "description": "Direct retrieval — stated in single turn",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 7,
+          "answer": "I cannot answer where memory consolidation takes place based solely on the provided context. The context only contains technical parameters related to synaptic consolidation and memory retention (with degree and matrix values), but does not specify any anatomical locations or brain regions where these processes occur.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_no_field": {
+          "context_tokens": 6,
+          "answer": "I cannot answer this question based on the provided context, as no context is available (the graph is empty). To properly answer where memory consolidation takes place, I would need relevant information about neuroscience, brain anatomy, or memory processes to be provided in the context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question because the context provided is empty (field reconstruction returned empty). To provide an accurate answer about where memory consolidation takes place, I would need relevant information about neuroscience and brain structures to be included in the context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "The context provided does not mention where memory consolidation takes place. The conversation focuses on retrieval mechanisms, encoding, and the difference between recall and recognition, but does not discuss the location or process of memory consolidation.",
+          "score": 0.0,
+          "key_hits": 0
+        }
+      }
+    },
+    {
+      "damage_pct": 75,
+      "question": "What do muscle memory and forgetting your keys have in common?",
+      "level": 2,
+      "description": "Synthesis — requires connecting turns 1 and 9",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, I can see that both muscle_memory and forgetting are listed as query-relevant concepts, but the context doesn't explicitly state what they have in common. \n\nThe context only provides degree and materiality values for these concepts:\n- muscle_memory (deg=3, mat=1.6)\n- forgetting (deg=2, mat=0.5)\n\nWithout additional information in the context explaining the relationship between these concepts, I cannot determine what muscle memory and forgetting your keys have in common based solely on the provided context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_no_field": {
+          "context_tokens": 9,
+          "answer": "Based on the context provided, I cannot determine what muscle memory and forgetting your keys have in common. The context shows relevance scores for forgetting, retrieval, cognitive equivalence, and procedural learning, but doesn't provide enough information to explain the relationship or commonalities between muscle memory and forgetting keys.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question based on the provided context, as the field reconstruction returned empty and there is no information available about muscle memory or forgetting keys.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, muscle memory and forgetting your keys both involve the same underlying mechanism - retrieval paths in memory. The assistant explains that muscle memory \"is the same process in a different substrate,\" referring to how repetition strengthens retrieval paths. Both involve accessing stored information through these pathways, with the strength of the path determining how easily the information can be retrieved.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "damage_pct": 75,
+      "question": "How does spaced repetition relate to retrieval paths?",
+      "level": 2,
+      "description": "Synthesis — connects repetition and path strengthening",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 11,
+          "answer": "Based on the context provided, I can see that both retrieval paths and repetition effects are present in the data, but the context doesn't explicitly explain the relationship between spaced repetition and retrieval paths.\n\nFrom the available information:\n- Retrieval paths show high values (deg=4, mat=3.2)\n- Repetition effect shows moderate values (deg=3, mat=1.5)\n\nHowever, the context doesn't contain sufficient information to explain how spaced repetition specifically relates to retrieval paths. To properly answer this question, I would need additional context that directly addresses the connection between these two concepts.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "damaged_no_field": {
+          "context_tokens": 7,
+          "answer": "Based on the context provided, I can see that retrieval has high materiality (3.9) and degree 1, while neural pathway strengthening also has degree 1 with materiality of 1.5. However, the context doesn't contain sufficient information to explain how spaced repetition specifically relates to retrieval paths. The context only provides numerical values for forgetting, retrieval, and neural pathway strengthening without explaining the mechanisms or relationships between spaced repetition and retrieval paths.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question based on the provided context, as the field reconstruction returned empty and no relevant information about spaced repetition or retrieval paths is available in the context.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context provided, spaced repetition would strengthen retrieval paths through repetition. The context states that \"every time you successfully recall something, that path strengthens\" and that \"repetition\" is what makes a retrieval path strong. So spaced repetition - which involves repeatedly recalling information at intervals - would be exercising and strengthening those retrieval paths each time you successfully access the stored information.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "damage_pct": 75,
+      "question": "Would practicing recalling something help you forget it less? Why?",
+      "level": 3,
+      "description": "Inference — requires reasoning from relational structure",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, yes, practicing recalling something would help you forget it less. Here's why:\n\nThe context shows several interconnected memory processes that support this:\n\n1. **Memory recall and retrieval strengthen retention**: The presence of `memory_recall` (degree 3, magnitude 0.6) and `retrieval_path` (degree 4, magnitude 3.2) alongside `memory_retention` (degree 3, magnitude 1.7) suggests that the act of recalling information creates and strengthens neural pathways that support long-term retention.\n\n2. **Repetition reinforces memory**: The `repetition_effect` (degree 3, magnitude 1.5) indicates that repeated practice of recall acts as a form of repetition, which strengthens memory traces.\n\n3. **Synaptic consolidation**: The `synaptic_consolidation` (degree 2, magnitude 1.3) suggests that the process of retrieving memories helps consolidate them at the synaptic level, making them more resistant to forgetting.\n\n4. **Counteracts natural forgetting**: While `forgetting` (degree 2, magnitude 0.5) is a natural process, the practice of recall appears to work against this tendency by reinforcing the memory through multiple mechanisms.\n\nThe relatively high degree and magnitude values for retrieval_path suggest that creating strong retrieval pathways through practice is particularly effective at maintaining memories over time.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "damaged_no_field": {
+          "context_tokens": 7,
+          "answer": "Based on the context provided, yes, practicing recalling something would help you forget it less. \n\nThe context shows that retrieval has a very high material score (3.9) and a degree of 1, indicating it's a highly relevant and well-supported concept. In contrast, forgetting has a much lower material score (0.5) and degree of 0, suggesting that when retrieval is actively practiced, forgetting becomes less prominent or likely.\n\nThis relationship suggests that the act of retrieval - actively recalling information - strengthens memory and reduces the likelihood of forgetting. The high relevance and support for retrieval processes, combined with the relatively low presence of forgetting when retrieval is involved, indicates that practicing recall is an effective way to combat memory loss.",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot provide an answer based on the context provided, as the field reconstruction returned empty and there is no contextual information available to draw from. To properly answer your question about whether practicing recall helps with retention and the mechanisms behind it, I would need relevant context about memory, learning, or cognitive science research.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Yes, practicing recalling something would help you forget it less. According to the context, \"every time you successfully recall something, that path strengthens.\" Since forgetting is described as \"a weak path, not lost information,\" and the problem is that \"the retrieval path is weak,\" repeatedly practicing recall would strengthen those retrieval paths, making the information easier to access in the future.\n\nThe context establishes that the information persists but \"the access degrades,\" so strengthening the access through repetition would reduce forgetting.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "damage_pct": 75,
+      "question": "If retrieval failure differs from storage failure, what does that imply about forgetting?",
+      "level": 3,
+      "description": "Inference — forgetting as blockage not erasure",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, I cannot definitively answer what the difference between retrieval failure and storage failure implies about forgetting. \n\nThe context shows retrieval_failure with degree 4 and materiality 0.1, and forgetting with degree 2 and materiality 0.5, along with other memory-related processes like encoding, memory_cue, and retrieval_path. However, there is no mention of \"storage failure\" in the provided context, so I cannot make comparisons between retrieval failure and storage failure or draw implications about forgetting from such a comparison.\n\nTo properly answer this question, I would need additional context that specifically addresses storage failure and its relationship to both retrieval failure and forgetting.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_no_field": {
+          "context_tokens": 13,
+          "answer": "Based on the context provided, I cannot definitively answer what the difference between retrieval failure and storage failure implies about forgetting. \n\nThe context shows retrieval_failure with degree 2 and materiality 0.1, and forgetting with degree 0 and materiality 0.5, along with other memory-related processes. However, the context does not contain information about \"storage failure\" or explicitly explain the relationship between retrieval failure and storage failure, nor what their distinction would imply about the nature of forgetting.\n\nTo properly answer this question, I would need additional context that defines storage failure and explains the theoretical relationship between these different types of memory failures.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot provide an answer to this question because the context field returned empty. To properly address what the distinction between retrieval failure and storage failure implies about forgetting, I would need relevant information about memory processes, theories of forgetting, or related psychological concepts to be provided in the context.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, if retrieval failure differs from storage failure, it implies that forgetting is primarily about losing access to information rather than losing the information itself. \n\nThe context establishes that \"the information persists, the access degrades\" and that forgetting is \"just a weak path, not lost information.\" This suggests that most forgetting occurs because the retrieval pathways become weak or inaccessible, while the underlying memories remain stored. The problem isn't that the memory was never properly encoded or that it disappeared from storage - it's that we can no longer find the path to access what's still there.\n\nThis reframes forgetting as fundamentally a search problem rather than a storage problem.",
+          "score": 0.5,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "damage_pct": 75,
+      "question": "What is the single most fundamental concept in everything we discussed?",
+      "level": 4,
+      "description": "Primitive identification — tests whether graph found the anchor",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 6,
+          "answer": "I don't have any context available to draw from, as indicated by the \"(graph empty — no context available)\" note. Without knowing what was previously discussed, I cannot identify the most fundamental concept from our conversation. \n\nTo answer your question accurately, I would need access to the prior discussion or context you're referring to.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_no_field": {
+          "context_tokens": 6,
+          "answer": "I don't have any context available to draw from, as indicated by the \"(graph empty — no context available)\" note. Without knowing what was previously discussed, I cannot identify the most fundamental concept from our conversation. \n\nTo answer your question accurately, I would need access to the prior discussion or context you're referring to.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question because the context field shows \"(field reconstruction returned empty)\" - meaning there is no discussion content available for me to analyze. Without any context about what was previously discussed, I cannot identify any fundamental concepts, let alone determine which one might be most important.\n\nTo provide a meaningful answer, I would need the actual content of your previous discussion.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, the single most fundamental concept is **retrieval** - the process of accessing information that's already stored in memory. Everything discussed centers around this: forgetting keys is a retrieval failure, remembering names involves retrieval paths, recognition and recall are both forms of retrieval (with or without cues), and even the distinction between remembering and forgetting comes down to successful versus failed retrieval of existing information.",
+          "score": 1.0,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "damage_pct": 75,
+      "question": "The conversation describes a structure for memory. What is the closest analogy to a graph node in this model?",
+      "level": 4,
+      "description": "Cross-domain — maps memory model onto graph structure",
+      "conditions": {
+        "intact_graph_only": {
+          "context_tokens": 5,
+          "answer": "Based on the context provided, I cannot determine what the closest analogy to a graph node would be in this memory model. The context only shows some memory-related parameters (memory_cue and memory_path_strength with their respective degree and material values), but doesn't describe the actual structure of the memory model or explain what components might correspond to graph nodes.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_no_field": {
+          "context_tokens": 3,
+          "answer": "Based on the context provided, I cannot determine what the closest analogy to a graph node would be in the memory model described. The context only shows a memory access function with degree and material parameters, but doesn't provide information about the conversation or the memory structure being discussed. To answer this question, I would need more details about the memory model and its components from the conversation.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "damaged_with_field": {
+          "context_tokens": 4,
+          "answer": "I cannot answer this question because the context field appears to be empty - it shows \"(field reconstruction returned empty)\". Without access to the conversation that describes the memory structure model, I cannot determine what would be analogous to a graph node in that specific model.\n\nTo properly answer this question, I would need the actual content of the conversation that discusses the memory structure.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context provided, the closest analogy to a graph node in this memory model would be the stored information or memory itself. \n\nThe conversation describes memory as having information that \"persists\" and \"is there\" but may have weak or strong \"retrieval paths\" to access it. This suggests a structure where:\n\n- The nodes would be the encoded memories/information that exist in storage\n- The edges would be the \"retrieval paths\" that can be weak or strong, and that get strengthened through \"repetition\" and successful recall\n\nThe assistant states \"the information persists, the access degrades\" and \"the difference is in the search, not the storage,\" which supports the idea that there are discrete stored items (nodes) connected by pathways (edges) that vary in strength.",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    }
+  ]
+}
