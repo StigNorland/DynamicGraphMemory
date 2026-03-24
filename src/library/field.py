@@ -306,14 +306,91 @@ class BioelectricField:
         if not top_terms:
             return ""
 
-        # Format as a compact field reconstruction summary
+        # ------------------------------------------------------------------
+        # Map high-activation terms back to actual graph nodes with content
+        # ------------------------------------------------------------------
+
+        top_term_set = set(top_terms[:8])
+
+        # Find nodes whose labels overlap with the high-activation terms
+        activated_nodes = []
+        for node in graph.nodes.values():
+            label_words = set(node.label.replace("_", " ").split())
+            if (node.label in top_term_set
+                    or any(t in node.label for t in top_terms[:5])
+                    or label_words & top_term_set):
+                activated_nodes.append(node)
+
+        # Sort by maturity so the most established concepts come first
+        activated_nodes.sort(key=lambda n: -n.maturity)
+
+        # Build meaningful context lines from activated nodes
         fidelity_pct = int(fidelity * 100)
-        summary = (
-            f"[Field reconstruction from {len(projections)} nodes, "
-            f"fidelity={fidelity_pct}%] "
-            f"Dominant themes: {', '.join(top_terms[:8])}"
-        )
-        return summary
+        lines = [
+            f"[Field reconstruction: {len(projections)} surviving nodes, "
+            f"fidelity={fidelity_pct}%, "
+            f"dominant: {', '.join(top_terms[:5])}]"
+        ]
+
+        for node in activated_nodes[:8]:
+            # Prefer rich payload summary if available
+            payload = node.meta.get("payload", {})
+            canonical = payload.get("canonical_summary", "")
+            fact_dict  = payload.get("fact_dict", {})
+
+            if canonical:
+                line = f"{node.label}: {canonical}"
+                if fact_dict:
+                    facts = "; ".join(
+                        f"{k}={v}"
+                        for k, v in list(fact_dict.items())[:3]
+                    )
+                    line += f" [{facts}]"
+                lines.append(line)
+            else:
+                # Fall back to relational neighbours
+                neighbours = graph._get_neighbors(node.id)
+                nb_labels = [
+                    graph.nodes[nb_id].label
+                    for nb_id, w, _ in neighbours
+                    if nb_id in graph.nodes and w > 0.5
+                ][:4]
+                if nb_labels:
+                    lines.append(
+                        f"{node.label}(mat={node.maturity:.1f})"
+                        f" → {', '.join(nb_labels)}"
+                    )
+                elif node.maturity >= 2.0:
+                    # Include even unconnected high-maturity nodes
+                    lines.append(
+                        f"{node.label}(mat={node.maturity:.1f})"
+                    )
+
+        # Also include top merge events — these represent the most
+        # significant insights in the conversation and are field-independent
+        if hasattr(graph, "merge_events") and graph.merge_events:
+            significant = sorted(
+                graph.merge_events, key=lambda e: -e.magnitude
+            )[:3]
+            for event in significant:
+                merged_node = graph.nodes.get(event.merged_into)
+                if merged_node:
+                    lines.append(
+                        f"[insight: '{event.node_a}' + '{event.node_b}'"
+                        f" → '{merged_node.label}'"
+                        f" ({event.cascade_depth} connections unlocked)]"
+                    )
+
+        if len(lines) <= 1:
+            # Nothing useful found — fall back to term list only
+            return (
+                f"[Field reconstruction: {len(projections)} nodes, "
+                f"fidelity={fidelity_pct}%] "
+                f"Themes: {', '.join(top_terms[:10])}"
+            )
+
+        return "\n".join(lines)
+
 
     def rejuvenate(self, node: "Node", graph: "ConceptGraph") -> None:
         """

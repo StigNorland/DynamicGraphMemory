@@ -1,0 +1,345 @@
+{
+  "metadata": {
+    "timestamp": "20260323_160043",
+    "name": "neutron_star_physics",
+    "model": "claude-sonnet-4-20250514",
+    "temperature": 0,
+    "token_budget": 400,
+    "questions": 12,
+    "turns": 12,
+    "use_llm_extraction": false,
+    "use_rich_payloads": true,
+    "use_field": true
+  },
+  "results": [
+    {
+      "question": "What is the time dilation factor at the surface of the neutron star, and why does it flatten rapidly with distance?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 stated in turn 2",
+      "conditions": {
+        "graph": {
+          "context_tokens": 395,
+          "answer": "Based on the context provided, the time dilation factor at the neutron star surface is not explicitly given. However, the context explains that time dilation behaves according to the factor 1/\u221a(1 - Rs/r), where Rs is the Schwarzschild radius and r is the radial distance.\n\nThe time dilation flattens rapidly with distance because:\n\n1. **Mathematical form**: The time dilation factor depends on the ratio Rs/r. As r increases beyond the surface, this ratio quickly becomes much smaller.\n\n2. **Strong-field regime**: Near the neutron star surface, the gravitational field is extremely strong (the context mentions accelerations of ~10^12 m/",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the provided context, I cannot answer your question about the time dilation factor at the surface of a neutron star or why it flattens rapidly with distance. The context discusses black holes and the Schwarzschild radius, but does not mention neutron stars or provide specific information about time dilation factors at neutron star surfaces.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 210,
+          "answer": "Based on the context provided, I cannot determine the specific time dilation factor at the neutron star surface, as no explicit time dilation values are given in the facts.\n\nHowever, the context shows that neutron stars are connected to event horizons (which have a characteristic scale of 4.13 km mentioned in the facts), and time dilation is listed as a concept related to event horizons along with the schwarzschild_metric.\n\nThe rapid flattening of time dilation with distance occurs because gravitational time dilation follows the schwarzschild_metric, where the effect is proportional to the gravitational potential. Since gravitational field strength decreases rapidly with distance from a compact object like a neutron star",
+          "score": 0.2,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "What is the Schwarzschild radius of the neutron star and what does it represent physically?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 computed in turns 2 and 3",
+      "conditions": {
+        "graph": {
+          "context_tokens": 395,
+          "answer": "Based on the context provided, the Schwarzschild radius for the neutron star (with 1.4 solar masses) is approximately 4.13 km.\n\nPhysically, the Schwarzschild radius represents the event horizon - the critical radius where the escape velocity equals the speed of light. For this neutron star, the Schwarzschild radius lies inside the stellar material, meaning the neutron star's actual surface is larger than its Schwarzschild radius, so it hasn't collapsed into a black hole. If the neutron star were compressed to this radius, it would become a black hole, and nothing - not even light - could escape from within this boundary.",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the provided context, I cannot determine the Schwarzschild radius of any specific neutron star, as no numerical values or neutron star parameters are given. The context only uses R_s as a general symbol for the Schwarzschild radius.\n\nHowever, the context does indicate what the Schwarzschild radius represents physically: it is the location of the event horizon - the boundary where coordinate effects become extreme. At r = R_s, the proper acceleration required for a stationary observer to hover there diverges to infinity, and coordinate time for infalling objects appears to slow to a stop when viewed from outside, though the infalling observer crosses this boundary in finite proper time.",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 208,
+          "answer": "Based on the context provided, I cannot determine the specific Schwarzschild radius of the neutron star. The context shows that neutron_star has been unified with event_horizon concepts and has some degree of connectivity (deg=3, mat=4.5), but no explicit Schwarzschild radius value is given for the neutron star.\n\nHowever, the context does show that event_horizon has a value of 4.13 km associated with it. If this represents the Schwarzschild radius of the neutron star in question, then:\n\n**Schwarzschild radius \u2248 4.13 km**\n\n**Physical meaning**: The Schwarzschild radius represents the critical radius at",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "What is the Hawking temperature formula and how does it relate to surface gravity?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 stated in turn 7",
+      "conditions": {
+        "graph": {
+          "context_tokens": 343,
+          "answer": "Based on the context provided, the Hawking temperature formula is:\n\n**T_H = \u210fc\u00b3/(8\u03c0GMk_B)**\n\nThis relates to surface gravity \u03ba through:\n\n**T_H = \u210f\u03ba/(2\u03c0ck_B)**\n\nwhere the surface gravity is **\u03ba = c\u00b2/(4GM)**.\n\nThe surface gravity \u03ba represents the proper acceleration of a stationary observer at the horizon as measured by an observer at infinity. While the local proper acceleration diverges at the horizon, the surface gravity remains finite and directly determines the Hawking temperature that a distant observer would measure.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the context provided, the Hawking temperature is denoted as T_H, and it represents the temperature at which the black hole vacuum appears as a thermal bath to an observer at infinity. \n\nHowever, the specific formula for Hawking temperature and its explicit relationship to surface gravity are not given in this context. The context only mentions that the Hawking effect is the curved-spacetime analogue of the Unruh effect, where the black hole vacuum appears thermal at temperature T_H, but does not provide the mathematical relationship between T_H and surface gravity.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 210,
+          "answer": "Based on the context provided, I cannot find the specific Hawking temperature formula. However, the context shows clear connections between related concepts:\n\nThe key relationships indicate:\n- **surface_gravity** appears as a query-relevant concept (deg=3, mat=3.1)\n- **hawking_radiation** (deg=4, mat=3.7) connects to the **unruh_effect**\n- **coordinate_acceleration** relates to the **hawking_effect** and **thermal_bath**\n\nThe context suggests these concepts are interconnected through the **event_horizon** (the dominant concept with mat=15.5), but the specific mathematical relationship between Hawking temperature and surface gravity",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "Why does proper acceleration diverge for a stationary observer at the event horizon but remain zero for a freely falling observer?",
+      "level": 2,
+      "description": "Synthesis \u2014 requires connecting turns 6 and 7",
+      "conditions": {
+        "graph": {
+          "context_tokens": 360,
+          "answer": "Based on the context provided, the divergence occurs because these represent fundamentally different physical situations:\n\n**Stationary observer**: Must use rockets/thrust to maintain a fixed position against gravitational infall. The required proper acceleration is a = GM/r\u00b2 \u00d7 1/\u221a(1 - Rs/r), which diverges at the horizon because infinite fuel would be needed to resist the gravitational pull at that point.\n\n**Freely falling observer**: Experiences zero proper acceleration because they follow a geodesic - the natural path through curved spacetime. By the equivalence principle, free fall is locally indistinguishable from inertial motion in flat spacetime.\n\nThe key insight is that proper acceleration measures",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the context, proper acceleration diverges for a stationary observer at the event horizon because maintaining a fixed position there requires infinite acceleration to counteract the gravitational pull - the formula shows proper acceleration a = (c\u00b2Rs)/(2r\u00b2) \u00d7 1/\u221a(1 - Rs/r) diverges as r approaches Rs.\n\nIn contrast, a freely falling observer has zero proper acceleration because they are following a geodesic (natural path in curved spacetime) and experience no forces - they are in free fall, feeling weightless, regardless of their proximity to the event horizon.\n\nThe key difference is that the stationary observer must actively fight against gravity with rocket engines, while the freely falling observer simply moves",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 210,
+          "answer": "Based on the context provided, proper acceleration diverges for a stationary observer at the event horizon because maintaining a stationary position there requires infinite acceleration to counteract the gravitational field. The context shows proper acceleration is closely related to the event horizon and gravitational acceleration concepts.\n\nFor a freely falling observer, proper acceleration remains zero because they follow a geodesic (natural path) in spacetime without any external forces acting on them - they are in free fall and experience no acceleration in their own reference frame.\n\nThe key distinction is that the stationary observer must actively resist the gravitational field with ever-increasing proper acceleration as they approach the event horizon, while the freely falling observer simply follows the natural curvature of spacetime without resistance",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "How does spaghettification scale with black hole mass, and why are supermassive black holes gentler at the horizon?",
+      "level": 2,
+      "description": "Synthesis \u2014 requires connecting tidal force scaling in turn 4",
+      "conditions": {
+        "graph": {
+          "context_tokens": 397,
+          "answer": "Spaghettification scales inversely with the square of black hole mass (\u221d 1/M\u00b2). This occurs because tidal forces scale as M/R\u00b3, and since the Schwarzschild radius R_s \u221d M, the tidal force at the horizon becomes M/M\u00b3 = 1/M\u00b2.\n\nSupermassive black holes are gentler at the horizon because their event horizons are much larger relative to their mass. A 10 billion solar mass black hole has an enormous event horizon where the curvature gradient is relatively mild, allowing objects to cross without immediate tidal disruption. In contrast, stellar-mass black holes have small, highly curved",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the provided context, I cannot answer this question about spaghettification and how it scales with black hole mass. The context discusses coordinate effects, proper acceleration of stationary observers, and thermal effects near black holes, but it does not mention spaghettification (tidal forces) or how these effects vary with black hole mass.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 210,
+          "answer": "Based on the context provided, I can see that spaghettification is connected to tidal_acceleration and supermassive_black_hole concepts, but the specific scaling relationship with black hole mass is not explicitly detailed in this context.\n\nHowever, the connection between spaghettification, tidal_acceleration, and supermassive_black_hole suggests that:\n\n**Spaghettification scaling**: The tidal forces responsible for spaghettification are related to gravitational gradients, which would be inversely related to black hole mass.\n\n**Why supermassive black holes are gentler**: The context shows supermassive_black_hole connected to tidal_acceleration,",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What is the connection between the Unruh effect and Hawking radiation?",
+      "level": 2,
+      "description": "Synthesis \u2014 requires connecting turns 6, 7, and 8",
+      "conditions": {
+        "graph": {
+          "context_tokens": 343,
+          "answer": "Based on the context provided, the connection between the Unruh effect and Hawking radiation is through accelerating observers near the event horizon:\n\nThe Unruh effect states that an accelerating observer sees a thermal spectrum. Near the event horizon, an observer trying to hover at a fixed position (ZAMO - zero angular momentum observer) must undergo proper acceleration that diverges as they approach the horizon. Due to the Unruh effect, this accelerating observer perceives thermal radiation.\n\nThe Hawking temperature is related to the surface gravity (\u03ba) by T_H = \u210f\u03ba/(2\u03c0ck_B), where the surface gravity represents \"the proper acceleration of a stationary observer",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the context, the connection between the Unruh effect and Hawking radiation is that they are analogous phenomena:\n\n- The **Unruh effect** occurs in flat spacetime, where the vacuum appears thermal to a uniformly accelerating observer\n- **Hawking radiation** is the curved-spacetime analogue, where the black hole vacuum appears as a thermal bath to an observer at infinity\n\nThe context suggests this connection arises through the Rindler wedge analogy - the region outside a black hole's event horizon is analogous to the Rindler wedge seen by an accelerating observer in flat spacetime. Both effects involve observers experiencing thermal radiation from what others would consider empty",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "graph_only": {
+          "context_tokens": 210,
+          "answer": "Based on the context provided, the Unruh effect and Hawking radiation are directly connected, as shown in the key relations where `unruh_effect(mat=5.6)` has `hawking_radiation` as one of its primary connections.\n\nBoth effects appear to be related through the concept of acceleration and thermal phenomena. The context shows that:\n\n1. The Unruh effect is connected to `hawking_effect` and `thermal_bath`\n2. Hawking radiation is listed as a direct connection to the Unruh effect\n3. Both are query-relevant concepts with similar materiality scores (Unruh effect: 5.6, Hawking",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "The coordinate acceleration diverges at the event horizon but the infalling observer notices nothing special. What does this imply about the nature of the event horizon?",
+      "level": 3,
+      "description": "Inference \u2014 requires reasoning from the distinction in turn 6",
+      "conditions": {
+        "graph": {
+          "context_tokens": 360,
+          "answer": "Based on the context provided, this implies that **the event horizon is a global structure, not a local one**. \n\nThe divergence of coordinate acceleration is merely a coordinate singularity - an artifact of the Schwarzschild coordinate system breaking down at the horizon, not a reflection of actual physics. Meanwhile, the freely falling observer experiences zero proper acceleration and finds the local physics indistinguishable from flat spacetime due to the equivalence principle.\n\nThis demonstrates that **the horizon cannot be detected by any local measurement** - it's only \"special\" from the perspective of distant observers using particular coordinates. The event horizon's significance emerges from the global causal structure of spacetime, not from any locally detectable physical",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on this context, the divergence of coordinate acceleration while the infalling observer notices nothing special implies that **the event horizon is not a physical singularity but rather a coordinate singularity** - an artifact of the chosen coordinate system (Schwarzschild coordinates) rather than a real physical barrier.\n\nThe event horizon represents a boundary in spacetime geometry, but it has no locally detectable physical properties. An observer crossing it experiences no sudden change or obstruction - they pass through in finite proper time without noticing anything unusual at that moment. This demonstrates that the horizon's apparent \"special\" nature in certain coordinate systems is purely mathematical, not physical.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 210,
+          "answer": "Based on the context provided, this implies that the event horizon is **coordinate-dependent rather than physically fundamental**. \n\nThe divergence of coordinate acceleration at the event horizon is an artifact of the coordinate system being used (likely Schwarzschild coordinates), not a real physical singularity. The fact that the infalling observer \"notices nothing special\" demonstrates that the event horizon is not a location where anything physically dramatic occurs locally.\n\nThis suggests the event horizon is a **global geometric feature** of spacetime rather than a local physical barrier - it appears singular only from the perspective of distant observers using certain coordinate systems, while being perfectly regular for observers actually crossing it. The coordinate singularity masks the smooth, continuous nature of spacetime",
+          "score": 0.8,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "If the divergence of proper acceleration for stationary observers connects to the Unruh effect, what physical quantity links the two?",
+      "level": 3,
+      "description": "Inference \u2014 requires connecting surface gravity, proper acceleration, and Unruh temperature",
+      "conditions": {
+        "graph": {
+          "context_tokens": 360,
+          "answer": "Based on the context provided, the physical quantity that links the divergence of proper acceleration for stationary observers to the Unruh effect is **temperature**.\n\nThe context explicitly states that a strongly accelerating observer detects a thermal bath of photons with temperature T proportional to a/(2\u03c0c), where 'a' is the proper acceleration. This Unruh temperature directly connects the diverging proper acceleration of stationary observers near the event horizon to the thermal radiation they would detect.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the context, the physical quantity that links the divergence of proper acceleration for stationary observers to the Unruh effect is **temperature**.\n\nThe context explains that the Unruh effect predicts the vacuum appears thermal to a uniformly accelerating observer, and this connects to the Hawking effect where the black hole vacuum appears as a thermal bath at temperature T_H. The diverging proper acceleration of stationary observers near the horizon corresponds to this thermal appearance of the vacuum.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 210,
+          "answer": "Based on the context provided, the physical quantity that links the divergence of proper acceleration for stationary observers to the Unruh effect is **temperature**.\n\nThe context shows that proper_acceleration connects to acceleration and event_horizon, while unruh_effect connects to hawking_radiation and hawking_effect. The linking mechanism appears to be through the **thermal bath** (mentioned in coordinate_acceleration relations), which represents the temperature experienced by accelerated observers - a key feature of both the diverging proper acceleration near event horizons and the thermal radiation predicted by the Unruh effect.",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "Why does the time dilation plot near a neutron star and the proper acceleration divergence near a black hole both trace back to the same underlying formula?",
+      "level": 3,
+      "description": "Inference \u2014 both derive from the Schwarzschild metric factor",
+      "conditions": {
+        "graph": {
+          "context_tokens": 395,
+          "answer": "Both phenomena stem from the same metric coefficient in the Schwarzschild solution: the factor (1 - R_s/r) that appears in the metric tensor.\n\nFor time dilation, this factor determines how coordinate time relates to proper time - as you approach the gravitational source, (1 - R_s/r) approaches zero, causing time dilation to increase dramatically.\n\nFor proper acceleration, the same factor appears in the denominator when calculating the acceleration needed to remain stationary: a = (GM/r\u00b2) \u00d7 1/\u221a(1 - R_s/r). As r approaches R_s, this factor causes the acceleration to diverge.\n\nThe underlying physics is that both",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the context, both phenomena trace back to the same underlying formula because they both involve the redshift factor **1/\u221a(1 - Rs/r)**.\n\nFor time dilation near a neutron star, this factor describes how time runs slower in the stronger gravitational field. For the proper acceleration divergence near a black hole, this same factor appears in the denominator of the acceleration formula **a = (c\u00b2Rs/2r\u00b2) \u00d7 1/\u221a(1 - Rs/r)**, causing it to diverge as r approaches Rs.\n\nThe context explicitly connects these through gravitational redshift: \"The work done against this acceleration to maintain position corresponds to the gravitational redshift.\" Both",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 210,
+          "answer": "Based on the context, both phenomena trace back to the same underlying formula because they both emerge from **gravitational physics** and the **event horizon** concept, which are unified in the knowledge structure.\n\nThe context shows that:\n\n1. **Event horizon** is directly related to both **time_dilation** and **proper_acceleration** \n2. **Gravitational_physics** unifies with multiple acceleration concepts, revealing new connections\n3. **Proper_acceleration** connects to **event_horizon** and acceleration frameworks\n\nBoth time dilation near a neutron star and proper acceleration divergence near a black hole are manifestations of the same gravitational field effects described by the **schwarzschild_metric** and",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "What single mathematical object underlies time dilation, gravitational acceleration, tidal forces, and Hawking temperature in this conversation?",
+      "level": 4,
+      "description": "Cross-domain primitive \u2014 the Schwarzschild metric is the common root",
+      "conditions": {
+        "graph": {
+          "context_tokens": 391,
+          "answer": "Based on the context provided, the **Schwarzschild metric** is the single mathematical object that underlies all these phenomena. The conversation explicitly mentions that gravitational time dilation is \"described by the Schwarzschild metric from General Relativity\" and that the coordinate acceleration \"divergence predicted by the Schwarzschild metric\" explains the behavior near the event horizon. While tidal forces and Hawking temperature aren't explicitly derived in the given context, the Schwarzschild metric is the fundamental spacetime geometry that governs all gravitational effects around spherically symmetric black holes and neutron stars discussed in this conversation.",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the context provided, the **metric tensor** (specifically the Schwarzschild metric) underlies all these phenomena. \n\nThe conversation shows how the metric component (1 - R_s/r) appears in the coordinate time dilation, the proper acceleration formula for stationary observers, the gravitational redshift factor, and connects to the Hawking temperature through the analogy with Rindler coordinates. All these effects arise from the same underlying spacetime geometry encoded in the metric tensor.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 227,
+          "answer": "Based on the context provided, the **event horizon** appears to be the single mathematical object that underlies these phenomena. \n\nThe context shows event_horizon has the highest materiality score (15.5) and is directly connected to time_dilation, gravitational_acceleration, tidal_forces, and through the hawking_effect/hawking_radiation connections. The event horizon serves as the geometric boundary where these relativistic effects converge - it's where time dilation becomes infinite, gravitational acceleration reaches critical values, tidal forces cause spaghettification, and Hawking temperature is determined by the horizon's surface gravity.",
+          "score": 0.2,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "The conversation escalates from neutron star surface physics to the information paradox. What concept bridges the two ends of this progression?",
+      "level": 4,
+      "description": "Cross-domain synthesis \u2014 event horizon as the connecting structure",
+      "conditions": {
+        "graph": {
+          "context_tokens": 343,
+          "answer": "Based on the context, **proper acceleration** bridges neutron star surface physics and the information paradox.\n\nThe progression flows from neutron star surfaces (where proper acceleration is needed to maintain position against strong gravity) to event horizons (where proper acceleration diverges for stationary observers), connecting through the Unruh effect - where accelerating observers experience thermal radiation. This thermal aspect links directly to Hawking radiation and ultimately the information paradox, as the context notes: \"if Hawking radiation carries information, the event horizon must not be a perfectly absorbing surface.\"\n\nProper acceleration thus serves as the physical thread connecting compact object physics to fundamental questions about information and black hole thermodynamics.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the context provided, I cannot determine what concept bridges neutron star surface physics to the information paradox, as the given text only discusses black hole physics near the event horizon (coordinate effects, proper acceleration, and the Hawking effect). The context doesn't mention neutron stars or the information paradox explicitly.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 229,
+          "answer": "Based on the context, **event_horizon** bridges neutron star surface physics and the information paradox.\n\nThe evidence shows:\n- Event horizon has the highest materiality score (15.5) and connects to both ends\n- It unified with neutron_star, revealing 3 new connections\n- It appears in the query-relevant concepts alongside information_paradox\n- It serves as a central hub connecting to black_hole, tidal_forces, and gravitational_physics\n\nThe event horizon represents the critical boundary where neutron star physics (extreme gravity at a surface) transitions into black hole physics where the information paradox becomes relevant.",
+          "score": 0.8,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "Three different AI models gave slightly different framings of proper acceleration near the horizon. What is the single claim all three agree on?",
+      "level": 4,
+      "description": "Cross-domain \u2014 synthesising the multi-model turns 6, 7, 8",
+      "conditions": {
+        "graph": {
+          "context_tokens": 360,
+          "answer": "Based on the context provided, I cannot identify what three different AI models claimed about proper acceleration near the horizon, as the context only shows one theoretical discussion of acceleration near the event horizon. The context contains user questions about plotting acceleration and tidal forces, but doesn't present three different AI model responses to compare their framings or identify a common claim among them.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 228,
+          "answer": "Based on the context provided, I cannot identify what three different AI models claimed about proper acceleration near the horizon, as the context only presents one perspective/explanation rather than comparing three different AI model responses. The context describes various aspects of acceleration near the event horizon but doesn't mention or compare claims from three different AI models.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 206,
+          "answer": "Based on the context provided, I cannot identify what three different AI models said about proper acceleration near the horizon, as the context doesn't contain any statements or claims from AI models. The context only shows concept relationships, facts, and insights about gravitational physics concepts, but doesn't include any AI model framings or claims about proper acceleration near the horizon.",
+          "score": 0.0,
+          "key_hits": 0
+        }
+      }
+    }
+  ],
+  "summary": {
+    "by_level": {
+      "1": {
+        "graph": 0.5333333333333333,
+        "baseline": 0.26666666666666666,
+        "graph_only": 0.3333333333333333
+      },
+      "2": {
+        "graph": 0.6666666666666666,
+        "baseline": 0.6666666666666666,
+        "graph_only": 0.5333333333333333
+      },
+      "3": {
+        "graph": 0.6,
+        "baseline": 0.39999999999999997,
+        "graph_only": 0.6
+      },
+      "4": {
+        "graph": 0.3333333333333333,
+        "baseline": 0.39999999999999997,
+        "graph_only": 0.3333333333333333
+      }
+    },
+    "overall": {
+      "graph": 0.5333333333333333,
+      "baseline": 0.43333333333333335,
+      "graph_only": 0.45
+    }
+  }
+}

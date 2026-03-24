@@ -1,0 +1,345 @@
+{
+  "metadata": {
+    "timestamp": "20260323_155348",
+    "name": "cdt_shortcomings",
+    "model": "claude-sonnet-4-20250514",
+    "temperature": 0,
+    "token_budget": 500,
+    "questions": 12,
+    "turns": 28,
+    "use_llm_extraction": false,
+    "use_rich_payloads": true,
+    "use_field": true
+  },
+  "results": [
+    {
+      "question": "What are the five shortcomings the framework inherits from holographic theories?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 listed explicitly in turn 2",
+      "conditions": {
+        "graph": {
+          "context_tokens": 496,
+          "answer": "Based on the context provided, the specific five shortcomings that the framework inherits from holographic theories are not explicitly listed. The conversation mentions that the user asked \"What shortcomings do I inherit from existing holographic theories and from CDT?\" but the actual shortcomings are not detailed in the given context. The conversation focuses more on the technical implementation of CIB-LSS cross-power simulations and testing holographic locality through observational data rather than discussing the theoretical limitations inherited from holographic theories.",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "Based on the provided context, I cannot identify five specific shortcomings that the framework inherits from holographic theories. The conversation focuses on analyzing MCMC results, halo-model upgrades, and SPARC data integration, but does not explicitly discuss shortcomings inherited from holographic theories. The context mentions some theoretical alternatives like \"tensor network holography\" and \"modified entropic gravity\" when discussing potential revisions, but does not enumerate specific shortcomings of the holographic framework itself.",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 263,
+          "answer": "Based on the provided context, I cannot identify five specific shortcomings that the framework inherits from holographic theories. The context contains information about holographic concepts and their relationships (holographic_locality, holographic_duality, holographic_projection, holographic_principle, ds_holography), but it does not explicitly discuss any shortcomings or limitations of these theories.\n\nThe context appears to be a technical summary of concept relationships and field reconstruction data, but it does not contain evaluative information about theoretical limitations or shortcomings.",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "Why is CDT fractality not fringe, while large-scale fractal cosmology is?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 stated in turn 4",
+      "conditions": {
+        "graph": {
+          "context_tokens": 499,
+          "answer": "Based on the context, CDT (Causal Dynamical Triangulation) fractality isn't fringe because it emerges from a well-established quantum gravity framework with rigorous mathematical foundations - it's a statistical property arising from discrete spacetime geometry at the Planck scale with clear UV/IR connections.\n\nLarge-scale fractal cosmology is more fringe because it typically lacks:\n1. A fundamental microscopic mechanism (unlike CDT's simplicial geometry)\n2. Connection to established physics frameworks\n3. Clear scale-dependent transitions that preserve homogeneity at CMB scales\n\nCDT's fractality is a predicted emergent property of quantum spacetime, while large-scale fractal cosm",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "Based on the provided context, I cannot answer this question about CDT (Causal Dynamical Triangulation) fractality versus large-scale fractal cosmology. The conversation context focuses entirely on biospheric dark matter, holographic locality, CIB analysis, and SPARC rotation curve data - it contains no information about CDT, fractality, or fractal cosmology that would allow me to explain the difference in their scientific acceptance.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 282,
+          "answer": "Based on the context provided, I cannot find any direct information about CDT (Causal Dynamical Triangulation) fractality or explicit comparisons between CDT fractality and large-scale fractal cosmology.\n\nThe context shows `fringe_theory` as query-relevant with degree 4 and materiality 3.2, and `fractal_universe` with degree 2 and materiality 1.7, but doesn't contain specific details about CDT or why different fractal approaches might have different scientific standing.\n\nThe context focuses primarily on holographic principles, power spectra, and large-scale structure correlations, but lacks the specific information needed to explain the distinction between CDT fract",
+          "score": 0.0,
+          "key_hits": 0
+        }
+      }
+    },
+    {
+      "question": "What does the Limber projection predict for the separation between local and non-local models at l=800?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 stated in turn 12",
+      "conditions": {
+        "graph": {
+          "context_tokens": 498,
+          "answer": "According to the context, the Limber projection predicts that at l=800, the local and non-local models differ by a factor of 5. Since Euclid measures this at 3 percent precision, this gives a 30-sigma separation with a 3-year Euclid dataset.",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "Based on the context provided, there is no specific mention of what the Limber projection predicts for the separation between local and non-local models at l=800. The conversation discusses MCMC results, halo models, and SPARC data constraints, but does not include any details about Limber projection predictions at that specific multipole.",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 284,
+          "answer": "Based on the context provided, I cannot determine what the Limber projection specifically predicts for the separation between local and non-local models at l=800. \n\nThe context shows that:\n- `limber_projection` is related to `window_function` and has query-relevance with deg=1, mat=1.3\n- `local_model` is mentioned with deg=8, mat=8.3 and relates to concepts like `cib_shot_noise` and `non_local_smearing`\n- `window_function` connects to `limber_projection` and `angular_power_spectrum`\n\nHowever, no specific numerical predictions or separations at l=",
+          "score": 0.4,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "How does the CIB-LSS cross-power test distinguish local from non-local holographic projection?",
+      "level": 2,
+      "description": "Synthesis \u2014 requires connecting the holographic locality concern in turn 2 with the simulation in turns 6-8",
+      "conditions": {
+        "graph": {
+          "context_tokens": 496,
+          "answer": "Based on the context, the CIB-LSS cross-power test distinguishes local from non-local holographic projection through the scale-dependent behavior of the cross-power spectrum:\n\n**Local holographic projection** produces P_local(k) with a coherent, well-defined peak and rising correlation at small k.\n\n**Non-local holographic projection** produces P_nonlocal(k) = P_local(k) \u00d7 exp(-k\u00b2\u00d72500/2), which creates a flatter, smeared spectrum due to the exponential suppression factor.\n\nThe key diagnostic is the ratio P_local/P_nonlocal:\n- At k = 0.01",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "Based on the context, the CIB-LSS cross-power test distinguishes local from non-local holographic projection through the **sigma_smear parameter**, which measures the spatial scale over which biospheric contributions are distributed.\n\n**Local holographic projection** predicts sigma_smear \u2248 0, confining biospheric effects to the galactic habitable zone at 5-10 kpc scales.\n\n**Non-local holographic projection** would show sigma_smear >> 0, indicating biospheric contributions are smeared over much larger cosmological scales (the initial result showed 45 Mpc/h).\n\nThe test works by fitting cross-power spectra",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "graph_only": {
+          "context_tokens": 296,
+          "answer": "Based on the context provided, I cannot find sufficient information to explain how the CIB-LSS cross-power test distinguishes local from non-local holographic projection.\n\nWhile the context shows relationships between relevant concepts - including `holographic_projection`, `holographic_locality`, `cross_power_spectrum`, and `large_scale_structure` - it lacks the specific details about:\n\n1. How the CIB-LSS cross-power test operates\n2. The mechanism by which it distinguishes local vs non-local effects\n3. The specific signatures or characteristics that differentiate these holographic projection types\n\nThe context indicates connections between holographic locality and concepts like `holographic_duality` and",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "Why does adding SPARC rotation curve data break the degeneracy between b_SFH and sigma_smear?",
+      "level": 2,
+      "description": "Synthesis \u2014 requires connecting turns 13 and 14",
+      "conditions": {
+        "graph": {
+          "context_tokens": 500,
+          "answer": "SPARC rotation curve data directly measures the local GHZ (galactic habitable zone) effect, which provides an independent constraint on b_SFH (the star formation history bias parameter). Since SPARC measures local galactic dynamics where the biospheric dark matter effect should be strongest and most localized, it anchors b_SFH to its true value. This breaks the anti-correlation degeneracy between b_SFH and sigma_smear because the rotation curve data constrains b_SFH independently of the cosmological cross-power spectrum, preventing a biased b_SFH estimate from artificially mimicking a non-local (smeared) signal.",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "SPARC rotation curve data provides a direct, independent measurement of the local biospheric dark matter effect (delta_V/V ~ 5% in the galactic habitable zone). This local constraint on b_SFH is independent of the cosmological CIB analysis, so it anchors the b_SFH parameter value and prevents it from being artificially biased to compensate for sigma_smear in the anti-correlated degeneracy between the two parameters.",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "graph_only": {
+          "context_tokens": 286,
+          "answer": "Based on the context provided, I cannot definitively explain why SPARC rotation curve data breaks the degeneracy between b_SFH and sigma_smear. \n\nThe context shows that:\n- `sparc_rotation_curve` has high degeneracy (deg=4) and materiality (mat=4.9)\n- `sigma_smear` has even higher degeneracy (deg=5, mat=6.4) and is related to bias_lss and normalization_amplitude\n- There are various bias-related concepts (`bias_sfh`, `galaxy_bias`) in the network\n\nHowever, the specific mechanism by which SPARC rotation curves would break the b",
+          "score": 0.2,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "What four CDT shortcomings map structurally onto the holographic shortcomings?",
+      "level": 2,
+      "description": "Synthesis \u2014 requires comparing both lists from turn 2",
+      "conditions": {
+        "graph": {
+          "context_tokens": 496,
+          "answer": "Based on the context provided, I cannot identify the four CDT shortcomings that map structurally onto holographic shortcomings. While the conversation mentions that shortcomings are inherited \"from existing holographic theories and from CDT,\" the specific shortcomings from either framework are not detailed in the given context. The discussion focuses primarily on the technical implementation of CIB-LSS cross-power simulations and testing holographic locality, but does not enumerate the structural problems with Causal Dynamical Triangulation (CDT) or how they correspond to holographic issues.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "I cannot answer this question based on the provided context. The conversation discusses CIB analysis, SPARC data, halo models, and holographic locality, but does not mention CDT (Causal Dynamical Triangulation) or any structural mapping between CDT shortcomings and holographic shortcomings.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 263,
+          "answer": "Based on the context provided, I cannot identify four CDT shortcomings that map structurally onto holographic shortcomings. The context focuses on holographic concepts (holographic_locality, holographic_projection, holographic_principle, ds_holography) and their relationships to cosmological structures and power spectra, but does not mention CDT (Causal Dynamical Triangulation) or any specific shortcomings of either CDT or holographic approaches.\n\nThe context discusses holographic relationships and unified insights between various concepts, but does not provide information about structural mappings between CDT and holographic shortcomings.",
+          "score": 0.0,
+          "key_hits": 0
+        }
+      }
+    },
+    {
+      "question": "The non-local model fit better in the CIB-only MCMC. What does this imply for the framework's core claim about the GHZ velocity bump?",
+      "level": 3,
+      "description": "Inference \u2014 requires reasoning from the sigma_smear result to the GHZ prediction",
+      "conditions": {
+        "graph": {
+          "context_tokens": 498,
+          "answer": "The non-local model fitting better threatens the framework's core claim by suggesting biospheric EM memory is smeared over ~45 Mpc scales rather than coherently projecting to the 5-10 kpc galactic habitable zone scale - a six-order-of-magnitude discrepancy that would undermine the predicted GHZ velocity bump. However, this could be a statistical fluctuation in the mock data, and adding SPARC rotation curve constraints should anchor the local signal if the holographic projection truly preserves locality.",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "Based on the context, the non-local model fitting better implies that **the GHZ velocity bump prediction is undermined**. \n\nSpecifically, if the non-local fit reflects reality (sigma_smear = 45 Mpc/h), it means biospheric contributions are smeared over cosmological scales rather than confined to the local galactic habitable zone at 5-10 kpc scales. This would make the holographic projection \"fundamentally non-local at cosmological scales, undermining the GHZ velocity bump prediction.\"\n\nHowever, the subsequent SPARC-augmented analysis suggests this was likely a statistical artifact - when proper constraints were added, the preference shifted back toward the local",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 268,
+          "answer": "Based on the context, if the non-local model fit better in the CIB-only MCMC, this challenges the framework's core claim about the GHZ velocity bump. \n\nThe local_model is directly related to \"cib_shot_noise\" and has specific GHZ characteristics (value_ghz=545 GHz), while holographic_locality shows connections to \"scale_dependent_bias\" and \"ds_holography.\" \n\nA better fit from the non-local model suggests that the GHZ velocity bump may not be adequately captured by purely local physics at 545 GHz. This implies the framework's core claim about local holographic effects driving the GHZ",
+          "score": 0.2,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "Why does Delta_BIC favour the local model in the Bayesian test but favour the non-local model in the MCMC?",
+      "level": 3,
+      "description": "Inference \u2014 requires reasoning from turns 12 and 13 together",
+      "conditions": {
+        "graph": {
+          "context_tokens": 495,
+          "answer": "Based on the context provided, there appears to be an inconsistency in the results, but the specific reason for why Delta_BIC favors different models in the Bayesian test versus the MCMC analysis is not explicitly explained in the conversation context.\n\nThe context mentions that \"non-local CIB only had a better fit\" in the results, which the user notes as potentially problematic (\"is that not bad?\"). However, the detailed explanation for why the Bayesian Information Criterion would favor opposite models in different analyses is not provided in the given conversation excerpts.\n\nThis discrepancy could potentially arise from differences in:\n- The datasets used in each analysis\n- The parameter priors or model complexity",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "Based on the context, there's no mention of a separate \"Bayesian test\" - both results refer to MCMC analyses that use BIC (Bayesian Information Criterion) for model comparison.\n\nThe Delta_BIC changes from favoring non-local to favoring local because of two key differences between the analyses:\n\n1. **Data used**: The first MCMC used only CIB data, while the second included SPARC rotation curve data\n2. **Model upgrade**: The second analysis used a halo-model upgrade with scale-dependent bias instead of a simple bias model\n\nThe SPARC data provided a direct local constraint on b_SFH that broke the degeneracy between",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 302,
+          "answer": "Based on the context provided, I cannot find specific information about Delta_BIC favoring different models in Bayesian tests versus MCMC analysis. \n\nThe context shows that `model_comparison` is related to `bayesian_model_comparison` and `posterior_inference`, and that `local_model` has connections to `chi_squared_test`, but there are no explicit details about Delta_BIC behavior or the specific comparison between Bayesian tests and MCMC results.\n\nThe query-relevant section mentions `bayesian_information_criterion` (deg=3, mat=3.0) and shows `mcmc` and `model_comparison` as separate entities, but doesn't provide the",
+          "score": 0.0,
+          "key_hits": 0
+        }
+      }
+    },
+    {
+      "question": "If the SPARC-augmented MCMC had still preferred non-local, what would the paper need to change?",
+      "level": 3,
+      "description": "Inference \u2014 stated in turn 14, requires reasoning about consequences",
+      "conditions": {
+        "graph": {
+          "context_tokens": 495,
+          "answer": "Based on the context, if the SPARC-augmented MCMC still preferred non-local models, the paper would need to change its interpretation from supporting \"holographic locality\" to acknowledging that \"dS holography smears projections, undermining biospheric DM at those scales.\"\n\nThe paper would need to:\n\n1. Revise conclusions to favor non-local holographic effects over standard local correlations\n2. Reframe the dS holography implications as confirmed rather than ruled out\n3. Address what this means for the biospheric dark matter hypothesis at the tested scales\n4. Possibly incorporate additional systematic checks since earlier results showed the non-local model fitting better was considered probl",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "Based on the context, if the SPARC-augmented MCMC had still preferred non-local, the paper would need to revise toward either:\n\n1. **Tensor network holography**, or\n2. **Modified entropic gravity**\n\nThis would represent abandoning the core assumption of dS holographic locality in favor of alternative theoretical frameworks.",
+          "score": 0.8,
+          "key_hits": 4
+        },
+        "graph_only": {
+          "context_tokens": 251,
+          "answer": "Based on the context, if the SPARC-augmented MCMC had still preferred non-local models, the paper would likely need to change:\n\n1. **Window function treatment** - Given its low entity_cardinal (0.5) and connection to limber_projection, the paper might need to revise how spatial scales are handled in the analysis\n\n2. **Cross power spectrum methodology** - Since cross_power_spectrum connects to bulk_gravitational_signal and has entity_cardinal=2, the cross-correlation analysis between different tracers might need refinement\n\n3. **Galaxy bias modeling** - The galaxy_bias concept (mat=9.8) connects to normalization issues, suggesting the bias",
+          "score": 0.2,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "The conversation moves from abstract shortcomings to a concrete empirical test. What is the single most critical test of the framework's validity?",
+      "level": 4,
+      "description": "Cross-domain primitive \u2014 the thread connecting holographic locality concern to the MCMC sigma_smear test",
+      "conditions": {
+        "graph": {
+          "context_tokens": 497,
+          "answer": "Based on the context, the single most critical test is **Euclid's measurement of cross-power spectra C_l at l = 100-2000**: if the observed correlations between star-formation history and large-scale structure follow P_local, holographic locality is preserved and the biospheric dark matter framework holds; if they follow P_nonlocal (with its characteristic exponential suppression), then dS holography smears projections and undermines the theory at those scales.\n\nThis test directly probes whether dS holography preserves the locality required for the biospheric dark matter mechanism to operate.",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "Based on the context, the single most critical test is whether the SPARC-augmented MCMC still prefers non-local over local models after breaking the bias degeneracy. \n\nAs stated: \"If the SPARC-augmented MCMC still prefers non-local, that is genuine evidence against dS holographic locality and requires a revision toward tensor network holography or modified entropic gravity.\"\n\nThis test directly determines if the framework's core claim of holographic locality is valid or needs fundamental revision.",
+          "score": 0.4,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 277,
+          "answer": "Based on the context, the single most critical test of the framework's validity is the **cross power spectrum measurement** between star formation history (SFH) and large scale structure (LSS).\n\nThis test is critical because:\n\n1. It directly connects the holographic projection of large scale structure to observable star formation patterns\n2. The `sfh_lss_cross_power_spectrum` appears as a key unifying concept that revealed new connections\n3. It provides an empirical bridge between the abstract holographic locality principles and concrete observational data that can be measured by surveys like Euclid\n4. The cross-correlation would either validate or falsify the predicted holographic coupling between cosmic structure and biosph",
+          "score": 0.2,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "The holographic shortcomings and the CDT shortcomings both list a missing matter-coupling problem. How does the simulation pipeline address this specific shared weakness?",
+      "level": 4,
+      "description": "Cross-domain synthesis \u2014 requires connecting the theoretical shortcoming in turn 2 to the halo-model upgrade in turn 14",
+      "conditions": {
+        "graph": {
+          "context_tokens": 496,
+          "answer": "Based on the context, the simulation pipeline addresses the missing matter-coupling problem by:\n\n1. **Direct cross-correlation measurement**: Computing the SFH-LSS cross-power spectrum P_SFH-LSS(k) between CIB-based star formation history and galaxy density fields, which directly probes how matter (galaxies/dark matter) couples to holographic boundary information.\n\n2. **Scale-dependent coupling test**: The pipeline tests whether biospheric dark matter effects produce a coherent, localized signal at GHZ scales (5-10 kpc) or get smeared across 1-100 Mpc scales, directly measuring the strength and locality of matter-hol",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "Based on the provided context, I cannot answer this question. The conversation focuses on MCMC analysis of CIB data, SPARC rotation curves, and holographic locality testing, but does not discuss holographic shortcomings, CDT (Causal Dynamical Triangulation) shortcomings, or how the simulation pipeline addresses a shared matter-coupling problem between these approaches.",
+          "score": 0.2,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 239,
+          "answer": "Based on the context provided, I cannot find specific information about how the simulation pipeline addresses the missing matter-coupling problem shared by holographic and CDT (causal dynamical triangulation) approaches.\n\nThe context shows that `local_nonlocal_coupling` is query-relevant with degree 4 and materiality 4.6, and `holographic_locality` connects to `local_nonlocal_coupling`, but there are no explicit details about simulation pipeline solutions for matter-coupling deficiencies in either the holographic or CDT frameworks.\n\nThe context focuses more on power spectrum analysis, cross-correlations, and structural relationships rather than specific remediation strategies for theoretical shortcomings.",
+          "score": 0.2,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "What single concept underlies the dS holography problem, the non-local MCMC result, and the GHZ velocity bump prediction?",
+      "level": 4,
+      "description": "Cross-domain primitive \u2014 holographic locality is the thread connecting all three",
+      "conditions": {
+        "graph": {
+          "context_tokens": 498,
+          "answer": "**Holographic projection of information from boundary to bulk.**\n\nThe core issue is whether information encoded on the holographic boundary (biospheric EM memory) can project cleanly and locally into bulk spacetime effects (gravitational signals at specific scales), or whether this projection is fundamentally smeared and non-local across cosmological distances.",
+          "score": 0.6,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 481,
+          "answer": "Based on the context, the single underlying concept is **holographic projection of biospheric effects from local galactic scales to cosmological scales**.\n\nThis concept manifests as:\n- dS holography problem: whether biospheric EM memory projects coherently into bulk gravity at cosmological scales\n- Non-local MCMC result: the concern that biospheric contributions are smeared over 45 Mpc scales rather than confined locally to the galactic habitable zone\n- GHZ velocity bump prediction: the local manifestation of this holographic projection as a 5% dark matter contribution in galaxy rotation curves\n\nThe core question is whether this holographic projection maintains locality (confined to ~5-10",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "graph_only": {
+          "context_tokens": 241,
+          "answer": "Based on the context provided, **holographic_locality** appears to be the single concept underlying these three phenomena.\n\nThe context shows holographic_locality has the highest materiality score (17.9) and is directly connected to ds_holography, while also being related to scale_dependent_bias and local_nonlocal_coupling - concepts that would naturally connect to non-local MCMC results and velocity-dependent phenomena like the GHZ velocity bump prediction.",
+          "score": 0.6,
+          "key_hits": 3
+        }
+      }
+    }
+  ],
+  "summary": {
+    "by_level": {
+      "1": {
+        "graph": 0.6,
+        "baseline": 0.20000000000000004,
+        "graph_only": 0.3333333333333333
+      },
+      "2": {
+        "graph": 0.6666666666666666,
+        "baseline": 0.6,
+        "graph_only": 0.26666666666666666
+      },
+      "3": {
+        "graph": 0.4000000000000001,
+        "baseline": 0.46666666666666673,
+        "graph_only": 0.13333333333333333
+      },
+      "4": {
+        "graph": 0.5333333333333333,
+        "baseline": 0.5333333333333333,
+        "graph_only": 0.3333333333333333
+      }
+    },
+    "overall": {
+      "graph": 0.5499999999999999,
+      "baseline": 0.45,
+      "graph_only": 0.26666666666666666
+    }
+  }
+}

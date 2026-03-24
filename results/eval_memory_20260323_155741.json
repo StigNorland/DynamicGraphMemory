@@ -1,0 +1,245 @@
+{
+  "metadata": {
+    "timestamp": "20260323_155741",
+    "name": "memory",
+    "model": "claude-sonnet-4-20250514",
+    "temperature": 0,
+    "token_budget": 200,
+    "questions": 8,
+    "turns": 16,
+    "use_llm_extraction": false,
+    "use_rich_payloads": true,
+    "use_field": true
+  },
+  "results": [
+    {
+      "question": "What causes forgetting according to our conversation?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 answer stated explicitly",
+      "conditions": {
+        "graph": {
+          "context_tokens": 165,
+          "answer": "According to the conversation, forgetting is caused by weak retrieval paths, not lost information. The memory still exists in storage, but the pathway to access it has degraded, making it difficult or impossible to retrieve.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "According to our conversation, forgetting is caused by weak retrieval paths, not lost information. The memory still exists in storage, but the access to it has degraded.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 38,
+          "answer": "Based on the context provided, forgetting appears to be caused by **retrieval failure**, which has the highest degree (deg=4) among the query-relevant concepts and is consistently linked to key memory processes.\n\nThe relationships show that retrieval failure is connected to:\n- Memory accessibility \n- Memory access\n- The broader retrieval system\n\nThis suggests forgetting occurs not necessarily because memories are lost, but because the pathways to access them fail or become impaired.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "Where does memory consolidation take place?",
+      "level": 1,
+      "description": "Direct retrieval \u2014 stated in single turn",
+      "conditions": {
+        "graph": {
+          "context_tokens": 165,
+          "answer": "Based on the provided context, there is no information about where memory consolidation takes place. The conversation focuses on retrieval mechanisms and pathways, but doesn't discuss the location of consolidation processes.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based only on the provided context, there is no information about where memory consolidation takes place. The conversation focuses on retrieval mechanisms and the difference between recall and recognition, but doesn't discuss the location of memory consolidation.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 32,
+          "answer": "Based on the provided context, I cannot determine where memory consolidation takes place. The context only shows synaptic consolidation processes with degree and material parameters, but does not specify any anatomical locations or brain regions where memory consolidation occurs.",
+          "score": 0.0,
+          "key_hits": 0
+        }
+      }
+    },
+    {
+      "question": "What do muscle memory and forgetting your keys have in common?",
+      "level": 2,
+      "description": "Synthesis \u2014 requires connecting turns 1 and 9",
+      "conditions": {
+        "graph": {
+          "context_tokens": 165,
+          "answer": "Based on the context, both involve retrieval paths - muscle memory represents a strong, well-practiced retrieval path, while forgetting your keys represents a weak retrieval path. Both are about accessing information that's already stored, just with different path strengths.",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, both involve the same underlying mechanism of retrieval paths - muscle memory represents strong, well-practiced retrieval paths, while forgetting your keys represents weak retrieval paths. Both are about accessing stored information, just with different path strengths.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "graph_only": {
+          "context_tokens": 38,
+          "answer": "Based on the context provided, I cannot determine what muscle memory and forgetting your keys have in common. The context shows muscle memory has low materiality (3.2) and forgetting has even lower materiality (2.0), but there are no direct relations shown between these concepts or any shared pathways that would indicate their commonalities. The key relations focus on memory accessibility and retrieval processes, but don't establish connections between muscle memory and forgetting mechanisms.",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "How does spaced repetition relate to retrieval paths?",
+      "level": 2,
+      "description": "Synthesis \u2014 connects repetition and path strengthening",
+      "conditions": {
+        "graph": {
+          "context_tokens": 165,
+          "answer": "Based on the context, spaced repetition would strengthen retrieval paths through repeated successful recall - each time you retrieve a memory, that pathway becomes stronger, making future access easier.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, spaced repetition would strengthen retrieval paths through repeated successful recalls over time. Since \"every time you successfully recall something, that path strengthens,\" spaced repetition would systematically reinforce these neural pathways, making the information easier to access later.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "graph_only": {
+          "context_tokens": 36,
+          "answer": "Based on the context provided, I cannot directly answer how spaced repetition relates to retrieval paths, as \"spaced repetition\" is not explicitly mentioned in the given information.\n\nHowever, I can infer a potential connection through the available data: The context shows a \"repetition_effect\" (deg=3, mat=2.9) and \"retrieval_path\" (deg=4, mat=5.3). Since retrieval_path connects to retrieval_strength, and repetition effects are present in the system, spaced repetition would likely strengthen retrieval paths by repeatedly activating and reinforcing the neural pathways used to access stored memories, making them more accessible over time.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "Would practicing recalling something help you forget it less? Why?",
+      "level": 3,
+      "description": "Inference \u2014 requires reasoning from relational structure",
+      "conditions": {
+        "graph": {
+          "context_tokens": 165,
+          "answer": "Yes. According to the conversation, repetition strengthens retrieval paths - \"every time you successfully recall something, that path strengthens.\" Since forgetting is described as weak retrieval paths rather than lost information, practicing recall would make the path stronger and reduce forgetting.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Yes. According to the conversation, \"every time you successfully recall something, that path strengthens.\" Since forgetting is described as weak retrieval paths rather than lost information, practicing recall would strengthen those paths and reduce forgetting.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 38,
+          "answer": "Based on the context, yes, practicing recalling something would help you forget it less.\n\nThe evidence suggests this through several mechanisms:\n\n1. **Repetition effect** (deg=3, mat=2.9) - repeated practice strengthens memory\n2. **Retrieval path strengthening** (mat=5.3) - each recall attempt reinforces the neural pathway to that memory\n3. **Enhanced memory accessibility** (mat=6.7) - practice makes the memory easier to access in the future\n4. **Synaptic consolidation** (deg=2, mat=1.5) - repeated retrieval helps consolidate the memory at the synaptic level\n\nThe key relations",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "If retrieval failure differs from storage failure, what does that imply about forgetting?",
+      "level": 3,
+      "description": "Inference \u2014 forgetting as blockage not erasure",
+      "conditions": {
+        "graph": {
+          "context_tokens": 165,
+          "answer": "Based on the context, it implies that most forgetting is not actually losing information, but losing the ability to access information that's still stored. The memory exists but the retrieval path has weakened, making it inaccessible rather than gone.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the context, it implies that most forgetting isn't actually losing information - it's losing the ability to access information that's still stored. The memory exists but the retrieval path has weakened, making it temporarily or permanently inaccessible rather than truly gone.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 38,
+          "answer": "Based on the context, if retrieval failure differs from storage failure, this implies that forgetting can occur even when memories are still stored/encoded. The relationships show that retrieval_failure (mat=3.1) is connected to memory_access and retrieval_path, while encoding (mat=4.0) appears as a separate process. This suggests forgetting may often be a problem of accessing stored information rather than the information being lost from storage entirely - indicating that some \"forgotten\" memories might still exist but are temporarily or permanently inaccessible through normal retrieval pathways.",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What is the single most fundamental concept in everything we discussed?",
+      "level": 4,
+      "description": "Primitive identification \u2014 tests whether graph found the anchor",
+      "conditions": {
+        "graph": {
+          "context_tokens": 165,
+          "answer": "Retrieval - the process of accessing stored information.",
+          "score": 1.0,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Retrieval - the process of accessing stored information.",
+          "score": 1.0,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 25,
+          "answer": "Based on the context provided, **memory_accessibility** (mat=6.7) is the single most fundamental concept, as it has the highest materiality score and connects to the broadest range of core memory processes including access, retrieval, encoding, and retrieval strength.",
+          "score": 1.0,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "The conversation describes a structure for memory. What is the closest analogy to a graph node in this model?",
+      "level": 4,
+      "description": "Cross-domain \u2014 maps memory model onto graph structure",
+      "conditions": {
+        "graph": {
+          "context_tokens": 165,
+          "answer": "Based on the conversation, the closest analogy to a graph node would be the encoded memory/information itself - the stored data that persists even when you can't access it (like the forgotten name or key location). The retrieval paths would be analogous to the edges connecting these nodes.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 165,
+          "answer": "Based on the conversation, the closest analogy to a graph node would be the stored information/memory itself - the keys' location, the person's name, etc. The \"retrieval paths\" described in the conversation would correspond to the edges connecting these nodes.",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 30,
+          "answer": "Based on the context, the closest analogy to a graph node in this memory model would be the individual memory concepts themselves (like \"memory_accessibility\", \"retrieval\", \"retrieval_path\", \"memory_access\"). \n\nThese concepts have associated strength values (mat scores) and are connected to other concepts through directional relationships (indicated by the arrows \u2192), which mirrors how nodes in a graph have properties and are connected to other nodes through edges.",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    }
+  ],
+  "summary": {
+    "by_level": {
+      "1": {
+        "graph": 0.5,
+        "baseline": 0.5,
+        "graph_only": 0.3333333333333333
+      },
+      "2": {
+        "graph": 0.75,
+        "baseline": 1.0,
+        "graph_only": 0.875
+      },
+      "3": {
+        "graph": 0.875,
+        "baseline": 0.75,
+        "graph_only": 0.875
+      },
+      "4": {
+        "graph": 0.875,
+        "baseline": 0.75,
+        "graph_only": 0.875
+      }
+    },
+    "overall": {
+      "graph": 0.75,
+      "baseline": 0.75,
+      "graph_only": 0.7395833333333334
+    }
+  }
+}

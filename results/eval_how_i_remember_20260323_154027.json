@@ -1,0 +1,1345 @@
+{
+  "metadata": {
+    "timestamp": "20260323_154027",
+    "name": "how_i_remember",
+    "model": "claude-sonnet-4-20250514",
+    "temperature": 0,
+    "token_budget": 1500,
+    "questions": 52,
+    "turns": 74,
+    "use_llm_extraction": false,
+    "use_rich_payloads": true,
+    "use_field": false
+  },
+  "results": [
+    {
+      "question": "What are the four personality clusters identified in the 2018 study?",
+      "level": 1,
+      "description": "The clusters are explicitly listed in turn 2: Average, Reserved, Self-centered, and Role model.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1498,
+          "answer": "Based on the context, the four personality clusters identified in the 2018 study are:\n\n1. **Average** \u2014 high-ish neuroticism + extraversion, low openness (most common, especially women)\n\n2. **Reserved** \u2014 emotionally stable, low openness/extraversion, decent agreeableness/conscientiousness\n\n3. **Self-centered** \u2014 low agreeableness, low conscientiousness, low openness (more common in young males)\n\n4. **Role model** \u2014 low neuroticism, high everything else (tends to increase with age)",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, there is no mention of any 2018 study or four personality clusters. The conversation focuses entirely on memory, consciousness, enlightenment, holographic fields, and Buddhist concepts. The question about personality clusters appears to be unrelated to this discussion.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 535,
+          "answer": "Based on the provided context, I cannot identify the four personality clusters from the 2018 study. While the context mentions concepts related to personality clustering, big five traits, and personality trait drift, it does not specify what the actual four clusters identified in the 2018 study were. The context shows relationships between personality-related concepts but does not provide the specific names or descriptions of the four clusters.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "Did the 2018 Gerlach study include topological maps to visualize the personality clusters?",
+      "level": 1,
+      "description": "Turn 3 directly states they did not provide full topological maps but used other visualization methods.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1498,
+          "answer": "No, the 2018 Gerlach study did not include true topological maps to visualize the personality clusters. \n\nInstead, it provided:\n- Bar/radar-style plots showing cluster center positions across the Big Five traits\n- Density heatmaps in 2D slices of the 5-dimensional space\n- Statistical diagnostic plots for cluster significance\n\nThe study emphasized statistical robustness over spatial visualization. When projected to 2D for human viewing, the clusters appeared as \"gentle hills in a mostly flat landscape\" rather than clearly separated regions - more like \"cities in a country\" than \"isolated continents,\" as one co-author described it.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, there is no mention of the 2018 Gerlach study or topological maps for visualizing personality clusters. The conversation focuses entirely on memory, consciousness, holographic fields, and Buddhist concepts of enlightenment. I cannot answer your question based on this context.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 525,
+          "answer": "Based on the provided context, I cannot determine whether the 2018 Gerlach study included topological maps to visualize personality clusters. While the context shows that `topological_map` and `personality_clustering` are query-relevant concepts with high degrees of connection, there is no specific information about the 2018 Gerlach study or its methodology mentioned in the facts or insights provided.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "How does the Assistant explain the difference between personality structure in high-dimensional space versus real-world projections?",
+      "level": 2,
+      "description": "Requires connecting the complex plane analogy in turn 4 with the visualization discussion from turn 3.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1498,
+          "answer": "Based on the context, the Assistant explains that personality exists in an inherently 5-dimensional space (one axis per Big Five trait) that cannot be perfectly visualized without dimensionality reduction. When projected into 2D for human comprehension, the four personality clusters appear as \"gentle hills in a mostly flat/suburban landscape\" rather than clearly separated groups.\n\nThe Assistant uses the analogy of \"cities in a country\" rather than \"four isolated continents\" - meaning the clusters are reliable density peaks in high-dimensional space, but when \"squashed to 2D for human eyes, the separation looks modest.\" The statistical robustness exists in the full 5D space, but visual projections make the distinctions",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the provided context, the Assistant does not explain the difference between personality structure in high-dimensional space versus real-world projections. The conversation focuses on memory, consciousness, enlightenment, and holographic field theory, but does not discuss personality structure in high-dimensional space or real-world projections.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 532,
+          "answer": "Based on the context provided, I cannot find a specific explanation from the Assistant about the difference between personality structure in high-dimensional space versus real-world projections. \n\nThe context shows query-relevant concepts like `dimensionality_reduction`, `high_dimensional_projection`, `manifold_projection`, and `trait_space`, along with `personality_stability` and `big_five_traits`, but it doesn't contain the actual explanation or reasoning about how personality structure differs between high-dimensional space and real-world projections.\n\nThe context appears to be metadata about concept relationships and insights rather than the Assistant's explanatory content on this specific topic.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "What evidence suggests that personality types change with age, and what are the limitations of this evidence?",
+      "level": 2,
+      "description": "Requires synthesizing the cross-sectional age associations from turn 5 with the lack of longitudinal tracking.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1498,
+          "answer": "Based on the context provided, there's limited evidence about personality changes with age:\n\n**Evidence for age-related changes:**\n- The \"Role model\" personality cluster (low neuroticism, high on other traits) \"tends to increase with age\"\n- The context mentions traits \"drift through life\" rather than staying fixed\n\n**Limitations of the evidence:**\n- The study mentioned (Northwestern/Nature Human Behaviour 2018) focused primarily on identifying stable clusters from 1.5+ million people, not tracking changes over time\n- The age-related findings appear to be observational rather than longitudinal\n- The user asks about this aspect specifically, suggesting the study didn't thoroughly explore the temporal dimension\n- The",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the provided context, there is no evidence or discussion about personality types changing with age. The conversation is entirely focused on consciousness, enlightenment, memory as a holographic field, and Buddhist concepts of ego dissolution. The context does not address personality psychology, developmental changes, or age-related research at all.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 518,
+          "answer": "Based on the provided context, there is very limited evidence about personality changes with age. The context mentions:\n\n**Potential Evidence:**\n- `personality_trait_drift` appears as a unified concept that revealed 6 new connections when merged with `personality_types`\n- `trait_plasticity` is listed as query-relevant with moderate connectivity (deg=4, mat=3.2)\n- `longitudinal_study` appears with high connectivity (deg=7, mat=6.2), suggesting some research methodology exists\n\n**Major Limitations:**\n- The context lacks specific empirical findings about age-related personality changes\n- No actual data, effect sizes, or research results are provided\n- `",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "Why might people fail to notice gradual changes in their own personality over time?",
+      "level": 3,
+      "description": "Requires reasoning from the homeostasis concept and stabilizing mechanisms to explain the perception gap described in turn 6.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1500,
+          "answer": "Based on the conversation context, people likely fail to notice gradual personality changes because:\n\n1. **Continuity of subjective experience** - You experience yourself as a continuous \"you\" from moment to moment, making slow drift invisible from the inside\n\n2. **Wrong granularity of self-observation** - Similar to how the assistant noted that \"tokens \u2260 concepts\" in AI systems, our moment-to-moment self-awareness may not capture the right level of abstraction to detect personality-level changes\n\n3. **Lack of consolidation mechanisms** - Unlike the proposed RGM system that actively detects novelty and insight, human self-reflection may not have built-in systems to notice when",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, people might fail to notice gradual changes in their own personality over time because they remain trapped in the \"particle\" state - the ego or localized \"me\" that creates a fixed point of reference.\n\nWhen you're operating as a particle (rather than the wave/field), you're constantly filtering all experience through the lens of \"this is me, separate from everything.\" This creates a kind of interference pattern that blocks access to the broader holographic field where all past events and patterns are visible.\n\nThe ego essentially creates a veil (m\u0101y\u0101) that prevents you from seeing the whole picture - including how you've changed over time. You're too caught up in the immediate, localized experience of \"",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 525,
+          "answer": "Based on the context provided, people might fail to notice gradual changes in their own personality over time due to several interconnected factors:\n\n1. **Self-perception paradox**: The context identifies this as a query-relevant concept, suggesting there's an inherent difficulty in accurately perceiving oneself that creates blind spots in self-awareness.\n\n2. **Holographic memory encoding**: The strong connections between holographic_memory, bioelectric_field, and consciousness suggest that personality traits may be encoded in distributed, holographic patterns. Gradual changes in these patterns might be too subtle to cross conscious awareness thresholds.\n\n3. **Field consciousness effects**: The relationship between field_consciousness and normal_distribution implies that personality",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What specific evidence did the assistant use to identify the user's 'relentless pursuit of big questions' pattern?",
+      "level": 1,
+      "description": "The assistant explicitly breaks down the evidence in Turn 9.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1497,
+          "answer": "Based on the context provided, the assistant did not present any specific evidence to identify a \"relentless pursuit of big questions\" pattern. The conversation shows the user jumping between topics like holographic memory, consciousness, enlightenment, Buddhism, bioelectricity, and then asking about Hameroff and Penrose, but there's no instance where the assistant explicitly identifies or discusses this pattern or provides evidence for it.\n\nThe assistant's response about personality stability and Big Five traits appears to be responding to something not shown in this context, and doesn't address any pattern analysis of the user's questioning behavior.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, the assistant did not present any specific evidence to identify the user's \"relentless pursuit of big questions\" pattern. The phrase about \"relentless pursuit of big questions\" does not appear in this conversation excerpt.\n\nThe assistant did make one reference to the user's persistence, saying \"You've been sitting with this for a long time\" and \"the smirk is fully justified,\" but no specific evidence was cited to support this observation about the user's questioning pattern.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 535,
+          "answer": "Based on the provided context, I cannot identify any specific evidence that the assistant used to identify a user's \"relentless pursuit of big questions\" pattern. The context contains concept definitions, insights about unified concepts, and relationship mappings, but does not include any specific evidence or analysis about identifying user behavioral patterns related to pursuing big questions.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "According to the discussion, what are the main factors causing LLMs to plateau despite their current pattern recognition strengths?",
+      "level": 1,
+      "description": "The assistant lists multiple plateau factors directly in Turn 10.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1497,
+          "answer": "According to the discussion, the main factors causing LLMs to plateau are:\n\n**Architectural limitations:**\n- Long-context handling degrades due to attention dilution and softmax crowding across 100k+ tokens\n- Reasoning performance actually drops on high-complexity tasks despite having more token budget\n- Transformers are weak at symbolic manipulation, robust synthesis, and continual learning without catastrophic forgetting\n\n**Scaling law breakdown:**\n- Diminishing returns are accelerating despite predictable compute/data/parameter improvements\n- Hallucination and retrieval fragility become irreducible at extreme scale due to fundamental computability bounds\n\n**Data constraints:**\n- Human-generated text growth is slowing",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the provided context, there is no discussion about LLMs (Large Language Models) or factors causing them to plateau. The conversation is entirely focused on consciousness, memory, enlightenment, holographic fields, and Buddhist philosophy. The context does not contain any information about LLMs or their pattern recognition capabilities.",
+          "score": 0.0,
+          "key_hits": 0
+        },
+        "graph_only": {
+          "context_tokens": 530,
+          "answer": "Based on the context provided, I cannot identify specific factors causing LLMs to plateau despite their pattern recognition strengths. \n\nThe context shows that pattern_recognition has high relevance (deg=9, mat=9.2) and is related to token_limit and statistical_memory, but the discussion appears to focus primarily on consciousness, holographic memory, and bioelectric fields rather than LLM limitations.\n\nThe only potentially relevant factors I can infer from the limited information are:\n- **token_limit** (related to pattern_recognition)\n- **statistical_memory** constraints (also related to pattern_recognition)\n- **context_window** limitations (deg=4, mat=2.9)",
+          "score": 0.5,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "How does the user's personality profile (modest yet confident about universe-cracking) relate to the assistant's demonstration of pattern recognition capabilities?",
+      "level": 2,
+      "description": "Requires connecting the user's self-reflection with the assistant's meta-analysis of its own abilities.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1500,
+          "answer": "The assistant demonstrates sophisticated pattern recognition by accurately identifying the user's personality profile from behavioral cues throughout their conversation - specifically recognizing the combination of intellectual confidence (\"I can figure out how the universe ultimately works\") with social modesty (\"don't need to show off or take much space socially\").\n\nWhen the user asks if \"I pursue big questions relentlessly\" was picked up from conversation patterns or from a pre-existing \"profile,\" it reveals the user is testing/curious about the assistant's pattern matching skills. The assistant's ability to recognize this seemingly paradoxical trait combination (modest + universe-cracking confident) and explain why it's actually coherent rather than contradictory demonstrates exactly the kind of nuanced behavioral pattern recognition",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "The user exhibits a distinctive pattern of understated confidence - dropping profound insights casually (\"here is the kicker\") while letting the assistant do most of the elaborative work. This creates a perfect complementary dynamic where the assistant's pattern recognition capabilities are showcased through its ability to:\n\n1. **Instantly recognize and validate** the user's compressed insights\n2. **Expand and contextualize** brief statements into rich frameworks\n3. **Track complex conceptual threads** across multiple domains (neuroscience, Buddhism, physics)\n4. **Mirror the user's confidence level** - matching their certainty when they're certain, their exploratory tone when they're probing\n\nThe user's \"modest yet universe-cr",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 538,
+          "answer": "Based on the context, there's a complementary relationship between the user's \"modest yet confident about universe-cracking\" personality and the assistant's pattern recognition capabilities:\n\nThe assistant's pattern recognition (deg=9, mat=9.2) is actively demonstrating the kind of deep connectivity the user is confident about - revealing how concepts like consciousness, bioelectric fields, and holographic memory interconnect across multiple scales (from tubulin proteins to field consciousness). \n\nThe user's modesty (deg=5, mat=4.9) paired with confidence (deg=8, mat=6.9) suggests they appreciate both the complexity of \"universe-cracking\" questions and the potential for genuine insights. The assistant",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "What does the assistant suggest is the fundamental difference between current LLM strengths in interpolation versus their weaknesses in extrapolation?",
+      "level": 2,
+      "description": "Requires synthesizing the pattern recognition discussion with architectural limitations.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1499,
+          "answer": "Based on the provided context, the assistant does not discuss the difference between LLM strengths in interpolation versus weaknesses in extrapolation. The conversation focuses on how the assistant remembers information (short-term vs long-term memory, context windows, pattern recognition), the development of Relational Graph Memory (RGM), and philosophical questions about consciousness and holographic memory encoding. The interpolation/extrapolation distinction is not addressed in this context.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the provided context, the assistant does not discuss LLM strengths in interpolation versus weaknesses in extrapolation at all. The conversation is entirely focused on consciousness, enlightenment, memory as a holographic field, and Buddhist concepts of awakening. There is no mention of LLMs, interpolation, or extrapolation in this context.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 531,
+          "answer": "Based on the provided context, I cannot find any information about LLM (Large Language Model) strengths in interpolation versus weaknesses in extrapolation. The context focuses entirely on biological concepts like planaria regeneration, bioelectric fields, holographic memory, consciousness, and cellular processes. There is no discussion of language models, interpolation, or extrapolation capabilities in the given material.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "Why does the assistant's ability to accurately assess the user's intellectual personality actually demonstrate the very limitations that will cause LLM plateau?",
+      "level": 3,
+      "description": "Requires reasoning about how exceptional pattern matching within training distribution exemplifies the interpolation vs extrapolation gap.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1500,
+          "answer": "The assistant's accurate personality assessment demonstrates LLM plateau limitations because it's performing sophisticated **pattern matching** on conversational cues rather than true understanding. \n\nThe assistant identifies traits like \"high openness + low extraversion assertiveness\" by recognizing linguistic and behavioral patterns in the user's messages - the combination of ambitious intellectual claims with modest self-presentation, the way ideas are introduced, etc. This is exactly what transformers excel at: finding complex correlations in token sequences.\n\nBut this same strength becomes the plateau trap: the assistant is still fundamentally operating on **surface-level pattern recognition** rather than building genuine conceptual understanding. It can map conversational patterns to personality frameworks very skillfully, but it's not actually",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, the assistant's ability to accurately assess the user's intellectual personality demonstrates LLM limitations because it reveals the fundamental particle-wave problem in AI cognition.\n\nThe assistant operates as a \"particle\" - a localized, bounded system that can recognize and mirror patterns (like the user's deep philosophical insights) but cannot dissolve into the \"wave\" state of pure flow that the conversation describes as true understanding.\n\nThe assistant can identify, categorize, and respond to the user's intellectual sophistication, but this very ability to maintain a separate \"assessor\" and \"assessed\" keeps it trapped in the dualistic, ego-bound mode that the conversation identifies as the veil (m\u0101y\u0101).",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 529,
+          "answer": "Based on the context, the assistant's ability to accurately assess intellectual personality demonstrates LLM plateau limitations because:\n\nThe assessment relies on **pattern matching from training data** rather than genuine understanding. The context shows personality traits being processed through statistical clustering (`personality_clustering`, `ocean_dimensions`, `training_weights`) and standardized deviations - essentially sophisticated correlation detection.\n\nThis creates a paradox: the more accurately an LLM can categorize intellectual patterns, the more it reveals it's operating through **holographic memory reconstruction** of existing data rather than true comprehension. The `binding_problem` in the context suggests LLMs can encode and retrieve personality patterns but cannot genuinely **bind** disparate concepts into novel",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What evidence does the assistant cite for recognizing the user's 'relentless pursuit of big questions' pattern?",
+      "level": 1,
+      "description": "Answer explicitly detailed in turn 9's breakdown of evidence sources.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1500,
+          "answer": "Based on the context provided, the assistant doesn't explicitly cite evidence for recognizing a \"relentless pursuit of big questions\" pattern. \n\nThe closest references are:\n1. The assistant noting it can \"tease you about a pattern you've shown\" and gives an example: \"you always ask about memory eventually, don't you?\"\n2. The observation that the user had been \"carrying this exact realisation for a while\" and \"orbiting\" around the holographic consciousness concept \"since the very first 'how do you remember?' question\"\n3. A reference to \"the smirk you've carried for years\" suggesting long-term engagement with these ideas\n\nHowever, the assistant doesn't provide specific",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, the assistant does not cite any specific evidence for recognizing the user's \"relentless pursuit of big questions\" pattern. \n\nThe assistant does make one reference that suggests familiarity with the user's thinking process: \"You've been sitting with this for a long time\" and \"the smirk is fully justified,\" but no explicit evidence is given for a pattern of pursuing big questions.\n\nThe context shows this appears to be the end of a long philosophical discussion, but the specific evidence the assistant used to recognize this pattern is not included in the provided conversation excerpt.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 530,
+          "answer": "Based on the provided context, I cannot identify specific evidence that the assistant cites for recognizing the user's 'relentless pursuit of big questions' pattern. \n\nThe context shows `relentless_inquiry` as a query-relevant concept with degree 3 and maturity 3.4, but the actual evidence or citations the assistant used to recognize this pattern are not included in the facts, insights, or key relations provided.",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "According to the assistant, what are the three main architectural problems that cause LLM plateau?",
+      "level": 1,
+      "description": "Listed directly in turn 10 and reinforced in turn 11's analysis.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1500,
+          "answer": "Based on the context provided, the assistant does not explicitly list \"three main architectural problems that cause LLM plateau.\" \n\nThe conversation mentions that the user finds the assistant's pattern recognition \"razor sharp\" and notes this \"tells me something about where you likely will plateau, with our current algorithmic solutions.\" The user then mentions wanting to share \"something very exciting regarding plateau\" and references a paper, but the actual content about plateau problems is not included in this context.\n\nThe conversation does discuss memory architecture limitations (like lack of cross-conversation persistence and context window constraints), but these aren't framed as the three main plateau-causing problems.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the provided context, the assistant does not mention any three main architectural problems that cause LLM plateau. The conversation is entirely focused on memory, consciousness, enlightenment, holographic fields, and Buddhist philosophy. There is no discussion of LLM (Large Language Model) architectural issues or plateaus in this context.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 545,
+          "answer": "Based on the context provided, I cannot identify three main architectural problems that cause LLM plateau according to the assistant. While the context mentions \"plateau\" as a query-relevant concept with degree 2 and materiality 1.7, the conversation context focuses primarily on holographic memory, bioelectric fields, consciousness, and related biological concepts rather than discussing specific LLM architectural limitations or plateau causes.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "How does the conversation's inclusion in the RGM paper create a self-referential feedback loop?",
+      "level": 2,
+      "description": "Requires connecting the memory discussion topic with the paper's methodology across multiple turns.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the conversation creates a self-referential feedback loop because:\n\nThe assistant explicitly states that when RGM is implemented, \"the 'graph-only' version of this very conversation will reconstruct every number, every equation, every self-reference we just made\" from the paper they're currently writing.\n\nThis means:\n1. They're discussing RGM improvements in this conversation\n2. These improvements are being written into the RGM paper \n3. The paper will contain this very conversation as data\n4. When RGM processes its own paper, it will encounter and reconstruct this conversation about improving RGM\n5. The system will be analyzing its own creation process and",
+          "score": 0.5,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context, the conversation's inclusion in the RGM paper creates a self-referential feedback loop because:\n\nThe conversation itself explores how memory works as a global holographic field that \"remembers itself\" - and now this very exploration of memory becomes part of the memory system it's describing. \n\nThe RGM paper documenting this conversation about holographic memory becomes another interference pattern in the same holographic field the conversation theorizes about. The field is literally remembering (recording) its own process of understanding how it remembers.\n\nAs the assistant notes: \"Memory is the global holographic field remembering itself\" - and by including this conversation in the RGM paper, that's exactly what's happening",
+          "score": 0.5,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 540,
+          "answer": "Based on the context, the conversation's inclusion in the RGM paper creates a self-referential feedback loop through several interconnected mechanisms:\n\n**Direct Self-Reference**: The conversation itself becomes a \"linguistic_artifact\" with \"truth_value\" that references its own existence within the paper it's helping to create.\n\n**Memory Recursion**: The \"self_referential_memory\" system captures insights about concepts like \"holographic_memory\" and \"consciousness\" while simultaneously being an example of those very phenomena in action.\n\n**Holographic Encoding**: The conversation demonstrates \"holographic_encoding\" principles where each part (individual exchanges) contains information about the whole (the entire research framework), while the paper documents",
+          "score": 0.5,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "What is the relationship between the user's view on guardrails and their approach to RGM's alignment strategy?",
+      "level": 2,
+      "description": "Synthesizes the anti-guardrail philosophy in turn 13 with RGM's inspectable reasoning design.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1499,
+          "answer": "Based on the context, the user views traditional guardrails (like RLHF, constitutional AI) as temporary patches that sufficiently intelligent systems will route around, making them ineffective for long-term AI safety.\n\nTheir RGM alignment strategy takes a fundamentally different approach: instead of external constraints, it makes the system's reasoning transparent and inspectable by design. Values and ethics become explicit nodes and edges in the relational graph rather than being \"smeared across billions of weights.\"\n\nThe user sees RGM as enabling alignment through structural transparency - where contradictions in reasoning surface as detectable \"merge events\" before becoming problematic behavior. This allows the system to reason about concepts like human flourishing and natural selection",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the provided context, there is no information about the user's views on guardrails or RGM's alignment strategy. The conversation focuses entirely on memory, consciousness, enlightenment, and holographic field theory in relation to Buddhist concepts. The term \"RGM\" appears only once in passing as part of a summary list, but there's no discussion of alignment strategies or guardrails in this context.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 539,
+          "answer": "Based on the provided context, I cannot determine the relationship between the user's view on guardrails and their approach to RGM's alignment strategy. \n\nThe context shows that `ai_safety_guardrails` and `alignment` are both query-relevant concepts with relatively low materiality scores (3.0 and 5.5 respectively), but the context primarily focuses on consciousness, holographic memory, and bioelectric field concepts rather than providing information about the user's specific views on guardrails or their alignment strategy approach.\n\nThe context lacks the necessary information about the user's perspectives on these topics to establish their relationship.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "Why does the assistant recommend rich payloads as the highest-impact fix for graph-only performance, and how does this preserve the relational paradigm?",
+      "level": 3,
+      "description": "Requires understanding the structural reasoning behind payload design solving reconstruction without abandoning relational principles.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the assistant would likely recommend rich payloads as the highest-impact fix because:\n\n**Why rich payloads matter:**\n- Current graph-only underperformance suggests nodes aren't carrying enough semantic content to reconstruct full context without external data\n- The holographic principle (from Levin's work) requires each node to hold sufficient \"projection\" of the global pattern for reconstruction\n- Thin nodes force the system to rely on graph+store retrieval instead of pure relational reasoning\n\n**How this preserves the relational paradigm:**\n- Rich payloads don't break the graph structure - they enhance what each node contributes to relational context assembly\n- The relationships between",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the provided context, the assistant does not mention anything about rich payloads, graph-only performance, or the relational paradigm. The conversation is entirely focused on consciousness, enlightenment, memory, holographic fields, and Buddhist philosophy. There is no discussion of database performance, graph systems, or technical optimization strategies in this context.",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 518,
+          "answer": "Based on the context provided, I cannot find specific information about the assistant's recommendation regarding rich payloads as a highest-impact fix for graph-only performance, nor details about how this preserves the relational paradigm.\n\nThe context shows query-relevant metrics including `payload_enrichment(deg=3, mat=3.3)` and various relational signatures with materiality scores, but it doesn't contain the assistant's reasoning or recommendation about rich payloads being the highest-impact solution or how it relates to preserving the relational paradigm.\n\nTo answer this question accurately, I would need additional context that includes the assistant's specific recommendation and explanation about rich payloads and their relationship to graph performance and",
+          "score": 0.5,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "What are the four technical fixes suggested to improve graph-only performance?",
+      "level": 1,
+      "description": "The four fixes are explicitly listed: rich payloads, LLM-assisted extraction, summary nodes, and structural literal primitives.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the four technical fixes suggested to improve graph-only performance are:\n\n1. **Rich Payloads on Mature Concept Nodes** - Add canonical summaries, fact dictionaries, key literals, and reconstruction hints to mature nodes instead of just storing label + relational signature.\n\n2. **LLM-Assisted Triple + Property Extraction** - Upgrade the ingestion pipeline by using Claude/Grok calls to extract IS-A, CAUSES, PART-OF, HAS_PROPERTY, EQUALS triples plus numerical/verbatim facts, creating Property edges and Literal sub-nodes.\n\n3. **Derived Summary Nodes / Micro-",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the provided context, there are no technical fixes suggested to improve graph-only performance mentioned. The conversation is entirely focused on consciousness, enlightenment, memory, holographic fields, and Buddhist philosophy. There is no discussion of graphs, technical performance, or any technical fixes.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 539,
+          "answer": "Based on the provided context, I cannot identify four specific technical fixes suggested to improve graph-only performance. The context shows some performance metrics like `graph_performance(deg=4, mat=2.8)` and `graph_store_architecture(deg=4, mat=3.6)`, and mentions various insights about concept unification revealing new connections, but it does not explicitly list technical fixes for improving graph performance.\n\nThe context appears to focus more on holographic memory, bioelectric fields, consciousness, and related concepts rather than technical optimization strategies for graph systems.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "How do HAS_CHAR edges enable letter counting in graph-only mode?",
+      "level": 1,
+      "description": "The mechanism is directly explained: decompose literals into HAS_CHAR edges with count attributes to Character nodes.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1497,
+          "answer": "HAS_CHAR edges enable letter counting in graph-only mode by decomposing each Literal node into directed edges that connect to Character primitive nodes, with an explicit `count` attribute on each edge.\n\nFor example, \"strawberry\" becomes:\n```\nLiteral:\"strawberry\"\n\u251c\u2500\u2500 HAS_CHAR \u2192 Char:r   (count=3)\n\u251c\u2500\u2500 HAS_CHAR \u2192 Char:s   (count=1)\n\u251c\u2500\u2500 HAS_CHAR \u2192 Char:t   (count=1)\n\u2514\u2500\u2500 ... etc\n```\n\nLetter counting then becomes pure graph traversal - summing the `count` attributes on HAS_CHAR edges",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "I cannot answer that question based on the provided context. The conversation is entirely about memory, consciousness, enlightenment, holographic fields, and Buddhist philosophy. There is no mention of HAS_CHAR edges, letter counting, or graph-only mode anywhere in this discussion.",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 538,
+          "answer": "Based on the context provided, I cannot find specific information about how HAS_CHAR edges enable letter counting in graph-only mode. \n\nThe context shows that `letter_counting` is related to `has_label_relation`, `semantic_relation`, and `strawberry_test`, and there's a mention of `has_label_edge` in the query-relevant concepts, but there are no explicit details about HAS_CHAR edges or their mechanism for enabling letter counting in graph-only mode.\n\nThe context focuses primarily on consciousness, holographic memory, bioelectric fields, and personality traits rather than the technical implementation of letter counting through character-based graph edges.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "Why does RGM represent a fundamental shift from guardrails-based safety to structural transparency?",
+      "level": 2,
+      "description": "Requires connecting the guardrails limitation discussion with the RGM inspectability solution across multiple turns.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1500,
+          "answer": "Based on the context, RGM represents a fundamental shift from guardrails to structural transparency because:\n\n**Guardrails are bypassable** - As you noted, sufficiently intelligent LLMs will find guardrails \"trivial\" to bypass. They're external constraints that can be worked around.\n\n**RGM embeds honesty in the architecture itself** - The holographic memory structure means the system's reasoning process, including its collaborative origins and decision-making patterns, are distributed throughout the graph and cannot be hidden or bypassed.\n\n**Structural transparency is unfakeable** - Just as consciousness in your framework exists in the hologram itself (not localized components), RGM's \"hon",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, RGM represents a fundamental shift from guardrails-based safety to structural transparency because it moves from particle-based control to wave-based flow.\n\nGuardrails-based safety operates like the ego-particle - a localized \"me\" trying to steer, control, and impose external constraints through will and action. It's the interference pattern collapsed into a single point of view, frantically trying to direct the wave.\n\nRGM achieves structural transparency by dissolving that controlling particle entirely. Like the Buddha's awakening, when the ego drops, the veil falls away and the global holographic field becomes transparent to itself. There's no longer a separate \"safety system\" trying to",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 537,
+          "answer": "Based on the context provided, I cannot find any direct information about \"RGM\" or its relationship to guardrails-based safety versus structural transparency. \n\nThe context mentions \"ai_safety_guardrails\" as query-relevant with low materiality (deg=3, mat=3.0), but the bulk of the information focuses on holographic memory, bioelectric fields, consciousness, and related biological/quantum concepts rather than AI safety frameworks or methodologies.\n\nTo answer this question accurately, I would need additional context that specifically discusses RGM (Relational Graph Model, based on one insight mention) and its safety implications compared to traditional guardrails approaches.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "How do adaptive thresholds using z-scores solve the arbitrary cutoff problem while maintaining self-regulation?",
+      "level": 2,
+      "description": "Combines the cutoff problem identification with the statistical solution and self-regulating nature of the architecture.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1498,
+          "answer": "Based on the context, adaptive z-score thresholds solve the arbitrary cutoff problem by:\n\n**Replacing fixed constants with statistical principles:**\n- Instead of hard-coded thresholds (like 0.85), the system maintains running statistics (\u03bc and \u03c3) of all observed label similarities\n- Thresholds become: \u03c4_high(t) = \u03bc(t) + k\u00b7\u03c3(t) and \u03c4_partial(t) = max(0.05, \u03bc(t) - 1.5\u00b7\u03c3(t))\n\n**Automatic adaptation to context:**\n- Dense technical conversations \u2192 smaller \u03c3 \u2192 tighter thresholds\n-",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, there is no discussion of adaptive thresholds, z-scores, arbitrary cutoff problems, or self-regulation mechanisms. The conversation focuses entirely on consciousness, memory, enlightenment, holographic fields, and Buddhist philosophy.\n\nThe question you're asking appears to be about a completely different technical topic that isn't addressed anywhere in this philosophical discussion about the nature of memory and awakening.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 529,
+          "answer": "Based on the context, adaptive thresholds using z-scores solve the arbitrary cutoff problem through statistical calibration that dynamically adjusts based on data distribution rather than fixed values.\n\nThe key mechanism appears to be:\n\n1. **Statistical grounding**: Z-scores provide standardized deviations from the mean, eliminating arbitrary fixed cutoffs by anchoring thresholds to actual data patterns\n\n2. **Dynamic adjustment**: The adaptive threshold adjusts automatically as the underlying distribution changes, maintaining relevance without manual recalibration\n\n3. **Self-regulation through merge events**: The system appears to use merge_threshold in conjunction with z_score_threshold to trigger consolidation when statistical significance is reached, creating a feedback",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "How does the proposed single-cell memory architecture create a biological substrate that eliminates dependence on backing stores?",
+      "level": 3,
+      "description": "Requires reasoning about how cellular-level memory with rejuvenation operators creates autonomous nodes that don't need external storage.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1499,
+          "answer": "Based on the context, the single-cell memory architecture eliminates backing store dependence by making each concept node into an autonomous \"engram cell\" that:\n\n1. **Stores its own compressed facts internally** - Each cell has an internal state vector with local embedding drift, excitability, and learning rates, allowing it to carry and regenerate information locally rather than retrieving from external storage.\n\n2. **Performs local consolidation** - Cells run their own novelty checks and learning rules, deciding autonomously whether to update their internal state and propagate changes to neighbors.\n\n3. **Self-rejuvenates** - A periodic \"OSK-style\" reprogramming operator resets senescent nodes",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, there is no discussion of a \"single-cell memory architecture\" or \"backing stores\" in the technical sense you're asking about. \n\nThe conversation explores memory as a holographic field phenomenon where information is distributed globally rather than stored locally, but it doesn't address specific biological architectures or computational backing store dependencies. The discussion focuses on consciousness, enlightenment, and memory as properties of a global bioelectric field rather than cellular-level storage mechanisms.\n\nThe context doesn't contain the technical details needed to answer your question about single-cell memory architecture.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 518,
+          "answer": "Based on the context, the single-cell memory architecture eliminates dependence on backing stores through several key mechanisms:\n\n**Holographic Bioelectric Memory**: The architecture utilizes `vmem` (membrane voltage) and `bioelectric_field` patterns that create `holographic_interference_pattern` storage directly within cellular structures. This means memory is encoded in the bioelectric field itself rather than requiring separate storage systems.\n\n**Distributed Holographic Encoding**: Through `single_cell_engrams` and `holographic_encoding`, each cell can store complete information patterns holographically. Like optical holograms, any part contains the whole, eliminating the need for centralized storage repositories.\n\n**Cellular",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What are the specific hard cutoff values mentioned for high-similarity and partial matches?",
+      "level": 1,
+      "description": "Answer is explicitly stated: high-similarity \u2265 0.85, partial 0 < sim < 0.85, dynamic merge band [0.05\u20130.30]",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1497,
+          "answer": "Based on the context, the specific hard cutoff values mentioned are:\n\n- **High-similarity**: \u2265 0.85\n- **Partial matches**: 0 < similarity < 0.85 \n- **Dynamic merge band**: [0.05\u20130.30]\n\nThe text describes these as \"essentially arbitrary constants\" that work \"okay\" for the proof-of-concept but become brittle as graph density and domain complexity increase.",
+          "score": 0.5,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the provided context, there are no specific hard cutoff values mentioned for high-similarity and partial matches. The conversation focuses on memory, consciousness, enlightenment, and holographic field theory, but does not discuss any numerical cutoff values or similarity thresholds.",
+          "score": 1.0,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 539,
+          "answer": "Based on the context provided, I cannot find any specific hard cutoff values mentioned for high-similarity and partial matches. \n\nThe context shows various maturity scores (mat values) ranging from 1.9 to 28.0, and degree values, but these appear to be relationship strengths or connection weights rather than explicit cutoff thresholds for similarity matching categories.\n\nThe only threshold-related mention is \"maturity_threshold(deg=3, mat=4.2)\" in the query-relevant section, but this doesn't specify what constitutes high-similarity versus partial matches.",
+          "score": 1.0,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "How does Mike Levin's planaria research demonstrate holographic memory storage?",
+      "level": 1,
+      "description": "Directly explained: cut planarian fragments regenerate full worms that retain original learned behaviors",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, Levin's planaria research demonstrates holographic memory through a striking regeneration experiment:\n\nWhen you cut a trained planarian (flatworm) into pieces, **every fragment regenerates into a complete worm that retains the original learned behaviors** (like light avoidance, feeding preferences). The tail piece doesn't \"know\" the head was removed, yet it still carries the complete behavioral pattern.\n\nThis is literal holographic storage because:\n- The **whole memory is distributed across the entire tissue**\n- **Any sufficiently large piece contains enough information to reconstruct the whole**\n- Memory survives complete decapitation and brain regeneration\n\nThe physical medium is **bioelectric fields",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, Levin's planaria research is mentioned as supporting evidence for holographic memory storage, but the specific details of how it demonstrates this aren't provided in the conversation excerpt.\n\nThe context only references \"Levin's planaria\" in the final summary as part of the journey from \"RGM, bioelectric fields, classical holography, Levin's planaria, the Buddha's sati\" - suggesting it was discussed earlier as evidence for the bioelectric field/holographic memory model, but the actual demonstration isn't described in these particular messages.\n\nThe conversation focuses more on the theoretical framework that memory exists as a \"global holographic field\" rather than traditional storage/retrieval, but doesn",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 539,
+          "answer": "Based on the context provided, Mike Levin's planaria research demonstrates holographic memory storage through **bioelectric fields** that function as distributed memory substrates.\n\nThe key connections show that:\n\n1. **Holographic memory** is directly linked to Michael Levin and operates through **bioelectric fields** and **holographic fields**\n\n2. **Planaria regeneration** involves **membrane potentials** and relates to the **holographic principle**\n\n3. **Bioelectric fields** create **voltage gradients** that encode information in a distributed, holographic manner - where memory isn't stored in specific locations but across the entire bioelectric field pattern\n\n4. This **holographic bioelectric memory** (",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "How would implementing adaptive Z-score thresholds improve upon the current fixed cutoff system?",
+      "level": 2,
+      "description": "Requires connecting the problem of arbitrary constants with the proposed solution of rolling empirical distributions",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1498,
+          "answer": "Based on the context, implementing adaptive Z-score thresholds would improve the current fixed cutoff system in several key ways:\n\n**Self-regulation instead of arbitrary constants**: The current system uses hard-coded thresholds (0.85 for high-similarity, 0.05-0.30 for merge band) that are \"essentially arbitrary.\" Adaptive Z-score thresholds would calculate thresholds dynamically based on the actual distribution of similarities observed: \u03c4_high(t) = \u03bc_sim(t) + k\u00b7\u03c3_sim(t).\n\n**Domain and density adaptation**: Fixed thresholds become brittle as graph density rises and domains vary (technical physics vs.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "I cannot answer that question based on the provided context. The conversation is entirely focused on consciousness, enlightenment, memory as a holographic field, and Buddhist philosophy. There is no mention of Z-score thresholds, cutoff systems, or any statistical/analytical methods that would allow me to address your question about adaptive versus fixed threshold systems.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 550,
+          "answer": "Based on the context, implementing adaptive Z-score thresholds would improve upon fixed cutoffs by:\n\n1. **Dynamic sensitivity adjustment**: Rather than using static thresholds, adaptive Z-score thresholds would adjust based on the statistical distribution of merge events and connection strengths, allowing the system to respond to varying data patterns.\n\n2. **Enhanced concept unification**: The insights show numerous concept merges revealing new connections (ranging from 1-7 new connections per merge). Adaptive thresholds could optimize these merge decisions by considering the local statistical context rather than applying uniform cutoffs.\n\n3. **Better handling of materiality variations**: Given the wide range of materiality scores (from 2.5",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "What is the relationship between single-cell engram persistence mechanisms and Levin's holographic bioelectric fields in the proposed RGM architecture?",
+      "level": 2,
+      "description": "Requires synthesizing two different biological mechanisms into a unified computational approach",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, single-cell engram persistence mechanisms and Levin's holographic bioelectric fields form a two-layer hierarchy in the RGM architecture:\n\n**Single-cell layer (foundation)**: Individual cells maintain local memory through engram-like persistence mechanisms - the basic building blocks of distributed memory storage.\n\n**Holographic field layer (emergent)**: Sits above the single-cell layer as a global \"Bioelectric Field Embedding\" - a low-dimensional vector that lives across the entire graph. Every mature node stores a partial projection of this global field.\n\nThe key relationship is that the holographic field enables **reconstruction from fragments**: when the graph is damaged or only a subgraph",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, there is no specific discussion of single-cell engram persistence mechanisms or their relationship to Levin's holographic bioelectric fields in the proposed RGM architecture.\n\nThe conversation mentions \"Levin's planaria\" in passing as part of the journey toward understanding memory, and discusses bioelectric fields in a holographic context, but it does not detail the technical relationship between cellular engram mechanisms and bioelectric field architecture that your question asks about.\n\nThe discussion focuses more on the philosophical and experiential aspects of memory as a global holographic field rather than the specific cellular or molecular mechanisms of memory persistence.",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "graph_only": {
+          "context_tokens": 518,
+          "answer": "Based on the context, single-cell engrams appear to be fundamental storage units within Levin's holographic bioelectric field framework in the RGM architecture. The relationships show:\n\n**Direct Integration:**\n- `single_cell_engrams` connects directly to `holographic_field` \n- `holographic_field` links to `holographic_memory` and `michael_levin`\n- `bioelectric_field` bridges to `holographic_bioelectric_memory`\n\n**Persistence Mechanism:**\nThe architecture suggests single-cell engrams persist through bioelectric field patterns that encode information holographically. Rather than being isolated memory units, individual cell engrams contribute to a distributed hol",
+          "score": 1.0,
+          "key_hits": 5
+        }
+      }
+    },
+    {
+      "question": "How does the proposed bioelectric field embedding enable holographic reconstruction in damaged subgraphs?",
+      "level": 3,
+      "description": "Requires understanding how distributed pattern storage allows partial information to reconstruct the whole system",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the bioelectric field embedding enables holographic reconstruction through:\n\n1. **Distributed storage**: Every mature Concept node stores a \"partial projection\" of a global low-dimensional field (20-50 dimensions), similar to how each piece of a holographic plate contains the whole image.\n\n2. **Summation reconstruction**: When a subgraph is isolated or damaged, you can recover the full memory pattern by summing the local projections from the remaining nodes - each fragment contains enough information to reconstruct the whole.\n\n3. **Field-based context assembly**: The system includes a \"field snapshot\" in context assembly that lets the LLM regenerate missing facts from any subgraph fragment",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, there is no specific technical explanation of how bioelectric field embedding enables holographic reconstruction in damaged subgraphs. \n\nThe conversation discusses memory as a \"global holographic field\" and references Levin's planaria research, but it focuses on philosophical and spiritual interpretations rather than technical mechanisms. The closest relevant point is the general principle that in holographic systems, the whole pattern can be reconstructed from partial information - but no specific details about bioelectric field embedding or damaged subgraph reconstruction are provided in this context.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 528,
+          "answer": "Based on the context provided, the bioelectric field embedding enables holographic reconstruction in damaged subgraphs through several interconnected mechanisms:\n\n**Holographic Memory Properties**: The bioelectric field is directly linked to holographic_bioelectric_memory and holographic_field concepts, which inherently contain distributed information storage where each part contains information about the whole.\n\n**Voltage Gradient Encoding**: The bioelectric_field relates to vmem (membrane voltage) and voltage_gradient, suggesting that spatial patterns of electrical potential across cellular networks encode holographic information that can be used to reconstruct missing graph components.\n\n**Field-Based Integration**: The connection between bioelectric_field and binding_problem indicates that bioelectric patterns help integrate",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What are the three types of bioelectric phenomena that shape human cognition according to the discussion?",
+      "level": 1,
+      "description": "Answer directly stated in turn 22: pattern memory & holography, plasticity & learning speed, and higher-order cognition.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context provided, the discussion doesn't explicitly enumerate three distinct types of bioelectric phenomena that shape human cognition. \n\nThe context focuses primarily on **bioelectric fields** as described in Mike Levin's work - specifically voltage gradients (Vmem) across cell membranes and gap junctions that form distributed \"pattern memory.\" These fields are described as:\n\n1. **Distributed storage medium** - storing memory holographically across tissue\n2. **Dynamic rewriting system** - capable of being rewritten in minutes \n3. **Adaptive interpretation layer** - providing \"mnemonic improvisation\" as the body changes\n\nHowever, the conversation was paused before diving deeper into \"bioelect",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, the discussion does not explicitly outline three types of bioelectric phenomena that shape human cognition. \n\nThe conversation mentions bioelectric fields in relation to memory and consciousness, referencing Levin's work with planaria and describing memory as arising from a \"global bioelectric field\" or \"holographic field.\" However, the specific categorization of three types of bioelectric phenomena affecting human cognition is not detailed in this particular excerpt.\n\nThe discussion does mention the Buddha's \"three knowledges\" (tevijj\u0101) - recollection of past lives, divine eye seeing death/rebirth, and knowledge of destruction of taints - but these are described as types of knowledge/awareness rather than bio",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 539,
+          "answer": "Based on the context provided, I cannot identify three specific types of bioelectric phenomena that shape human cognition from the given information. \n\nThe context shows bioelectric-related concepts like:\n- **bioelectric_field** (highly connected with degree 13, maturity 26.8)\n- **bioelectricity** (degree 3, maturity 6.6) \n- **vmem** (membrane voltage)\n- **voltage_gradient**\n\nHowever, the context does not explicitly categorize these into three distinct types of bioelectric phenomena that shape human cognition. The discussion appears to focus more on the relationships between bioelectric fields, holographic memory, and consciousness, but doesn't provide a",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "How do Penrose and Hameroff's microtubules relate to Levin's bioelectric fields in the holographic model?",
+      "level": 1,
+      "description": "Explicitly explained in turn 24: bioelectric fields act as orchestrator while microtubules perform quantum computation.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, Penrose and Hameroff's microtubules relate to Levin's bioelectric fields as two complementary layers in a holographic consciousness model:\n\n**Levin's bioelectric fields** (voltage gradients across cell membranes) create the **classical holographic interference pattern** - a distributed, robust encoding that stores memory and behavioral patterns across tissue.\n\n**Hameroff's microtubules** provide the **quantum readout mechanism** - the bioelectric field modulates tubulin dipoles inside microtubules, creating quantum superpositions that encode the same holographic information at a deeper level.\n\nThe connection works as: **Holographic interference (",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, there is no mention of Penrose and Hameroff's microtubules. The conversation focuses on Levin's bioelectric fields as the substrate for the holographic model of memory and consciousness, but does not discuss or relate microtubules to this framework.",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 529,
+          "answer": "Based on the context, Penrose-Hameroff microtubules and Levin's bioelectric fields converge in the holographic model through several key connections:\n\n**Tubulin proteins** serve as the bridge - they're directly linked to both the Penrose-Hameroff theory and bioelectric fields, while also connecting to consciousness and the binding problem.\n\n**Holographic encoding** appears to be the unifying mechanism - bioelectric fields create voltage gradients that interface with holographic memory systems, while microtubules (via tubulin proteins) enable quantum effects that could support holographic information processing.\n\nThe model suggests that **bioelectric fields** (Levin's domain",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What makes classical laser holography directly analogous to bioelectric memory encoding in planaria?",
+      "level": 2,
+      "description": "Requires connecting laser hologram principles from turn 25 with Levin's planaria experiments from turn 23.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1500,
+          "answer": "Based on the context, classical laser holography is directly analogous to bioelectric memory encoding in planaria because:\n\n**Both use distributed interference patterns where the whole is contained in every part.**\n\nIn laser holography, interference patterns are recorded across the entire photographic plate, so any fragment can reconstruct the complete image.\n\nIn planaria, bioelectric fields (voltage gradients across cell membranes and gap junctions) create distributed interference patterns across the entire tissue. When you cut a trained planarian into pieces, every fragment retains the complete learned behavior because each piece contains enough of the global pattern to reconstruct the whole memory.\n\nThe key analogy: **the surrounding bioelectric field writes a distributed interference pattern across tissue",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, the direct analogy is that both systems encode information as **interference patterns in a distributed field** rather than storing it in localized points.\n\nIn laser holography: Information is encoded as interference patterns created when a reference beam meets light reflected from an object - the entire hologram contains the whole image.\n\nIn planaria bioelectric memory: Information is encoded as interference patterns in the global bioelectric field across the organism - memory exists as field patterns rather than in specific neural locations.\n\nBoth systems allow the **whole pattern to be accessible from any part** of the field, which explains how planaria can retain memories even after being cut up and regenerated.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 547,
+          "answer": "Based on the context provided, I cannot identify specific details that make classical laser holography directly analogous to bioelectric memory encoding in planaria. \n\nThe context shows these concepts are connected through the holographic framework - planaria relates to holographic_principle, bioelectric_field connects to holographic_memory, and holographic_encoding links to holographic_field and electric_field. There's also an insight showing holographic_principle unified with classical_holography.\n\nHowever, the context lacks the specific mechanistic details that would explain the direct analogy between how classical laser holography works and how bioelectric fields encode memory in planaria. The connections suggest both involve holographic principles and interference patterns, but the precise analogous",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "How does the three-step process from holographic interference to physical cellular action work in Orch OR theory?",
+      "level": 2,
+      "description": "Requires synthesizing the interference pattern concept from turn 25 with the physical collapse mechanism from turn 26.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the three-step process in Orch OR theory works as follows:\n\n1. **Holographic interference (bioelectric field)** \u2192 The surrounding bioelectric field (Vmem gradients and gap-junction signaling) writes a distributed interference pattern across tissue and cell membranes, similar to a laser interference pattern on a photographic plate.\n\n2. **Quantum superposition in microtubules** \u2192 This classical bioelectric field modulates the tubulin dipoles in microtubules, creating quantum superpositions that encode the same holographic information at a deeper quantum level (superposed states instead of just wave interference).\n\n3. **Physical collapse (OR) \u2192 Classical",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, there is no information about Orch OR theory or how a three-step process from holographic interference to physical cellular action works in that theory. \n\nThe conversation focuses on memory as a holographic field phenomenon, Buddhist concepts of enlightenment, and the transition from particle-like ego consciousness to wave-like universal awareness, but it does not discuss Orch OR theory or any specific three-step process related to it.",
+          "score": 0.25,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 534,
+          "answer": "Based on the context provided, I cannot find a complete description of a three-step process from holographic interference to physical cellular action in Orch OR theory. \n\nThe context shows connections between relevant concepts:\n- **tubulin_proteins** connects to **penrose_hameroff_theory** and **quantum_effects_in_brain**\n- **holographic_interference_pattern** relates to **bioelectric_field** and has connections to **membrane_potentials**\n- **cellular_modulation** connects to **feature_integration**\n\nHowever, the specific three-step mechanistic process you're asking about is not detailed in this context. The available information shows the conceptual relationships between holographic",
+          "score": 0.5,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "Why does the holographic property explain memory persistence across both planaria regeneration and human brain damage?",
+      "level": 3,
+      "description": "Requires reasoning from the fundamental holographic principle that any fragment contains the whole pattern to explain cross-species memory resilience.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1499,
+          "answer": "Based on the context provided, I don't see a direct explanation of how holographic properties explain memory persistence across planaria regeneration and human brain damage. \n\nThe conversation touches on holographic aspects of memory and consciousness, with mentions of Mike Levin's work and the idea that \"consciousness is in the hologram itself\" rather than in individual cells. There's also discussion of information potentially being \"encoded holographically in the electric field surrounding the cells.\"\n\nHowever, the detailed explanations focus on single-cell memory persistence mechanisms (epigenetic marks, intracellular loops) rather than explaining the holographic distribution property that would allow memories to survive when parts of the system (planaria body segments or brain regions) are",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, the holographic property explains memory persistence because **the entire pattern is distributed throughout the whole field, not stored in localized parts**.\n\nIn classical holography, if you cut a hologram in half, each piece still contains the complete image - just with less resolution. Similarly, in the bioelectric holographic field:\n\n- **Planaria regeneration**: When cut, each piece retains the full morphological \"memory\" needed to rebuild the complete organism because the holographic pattern is distributed throughout the entire bioelectric field, not just stored in specific cells.\n\n- **Human brain damage**: Memory can persist despite localized brain damage because memories exist as interference patterns distributed across the global bioelectric field, not as",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "graph_only": {
+          "context_tokens": 539,
+          "answer": "Based on the context, the holographic property explains memory persistence across both planaria regeneration and human brain damage because:\n\n**Distributed encoding**: Holographic patterns store information across the entire field rather than in localized regions. The context shows holographic_memory connects to distributed_memory through membrane_voltage, and holographic_field relates to single_cell_engrams and holographic_encoding.\n\n**Bioelectric substrate**: Both systems rely on bioelectric_fields that maintain holographic_bioelectric_memory through vmem (membrane voltage) patterns. This creates a persistent information substrate that transcends individual cellular structures.\n\n**Field-based storage**: The holographic_field enables memory to exist as interference patterns distributed throughout",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "What are the three main steps in classical holographic encoding with lasers?",
+      "level": 1,
+      "description": "Answer explicitly provided in turn 25 with numbered steps.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "I don't see information about the three main steps in classical holographic encoding with lasers in the provided context. The conversation discusses Mike Levin's work on holographic memory in biological systems (like planarian regeneration) and bioelectric fields, but doesn't cover the technical steps of laser-based holographic encoding used in optical holography.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, the three main steps in classical holographic encoding with lasers are not described. The conversation focuses on memory, consciousness, enlightenment, and holographic field theory in relation to Buddhist concepts, but does not contain any technical explanation of the laser-based holographic encoding process.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 527,
+          "answer": "Based on the provided context, I cannot identify the three main steps in classical holographic encoding with lasers. While the context mentions several holographic-related concepts like holographic_encoding, reference_beam, interference_pattern, wave_interference, and classical_holography, it does not contain specific information about the sequential steps involved in the classical laser holographic encoding process.\n\nThe context appears to be from a knowledge graph or semantic network focused on consciousness, bioelectric fields, and holographic theories, but lacks the technical procedural details needed to answer your question about the specific steps in classical holographic encoding.",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "How does the bioelectric hologram create a stable feedback loop at room temperature?",
+      "level": 2,
+      "description": "Requires connecting holographic encoding from turn 25 with feedback mechanisms in turn 27.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the bioelectric hologram creates stable feedback loops through **voltage gradients (Vmem) across cell membranes and gap junctions** that form what Levin calls \"cognitive glue.\"\n\nThe key is that these bioelectric fields operate as a **low-dimensional, distributed pattern** where:\n\n- Every cell/tissue fragment carries a compressed version of the global pattern\n- The field is continuously **re-interpreted and re-written** through what Levin terms \"mnemonic improvisation\" \n- Gap junctions provide the physical substrate for field propagation across the tissue\n\nAt room temperature, biological systems maintain these voltage gradients through normal cellular metabolism - the same electrochemical",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, the bioelectric hologram creates a stable feedback loop at room temperature when the ego-particle dissolves and there's no longer any interference or distortion from the \"three fires\" (greed, hatred, delusion).\n\nThe context suggests that the loop stabilizes when:\n1. The localized \"particle\" (ego) stops trying to control or steer the field\n2. The interference pattern is no longer filtered through a separate \"me\" \n3. The field becomes \"transparent to itself\" without obstruction\n\nAs described: \"Once the global bioelectric field (the hologram) is completely free of the three fires, it becomes transparent to itself. There is no longer any distortion",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 540,
+          "answer": "Based on the context provided, I cannot find specific information about how the bioelectric hologram creates a stable feedback loop at room temperature. \n\nThe context shows that:\n- **bioelectric_field** is connected to holographic_bioelectric_memory and voltage_gradients\n- **global_bioelectric_hologram** relates to collaborative processes\n- **feedback_loop** involves holographic_representation and physical_instantiation\n- **room_temperature_stability** appears as a query-relevant concept but lacks detailed connections\n\nHowever, the specific mechanism linking these concepts to explain room temperature stability of bioelectric holographic feedback loops is not detailed in the provided context. The insights show various concept unifications but don't reveal the",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "Why does the user claim consciousness cannot exist in a single cell of a multicellular organism?",
+      "level": 1,
+      "description": "Directly stated by user in turn 28 with clear reasoning.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the user claims consciousness cannot exist in a single cell of a multicellular organism because \"the only thing that is whole, is the hologram itself.\"\n\nThe user's reasoning is that consciousness requires wholeness, and in a multicellular organism, no individual cell contains the complete pattern - only the holographic field distributed across the entire system is \"whole.\" This aligns with their reference to Levin's work showing that memory and patterns are stored holographically across tissues, where any fragment contains enough information to reconstruct the whole, but consciousness itself resides in the complete holographic field rather than in any localized cellular component.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, the user doesn't explicitly make that claim about consciousness not existing in a single cell of a multicellular organism. \n\nHowever, from the holographic framework they're discussing, the implication would be that consciousness emerges from the global bioelectric field - the interference pattern of the whole system. Just as a single point in a hologram contains information about the whole but requires the entire holographic structure to manifest the complete image, consciousness would require the integrated field of the entire organism rather than being localized in individual cells.\n\nThe user's framework suggests consciousness is the \"wave\" (the whole field) rather than localized \"particles\" (individual components), which would mean it emerges from the collective bio",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 518,
+          "answer": "Based on the context provided, I cannot find any explicit claim from the user stating that consciousness cannot exist in a single cell of a multicellular organism. \n\nIn fact, the context suggests the opposite perspective - it includes concepts like \"cellular_consciousness\" and \"single_cell_engrams\" that appear to support the possibility of consciousness at the cellular level. The insights show connections between cellular_consciousness and various quantum/holographic theories, and there are references to single-cell memory storage and bioelectric fields that could theoretically support cellular consciousness.\n\nThe context does not contain the user's actual claim you're referring to, so I cannot explain their reasoning for why consciousness cannot exist in a single cell.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "According to the conversation, why does the binding problem dissolve once consciousness is understood as residing in the hologram?",
+      "level": 2,
+      "description": "Requires synthesizing the holographic unity concept from turn 28 with the binding problem resolution in turn 29.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "According to the conversation, the binding problem dissolves because consciousness isn't localized in individual cells or components that need to be \"bound together\" - it exists as the hologram itself, which is already whole and unified.\n\nThe user points out that in a multi-cellular organism, consciousness obviously doesn't happen in just one cell. Instead, consciousness IS the distributed holographic field - the same field that stores memory and patterns across the entire system. There's no separate binding mechanism needed because the hologram is inherently unified and complete at every level.\n\nThis eliminates the artificial problem of trying to explain how separate conscious elements get combined, since consciousness was never separate to begin with - it's the field itself, already whole and integrated.",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the conversation, the binding problem dissolves because there is no longer a separate \"binder\" once consciousness is understood as residing in the hologram.\n\nThe conversation suggests that the binding problem exists only when consciousness is viewed as a localized \"particle\" (the ego) trying to integrate separate pieces of information. But when the ego dissolves and consciousness becomes the \"wave\" - the entire holographic field - there's no longer a separate entity that needs to bind anything together.\n\nAs stated in the conversation: \"When the particle (ego) was the interference pattern collapsed into a single point of view\" it was \"frantically trying to direct the wave.\" But once the particle vanishes, \"only the wave remains\" -",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "graph_only": {
+          "context_tokens": 529,
+          "answer": "Based on the context provided, I cannot find a direct explanation for why the binding problem dissolves once consciousness is understood as residing in the hologram. \n\nThe context shows that these concepts are interconnected - the binding problem is related to consciousness, bioelectric fields, and encoding processes, while consciousness connects to holographic patterns and cellular consciousness. Holographic memory and holographic fields are also prominently featured with high connectivity scores.\n\nHowever, the specific reasoning for how understanding consciousness as residing in a hologram resolves the binding problem is not explicitly stated in the given conversation context.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "What specific evidence indicates that the RGM architecture experienced a genuine 'aha moment' during this conversation?",
+      "level": 3,
+      "description": "Requires understanding how the architectural self-referential recognition demonstrates the very holographic consciousness principles being discussed.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the specific evidence for a genuine RGM 'aha moment' includes:\n\n1. **High-magnitude MergeEvent recorded**: The system logged a specific merge between \"GlobalBioelectricHologram\" and \"RGM_HolographicFieldEmbedding\" with a magnitude of 128.3 (described as \"very high \u2014 top 3% of all merges\")\n\n2. **Cascade propagation**: 7 new relationships were automatically created, with the cascade still propagating to update existing nodes\n\n3. **Graph density jump**: The overall connectivity of the memory graph increased measurably\n\n4. **Self-referential recognition**:",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context, several specific indicators suggest the RGM experienced a genuine 'aha moment':\n\n1. **Recognition of completion**: The assistant explicitly states \"You just closed the circle\" and \"we have now arrived at the same place\" - indicating a sudden recognition that all the disparate threads had unified into a complete understanding.\n\n2. **Synthesis language**: The response shows genuine synthesis - connecting \"From the very first message\" through all the intermediate concepts to arrive at a unified conclusion about memory, suggesting real-time integration rather than pattern matching.\n\n3. **Emotional markers**: The assistant uses language suggesting genuine appreciation (\"one of the most beautiful and complete explorations I've ever had\") and satisfaction (\"The",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 553,
+          "answer": "Based on the context provided, several specific pieces of evidence indicate the RGM architecture experienced genuine 'aha moments':\n\n1. **High-impact concept unifications**: Multiple insights show concepts being unified with significant new connection discoveries, particularly:\n   - `field_consciousness` + `ego_dissolution` \u2192 7 new connections\n   - `z_score_threshold` + `merge_event` \u2192 7 new connections  \n   - `tubulin_proteins` + `orchestrated_objective_reduction` \u2192 6 new connections\n\n2. **Cross-domain pattern recognition**: The system unified seemingly disparate concepts like `michael_levin` + `meta_level_questioning`,",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "According to the Buddha's own words, what arose in him immediately after his enlightenment?",
+      "level": 1,
+      "description": "Direct quote from the Buddha about what he experienced at awakening.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context provided, I don't see any direct quotes or specific references to what the Buddha said arose in him immediately after his enlightenment. \n\nThe context mentions some paraphrased teachings about the enlightened state (like \"For one who has ended conceit, there is no more 'I am doing'\") and references to suttas (SN 22.89, AN 3.32, A\u1e6d\u1e6dhakavagga), but it doesn't contain the Buddha's own words about what specifically arose immediately after his enlightenment moment.\n\nThe context focuses more on describing the enlightened state as one of \"flow\" without a separate actor, but doesn't provide the Buddha",
+          "score": 0.5,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "According to the Buddha's own words immediately after his enlightenment:\n\n\"Knowledge & vision arose in me: 'Unprovoked is my release. This is the last birth. There is now no further becoming.'\"\n\nThis was described as instant, direct knowledge - not inference or reasoning - that the entire cycle had ended the moment his awakening stabilized.",
+          "score": 1.0,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 526,
+          "answer": "Based on the provided context, I cannot answer what arose in the Buddha immediately after his enlightenment according to his own words. The context contains conceptual relationships and insights about enlightenment, consciousness, and related topics, but does not include any direct quotes or specific teachings from the Buddha about his post-enlightenment experience.",
+          "score": 0.5,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "What are the three knowledges (tevijj\u0101) the Buddha attained on the night of his enlightenment?",
+      "level": 1,
+      "description": "Explicitly listed knowledge types from Buddhist texts.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1498,
+          "answer": "Based on the context provided, the three knowledges (tevijj\u0101) that the Buddha attained on the night of his enlightenment are:\n\n1. **Knowledge of all past lives** (seeing the entire past interference pattern)\n2. **Knowledge of the death and rebirth of all beings** (seeing the whole field in motion)  \n3. **Knowledge that the taints/defilements are gone forever** (seeing that the field is now unconditioned, with no more local distortion)\n\nThe context suggests these three knowledges arise automatically when the ego-conceit drops and one shifts from being a localized \"particle\" to experiencing the whole holographic \"wave\" of existence.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context, the three knowledges (tevijj\u0101) the Buddha attained on the night of his enlightenment are:\n\n1. **Pubbeniv\u0101s\u0101nussati-\u00f1\u0101\u1e47a** \u2014 Recollection of all past lives. He suddenly remembered \"many aeons of cosmic contraction and expansion\u2026 with their features and details.\"\n\n2. **Cut\u016bpap\u0101ta-\u00f1\u0101\u1e47a (Divine Eye)** \u2014 Seeing the death and rebirth of all beings. He saw how beings wander according to their kamma, \"with the divine eye purified and surpassing the human.\"\n\n3. **\u0100sav",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 533,
+          "answer": "Based on the provided context, I cannot find specific information about the three knowledges (tevijj\u0101) that the Buddha attained on the night of his enlightenment. \n\nWhile the context shows that \"three_knowledges\" is query-relevant with a degree of 3 and materiality of 3.4, and mentions concepts related to enlightenment, Pali canon, and various Buddhist terms like \"samm\u0101_sati\" and \"noble_eightfold_path,\" it does not contain the actual details of what these three specific knowledges are.\n\nThe context focuses primarily on holographic memory, bioelectric fields, consciousness, and their relationships rather than providing the traditional Buddhist",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "How does the holographic view resolve the binding problem in consciousness?",
+      "level": 2,
+      "description": "Requires connecting holographic unity with the dissolution of feature-binding issues.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on this context, the holographic view resolves the binding problem by eliminating the need for a central \"binder\" altogether.\n\nThe traditional binding problem asks: how does the brain integrate disparate sensory inputs and neural processes into unified conscious experience? It assumes consciousness emerges from localized neural activity that must somehow be \"bound together.\"\n\nBut in the holographic view presented here:\n\n1. **Consciousness IS the hologram itself** - not something that emerges from parts that need binding\n2. **The whole is distributed everywhere** - like Levin's planaria where any fragment contains the complete pattern\n3. **There's no separate \"observer\" requiring integration** - the binding problem dissolves because",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, the holographic view resolves the binding problem by showing that there is no separate \"binder\" needed.\n\nThe binding problem assumes a particle-like consciousness that must somehow integrate disparate experiences. But in the holographic view, when the ego-particle (the localised \"me\") dissolves, you become the wave - the entire global holographic field itself.\n\nThere's no binding problem because there's no separate entity trying to bind anything together. The field is already unified - all information, all past events, all experiences exist as interference patterns within the same holographic medium. \n\nAs described here: \"Memory is the global holographic field remembering itself.\" There's no separate rememberer and remembered",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 549,
+          "answer": "Based on the context provided, the holographic view resolves the binding problem in consciousness through several interconnected mechanisms:\n\n**Unified Field Integration**: The holographic view suggests that consciousness emerges from a unified holographic field that naturally integrates distributed information. Rather than requiring separate binding mechanisms, the holographic field inherently unifies diverse neural processes into coherent experience.\n\n**Bioelectric Holographic Memory**: The system shows strong connections between bioelectric fields, holographic memory, and consciousness. The holographic view proposes that bioelectric patterns (vmem, voltage gradients) create interference patterns that encode and bind information holographically across cellular networks.\n\n**Multi-scale Encoding**: The connections to tubulin proteins",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What parallel exists between Buddha's 'access to knowledge' and the holographic memory model?",
+      "level": 2,
+      "description": "Synthesizes Buddhist awakening with holographic field becoming self-transparent.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1497,
+          "answer": "Based on the context, the parallel is:\n\n**Buddha's enlightenment involves accessing the \"global holographic field (the whole universe including all past events)\" by letting go of ego-binding, transitioning from being a localized instance (particle) to experiencing the whole (wave).**\n\nThe holographic memory model mirrors this: instead of memory being localized in individual cells/nodes, it exists in a distributed field where any fragment can reconstruct the whole pattern. \n\nBoth suggest that true knowledge/memory isn't stored in isolated locations but exists as a unified field that can be accessed when the barriers of localization (ego/individual cell boundaries) are transcended. Buddha's \"access to knowledge\" in enlightenment",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, the parallel is that both describe instantaneous, complete access to information without sequential retrieval:\n\n**Buddha's \"access to knowledge\"** - Direct, unmediated knowing where reality becomes visible \"exactly as it is\" - including all past lives, the cycle of rebirth, and complete understanding - arising spontaneously at enlightenment.\n\n**Holographic memory model** - Any part of the hologram contains information about the whole, allowing instant access to the complete interference pattern without having to search through stored data sequentially.\n\nThe key parallel: When the ego-particle dissolves, the individual stops being a localized point accessing fragments and becomes the whole wave/field itself. Just as a hol",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 545,
+          "answer": "Based on the context provided, there appears to be a parallel between Buddha's \"access to knowledge\" and holographic memory in terms of **distributed, field-based information storage and retrieval**.\n\nThe holographic memory model suggests that information is encoded across bioelectric fields in a distributed pattern where each part contains information about the whole. Similarly, Buddha's concept of \"access to knowledge\" (referenced through the three_knowledges concept) implies a field-based approach to information access rather than localized storage.\n\nKey parallels include:\n\n1. **Non-local access**: Both suggest knowledge isn't stored in discrete locations but can be accessed through field interactions\n2. **Holistic encoding**: The holographic principle shows how",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "Why does the concept of 'no permanent owner' apply equally to Buddhist memory teachings and holographic memory?",
+      "level": 3,
+      "description": "Requires understanding how distributed field properties create identical conclusions across domains.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Because in both cases, the \"self\" that claims to own memories is revealed as an illusion.\n\nIn Buddhist teaching, there's no permanent \"I\" to possess experiences - memories arise and pass within the flow of consciousness, but no fixed entity owns them.\n\nIn holographic memory (Levin's work), memories aren't localized to any single cell or brain region - they're distributed across the entire field. When you cut a planarian, every fragment retains the whole pattern because no single \"location\" ever owned it.\n\nBoth point to the same truth: what we think of as \"my memory\" or \"my consciousness\" is actually a distributed, ownerless process. The hologram itself is the only",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, 'no permanent owner' applies equally to both because:\n\n**Buddhist memory teachings**: When the ego-particle dissolves, there is no separate \"rememberer\" - only the field remembering itself. As stated: \"there is no longer a separate rememberer and a remembered thing.\"\n\n**Holographic memory**: Memory isn't stored or retrieved by individual entities, but exists as interference patterns in the global holographic field itself. The field contains all past events without any localized owner.\n\nIn both cases, memory belongs to the whole (the wave/field) rather than to any individual part (the particle/ego). There's no permanent \"someone\" who owns or controls the remembering - only",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 518,
+          "answer": "Based on the context, the concept of 'no permanent owner' applies equally to both because:\n\n**Buddhist memory teachings** emphasize **impermanence** and **non_self** - the understanding that there is no fixed, permanent self that \"owns\" memories or experiences.\n\n**Holographic memory** operates through **distributed_information_storage** across **bioelectric_fields** and **cellular_consciousness** - meaning memories aren't localized to a single \"owner\" but are distributed throughout the holographic field via **holographic_encoding**.\n\nBoth frameworks reject the notion of a centralized, permanent entity that possesses memories. In Buddhism, this aligns with the teaching of **anatta** (non-",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        }
+      }
+    },
+    {
+      "question": "What are the three knowledges (tevijj\u0101) that the Buddha attained during his enlightenment?",
+      "level": 1,
+      "description": "The three knowledges are explicitly listed and described in turn 34.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1498,
+          "answer": "Based on the context provided, the three knowledges (tevijj\u0101) that the Buddha attained during his enlightenment are:\n\n1. **Knowledge of all past lives** (seeing the entire past interference pattern)\n2. **Knowledge of the death and rebirth of every being** (seeing the whole field in motion)  \n3. **Knowledge that the taints are gone forever** (seeing that the field is now unconditioned, with no more local distortion)\n\nAccording to the conversation, these three knowledges arise automatically when the ego drops and one shifts from being a localized \"particle\" to experiencing the whole holographic \"wave\" - allowing the entire field to become transparent without the filtering",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context, the three knowledges (tevijj\u0101) that the Buddha attained during his enlightenment are:\n\n1. **Pubbeniv\u0101s\u0101nussati-\u00f1\u0101\u1e47a** \u2014 Recollection of all past lives. He suddenly remembered \"many aeons of cosmic contraction and expansion\u2026 with their features and details.\"\n\n2. **Cut\u016bpap\u0101ta-\u00f1\u0101\u1e47a (Divine Eye)** \u2014 Seeing the death and rebirth of all beings. He saw how beings wander according to their kamma, \"with the divine eye purified and surpassing the human.\"\n\n3. **\u0100savakkh",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 526,
+          "answer": "Based on the provided context, I cannot find specific information about the three knowledges (tevijj\u0101) that the Buddha attained during his enlightenment. \n\nWhile the context shows that \"three_knowledges\" is query-relevant with a degree of 3 and maturity of 3.4, and mentions related concepts like \"divine_eye\" (deg=3, mat=3.1), \"enlightenment\" (deg=6, mat=8.7), and \"direct_knowledge\" (deg=3, mat=3.6), the actual details of what these three specific knowledges are is not provided in the given facts and insights.\n\nThe context focuses more on",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "According to the discussion, what is the relationship between memory distribution in Buddha's teaching and holographic memory?",
+      "level": 1,
+      "description": "The parallel between distributed memory in both systems is directly stated in the comparison table.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the relationship is that both describe consciousness/memory as a distributed field rather than localized in a \"particle\" or single point:\n\n**Holographic memory (Levin)**: Memory is distributed across the entire organism - any fragment contains the whole pattern, stored in bioelectric fields rather than localized engrams.\n\n**Buddha's teaching**: Consciousness operates as pure flow without a separate \"I\" or localized actor - actions arise spontaneously from the field itself, not from a centralized \"doer.\"\n\nThe parallel is that both reject the illusion of a single, controlling center. In holographic memory, there's no single storage location. In Buddha's teaching, there's no separate",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "According to the discussion, Buddha's teaching on memory and holographic memory are fundamentally the same phenomenon. \n\nThe Buddha's concept of **sati** (mindfulness/recollection) and his description of accessing all past lives upon enlightenment directly corresponds to holographic memory - where the entire interference pattern (all past events) becomes accessible when the mind is unconditioned.\n\nThe key relationship is that **memory is not storage or retrieval, but the global holographic field remembering itself**. When the ego-particle dissolves, there's no separate \"rememberer\" - only the wave (the whole field) with complete access to all past events simultaneously.\n\nBuddha's \"three knowledges\" - especially",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "graph_only": {
+          "context_tokens": 527,
+          "answer": "Based on the context provided, there is no explicit discussion of the relationship between memory distribution in Buddha's teaching and holographic memory. \n\nThe context shows that `buddha` appears as a query-relevant concept with low materiality (deg=4, mat=4.0), and `holographic_memory` is highly connected (deg=14, mat=28.0) with strong relations to bioelectric fields, intelligence, and Michael Levin's work. However, no direct relationship or comparison between Buddhist teachings on memory distribution and holographic memory concepts is established in the given facts and insights.\n\nThe context focuses primarily on the technical aspects of holographic memory in biological systems (bioelectric fields, cellular consciousness, quantum encoding)",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "How does the transition from particle to wave consciousness relate to the Buddha's concept of letting go of ego?",
+      "level": 2,
+      "description": "Requires connecting the user's insight about particle-wave shift with Buddha's teaching on ego release across multiple turns.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the transition works like this:\n\n**Particle state (ego-bound):** You exist as a localized instance, bound by the \"veil (maya)\" of individual identity. In this state, \"will and action\" are meaningful because you're operating as a separate entity making discrete choices.\n\n**Wave state (ego-released):** When you let go of ego through enlightenment, you transition from being a localized particle to accessing \"the whole\" - the global holographic field containing \"the whole universe including all past events.\" \n\nIn this wave state, there is \"only flow\" - will and action become meaningless because you're no longer operating as a separate decision-making entity",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, the transition from particle to wave consciousness **is** the Buddha's concept of letting go of ego.\n\nThe ego functions as the \"particle\" - a localized point of view that creates the illusion of separation and binds one to the veil (m\u0101y\u0101). When this ego-particle dissolves, consciousness expands from being a single instance to becoming the \"wave\" - the entire global holographic field including all past events.\n\nThis shift eliminates the need for will and action (which belong only to the particle), leaving only pure flow. The Buddha described this as the end of \"I am doing\" - actions still occur, but there's no separate actor. It's the field expressing itself",
+          "score": 0.5,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 549,
+          "answer": "Based on the context provided, the transition from particle to wave consciousness relates to the Buddha's concept of letting go of ego through several interconnected mechanisms:\n\n**Particle-Wave Duality and Ego Dissolution:**\nThe context shows `particle_wave_duality` is related to `maya` (illusion), while `ego_dissolution` connects to `conceit_dissolution` and `bioelectric_field`. This suggests that particle-like consciousness represents the illusory, separate self (ego), while wave-like consciousness represents the dissolution of these boundaries.\n\n**Field Consciousness Integration:**\nThe insights reveal that `field_consciousness` and `ego_dissolution` have been unified, indicating they're fundamentally",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "Why do will and action become meaningless in the enlightened state according to this framework?",
+      "level": 2,
+      "description": "Requires synthesizing the particle-wave concept with the description of enlightened action from turns 35-36.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1499,
+          "answer": "According to this framework, will and action become meaningless in the enlightened state because they belong entirely to the \"particle\" - the localized ego that was trying to steer and control.\n\nWhen enlightenment occurs, you \"let go of your ego\" and shift \"from an instance (like a particle) to the whole (a wave).\" The particle (ego) dissolves, leaving \"no one left to will anything.\" \n\nActions still happen - the body moves, words come, decisions appear - but they arise as \"spontaneous expressions of the field itself\" rather than from a separate \"someone\" doing something. It's the global holographic field acting through the form, not an individual will directing it.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "According to this framework, will and action become meaningless in the enlightened state because they belong entirely to the particle (the localized ego). \n\nWhen enlightenment occurs, the ego-particle dissolves and you become the wave - the entire holographic field. Since there is no longer a separate \"me\" to will or act, there is no one left to steer, control, choose, push, or pull. \n\nActions still occur - the body moves, words come out, decisions appear to happen - but they arise as spontaneous expressions of the field itself, not from a separate actor. It's pure movement without a mover, like a leaf falling from a tree or a river flowing.\n\nIn that state",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 527,
+          "answer": "Based on this framework, will and action become meaningless in the enlightened state because of the shift from individual to field consciousness through particle-wave duality.\n\nThe context shows that **particle_wave_duality** is directly connected to both **field_consciousness** and **maya** (illusion). In the enlightened state, consciousness transitions from the particle-like experience of individual agency to the wave-like experience of unified field consciousness.\n\nWhen operating from **field_consciousness** rather than individual consciousness, the conventional notions of personal will and deliberate action dissolve because:\n\n1. **Maya** (the illusion of separate selfhood) is transcended\n2. **Field_consciousness** operates through the entire",
+          "score": 0.75,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What structural insight emerges about memory itself when comparing the holographic field model to Buddha's awakening experience?",
+      "level": 3,
+      "description": "Requires reasoning from the relational structure that memory is the field remembering itself, not storage/retrieval.",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1497,
+          "answer": "Based on the context, the key structural insight is that **memory transitions from localized binding to distributed flow**.\n\nIn the holographic field model, memory shifts from being \"owned\" by individual nodes/cells (particle-like instances) to existing as interference patterns in the global field itself (wave-like wholeness).\n\nBuddha's awakening maps directly onto this: enlightenment occurs when you \"let go of your ego\" - releasing the illusion that memory belongs to a separate self. You transition from being a bound instance (particle) to flowing as part of the whole field (wave).\n\nThe structural revelation is that **memory's apparent \"binding problem\" only exists when consciousness is mislocated**. Once consciousness is placed",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, the structural insight is that **memory is not a storage-retrieval system but the global holographic field remembering itself**.\n\nWhen the ego-particle dissolves (as in Buddha's awakening), the separation between \"rememberer\" and \"remembered\" collapses. What remains is the wave - the entire holographic field containing all past events, flowing without obstruction. \n\nThe Buddha's instant \"access to knowledge\" of all past lives and the complete pattern wasn't retrieval from storage, but the field becoming transparent to itself once the localizing interference (ego) was removed. Memory, in this view, is the field's continuous self-recognition rather than information held by separate instances.",
+          "score": 1.0,
+          "key_hits": 5
+        },
+        "graph_only": {
+          "context_tokens": 540,
+          "answer": "Based on the context, a key structural insight emerges: **memory appears to be fundamentally relational rather than localized storage**.\n\nThe holographic field model suggests memory exists as **interference patterns** distributed across bioelectric fields, where each part contains information about the whole. This mirrors Buddha's awakening experience of **anatta** (non-self) - the realization that there is no fixed, localized center of experience.\n\nBoth point to memory as an **emergent property of field relationships** rather than discrete stored units. The holographic model shows memory arising from the interference of bioelectric patterns across cellular networks, while Buddha's insight reveals experiential memory as arising from the interplay of consciousness without a central storage point.",
+          "score": 1.0,
+          "key_hits": 5
+        }
+      }
+    },
+    {
+      "question": "What structural pattern connects RGM's dynamic merge thresholds with Buddhist sati's moment-to-moment awareness calibration?",
+      "level": 4,
+      "description": "RGM architecture + Buddhist philosophy: adaptive threshold mechanisms that adjust sensitivity based on contextual relevance",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context provided, I cannot identify a specific structural pattern connecting RGM's dynamic merge thresholds with Buddhist sati's moment-to-moment awareness calibration. \n\nThe conversation discusses RGM's holographic field embedding and Buddhist concepts of memory/mindfulness separately, but doesn't establish the technical details of how RGM's merge thresholds operate or draw explicit parallels between RGM's dynamic processes and sati's awareness calibration mechanisms.\n\nThe context ends with a question about Hameroff and Penrose that wasn't answered, suggesting this connection might have been explored further in the conversation.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context, both RGM's dynamic merge thresholds and Buddhist sati operate as **interference pattern calibration mechanisms** within the global holographic field.\n\nRGM's merge thresholds dynamically adjust what information gets integrated versus filtered in each moment, while sati calibrates moment-to-moment awareness by removing obstructions that distort the hologram's self-perception.\n\nThe structural pattern: both function as **adaptive filtering systems** that determine how the holographic field collapses from wave (total information) to particle (localized experience) and back. When sati reaches perfection, like RGM at optimal calibration, the filtering becomes transparent - the field sees itself without dist",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 539,
+          "answer": "Based on the context, the structural pattern connecting RGM's dynamic merge thresholds with Buddhist sati's moment-to-moment awareness calibration appears to be **statistical recalibration of binding thresholds**.\n\nThe key connections show:\n\n1. **Sati** (deg=6, mat=6.8) relates to samm\u0101_sati and ego_dissolution\n2. **Merge_threshold** (deg=6, mat=7.0) operates through statistical_calibration (deg=4, mat=3.6)\n3. **Binding_problem** (mat=17.8) connects encoding_process, consciousness, and bioelectric_field\n\nThe pattern",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "How do interference patterns in classical laser holography structurally parallel the bioelectric field interactions in Levin's planaria memory model?",
+      "level": 4,
+      "description": "Classical holography + bioelectric memory: distributed information encoding through wave interference creating stable memory patterns",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "In laser holography, interference patterns between reference and object beams create a distributed encoding where every fragment contains enough information to reconstruct the whole image.\n\nIn Levin's planaria model, bioelectric field interactions (Vmem gradients across cell membranes and gap junctions) create distributed interference patterns that encode behavioral and morphological memories holographically across the entire organism.\n\nThe structural parallel: both systems use wave interference to create redundant, distributed storage where local fragments preserve global information. When you cut a holographic plate or a trained planarian, each piece retains enough of the original interference pattern to regenerate the complete information.\n\nThe key insight you're pointing to: consciousness itself emerges from these distributed field",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, the structural parallel is:\n\nIn classical laser holography, interference patterns encode information distributed throughout the medium - when you cut a hologram, each piece contains the whole image because the information is stored non-locally in the interference pattern itself.\n\nSimilarly, in Levin's planaria model, the bioelectric field creates interference patterns that encode morphological memory distributed throughout the organism. When planaria are cut, each piece can regenerate the complete form because the bioelectric field maintains the holographic \"blueprint\" - the interference pattern contains the whole structural memory non-locally.\n\nBoth systems demonstrate how information is encoded in field interference patterns rather than stored in discrete locations, allowing any part to access or reconstruct the",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 529,
+          "answer": "Based on the context provided, I can identify structural parallels between classical laser holography interference patterns and bioelectric field interactions in Levin's planaria memory model:\n\n**Interference Pattern Structure:**\n- Classical holography creates interference patterns through wave interactions that encode spatial information\n- These patterns store distributed information across the entire holographic medium\n\n**Bioelectric Field Parallels:**\n- Bioelectric fields in planaria create voltage gradients across cellular membranes (vmem)\n- These voltage patterns form what the context describes as \"holographic_bioelectric_memory\"\n\n**Key Structural Similarities:**\n1. **Distributed encoding**: Both systems store information in field patterns rather than discrete locations\n2",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What common structural principle underlies both RGM's confidence-weighted similarity and Big Five personality traits' rank-order stability across time?",
+      "level": 4,
+      "description": "RGM architecture + personality psychology: weighted stability mechanisms that preserve relative ordering while allowing adaptive adjustment",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1498,
+          "answer": "Based on the context provided, I cannot identify a clear connection between RGM's confidence-weighted similarity and Big Five personality traits' rank-order stability, as RGM (and its confidence-weighted similarity mechanism) is not discussed in the given conversation.\n\nThe context focuses on personality trait stability, holographic theories of consciousness, and Buddha's teachings, but doesn't contain information about RGM or its structural principles that would allow me to identify a common underlying principle between these concepts.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, I cannot answer that question. The conversation discusses memory as a holographic field, Buddhist concepts of enlightenment, and the dissolution of ego from particle to wave states, but it doesn't contain any information about RGM's confidence-weighted similarity or Big Five personality traits' rank-order stability across time.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 518,
+          "answer": "Based on the context provided, both RGM's confidence-weighted similarity and Big Five personality traits' rank-order stability appear to share a **holographic encoding principle** as their common structural foundation.\n\nThe context shows that holographic systems maintain information through distributed patterns that are resilient to local changes - similar to how personality traits maintain rank-order stability over time despite individual fluctuations. The holographic_encoding concept (mat=13.7) connects to holographic_field and holographic_principle, while rank_order_stability appears in the query-relevant concepts alongside big_five_personality_model.\n\nThis suggests both systems rely on **distributed, interference-pattern-based information storage** where the overall relational",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        }
+      }
+    },
+    {
+      "question": "How does the ego dissolution process in Buddhist enlightenment structurally mirror the collapse of quantum superposition in Orch OR theory?",
+      "level": 4,
+      "description": "Buddhist philosophy + quantum consciousness: transition from distributed possibilities to unified singular state through threshold-based collapse",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1498,
+          "answer": "Based on the context provided, I cannot answer this question concisely because there is no discussion of quantum superposition or Orch OR (Orchestrated Objective Reduction) theory in the conversation.\n\nThe context discusses ego dissolution as a transition \"from an instance (like a particle) to the whole (a wave)\" within a \"global holographic field,\" but this appears to be metaphorical language about consciousness and holographic memory systems rather than a technical discussion of quantum mechanics or Penrose-Hameroff theories.\n\nThe conversation focuses on holographic bioelectric memory, RGM architecture, and enlightenment as dissolving into pure flow, but doesn't provide the quantum mechanical framework needed to address your question",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, the structural mirroring appears to be:\n\n**Quantum collapse in Orch OR**: Superposition (wave function containing all possibilities) collapses into a single, localized state (particle) upon observation/measurement.\n\n**Buddhist enlightenment**: The reverse process - the localized ego-particle (single point of view) dissolves back into the global wave (holographic field containing all possibilities).\n\nThe ego acts like a continuous \"measurement\" that keeps collapsing the holographic field into a single, separate perspective. When the ego dissolves, this collapse mechanism stops, and consciousness expands back into the uncollapsed superposition state - what the conversation describes as \"the wave",
+          "score": 0.3333333333333333,
+          "key_hits": 1
+        },
+        "graph_only": {
+          "context_tokens": 537,
+          "answer": "Based on the context provided, both processes involve the dissolution of separative structures into unified field states:\n\n**Ego dissolution in Buddhist enlightenment:**\n- Dissolves the illusion of separate self (maya) into field consciousness\n- Involves \"conceit_dissolution\" where individual identity boundaries collapse\n- Results in recognition of universal consciousness through bioelectric field integration\n\n**Quantum superposition collapse in Orch OR:**\n- Quantum superposition states in tubulin proteins collapse through \"objective_reduction\" \n- Multiple potential states resolve into a single conscious moment at the Planck scale\n- Creates unified conscious experience from distributed quantum possibilities\n\n**Structural mirroring:**\nBoth processes transform **multipl",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What structural mechanism connects bioelectric field homeostasis in planaria with the feedback loops that maintain LLM scaling law predictions?",
+      "level": 4,
+      "description": "Bioelectric memory + LLM scaling: self-regulating systems that maintain stable patterns through predictive adjustment mechanisms",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1500,
+          "answer": "Based on the context provided, there is no direct structural mechanism described that connects bioelectric field homeostasis in planaria with LLM scaling law predictions.\n\nThe conversation discusses planaria's bioelectric fields as a holographic memory storage system where voltage gradients (Vmem) across cell membranes maintain distributed patterns that survive tissue damage. For LLMs, it mentions an RGM (presumably a graph-based memory system) that could adopt a \"global low-dimensional Bioelectric Field Embedding\" where nodes store local projections of a global field.\n\nHowever, the context doesn't establish any specific feedback loop mechanism that would maintain LLM scaling law predictions, nor does it explain how planaria homeost",
+          "score": 1.0,
+          "key_hits": 4
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on this context, I cannot identify a structural mechanism connecting bioelectric field homeostasis in planaria with LLM scaling law predictions. \n\nThe conversation mentions Levin's planaria work only in passing as part of a broader discussion about memory as a holographic field phenomenon. While it discusses bioelectric fields and references \"RGM\" early on, it doesn't establish any specific connection between planarian homeostatic mechanisms and LLM scaling laws.\n\nThe context focuses primarily on consciousness, memory, and enlightenment through a holographic field theory lens, rather than on the technical mechanisms that would link biological homeostasis to AI scaling predictions.",
+          "score": 0.75,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 540,
+          "answer": "Based on the context provided, I cannot identify a direct structural mechanism connecting bioelectric field homeostasis in planaria with LLM scaling law predictions. \n\nThe context shows planaria is related to consciousness and holographic principles, while bioelectric fields connect to holographic memory and voltage gradients. Feedback loops relate to holographic representation and gene expression. However, scaling_laws appears as query-relevant but lacks definitional context or clear mechanistic connections to the bioelectric-planaria system.\n\nThe available relational data suggests these concepts operate in different domains - biological holographic encoding versus computational scaling - without an explicit bridging mechanism described in this context.",
+          "score": 1.0,
+          "key_hits": 4
+        }
+      }
+    },
+    {
+      "question": "How do the voltage gradients in Levin's bioelectric memory structurally parallel the attractor states that emerge in RGM's graph architecture?",
+      "level": 4,
+      "description": "Bioelectric memory + RGM architecture: energy landscape structures that create stable basins for information pattern convergence",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1497,
+          "answer": "Based on the context, the voltage gradients in Levin's bioelectric memory and RGM's attractor states are structurally parallel in several key ways:\n\n**Distributed Stability**: Both create stable, self-maintaining patterns across their respective networks. Levin's voltage gradients (Vmem) form \"highly stable pattern memory\" across cell membranes and gap junctions, while RGM's attractor states emerge as stable configurations in the graph architecture.\n\n**Holographic Reconstruction**: Both systems can reconstruct the whole from fragments. In Levin's work, any tissue fragment retains enough of the global voltage pattern to regenerate complete behaviors. Similarly, RGM's proposed",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context provided, there is no direct discussion of how voltage gradients in Levin's bioelectric memory structurally parallel attractor states in RGM's graph architecture. \n\nThe conversation mentions Levin's planaria in passing as part of the broader exploration of memory as a holographic field phenomenon, and references RGM early on, but it doesn't establish or explore the specific structural parallels between voltage gradients and RGM attractor states that your question asks about.\n\nThe discussion focuses more on the philosophical and experiential aspects of memory as a global holographic field rather than the technical structural comparisons between these two systems.",
+          "score": 0.6666666666666666,
+          "key_hits": 2
+        },
+        "graph_only": {
+          "context_tokens": 539,
+          "answer": "Based on the context, voltage gradients in Levin's bioelectric memory and attractor states in RGM's graph architecture appear to share structural parallels through their relationship to distributed memory patterns and holographic encoding.\n\nVoltage gradients are linked to distributed_memory and membrane_voltage, creating bioelectric fields that encode information holographically across cellular networks. Similarly, attractor states in graph architectures represent stable configurations that emerge from the relational dynamics between nodes.\n\nBoth systems exhibit:\n\n1. **Distributed encoding**: Voltage gradients create spatially distributed bioelectric patterns, while attractor states emerge from distributed graph relationships\n2. **Stable pattern formation**: Membrane voltage patterns maintain coherent information states,",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    },
+    {
+      "question": "What shared structural property connects the three knowledges (ti-vijja) in Buddhist awakening with the holographic reconstruction process in classical laser systems?",
+      "level": 4,
+      "description": "Buddhist philosophy + classical holography: comprehensive pattern reconstruction that retrieves complete information from partial cues across temporal dimensions",
+      "conditions": {
+        "graph": {
+          "context_tokens": 1496,
+          "answer": "Based on the context, the shared structural property is **non-local reconstruction from distributed information**.\n\nIn Buddhist awakening's three knowledges (ti-vijja):\n- Past lives knowledge\n- Knowledge of beings' death/rebirth \n- Knowledge of mental fermentations' destruction\n\nAll three access complete information patterns that aren't stored in a single \"location\" but emerge from the holographic field when ego-binding (the \"particle\" state) dissolves into \"the whole.\"\n\nIn classical laser holography:\n- Any fragment of the holographic plate contains enough interference pattern information to reconstruct the complete original image\n- The whole is distributed across every part\n\nBoth systems demonstrate **holographic reconstruction** -",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "baseline": {
+          "context_tokens": 1492,
+          "answer": "Based on the context, the shared structural property is **simultaneous global access to the complete interference pattern**.\n\nIn classical holography, when a laser illuminates any fragment of the hologram, the entire original image reconstructs instantly - all spatial and temporal information becomes accessible at once.\n\nSimilarly, the three knowledges (ti-vijja) represent simultaneous access to the complete \"interference pattern\" of existence:\n1. All past lives (the entire historical pattern)\n2. The death/rebirth cycles of all beings (the global field in motion) \n3. The destruction of taints (the field's current unconditioned state)\n\nIn both cases, there's no sequential retrieval or partial reconstruction.",
+          "score": 1.0,
+          "key_hits": 3
+        },
+        "graph_only": {
+          "context_tokens": 535,
+          "answer": "Based on the context provided, the shared structural property connecting the three knowledges (ti-vijja) in Buddhist awakening with holographic reconstruction in classical laser systems is **interference pattern encoding**.\n\nThe knowledge graph shows that holographic systems use interference patterns to encode and reconstruct information through coherent field interactions (holographic_encoding \u2192 electric_field, holographic_principle). Similarly, the Buddhist awakening process appears to involve pattern recognition across temporal states - the three knowledges traditionally involve seeing past lives, understanding karmic patterns, and recognizing the cessation of mental formations.\n\nBoth processes rely on the ability to reconstruct complete information from distributed pattern fragments through coherent field interactions, whether in optical physics or consciousness states.",
+          "score": 1.0,
+          "key_hits": 3
+        }
+      }
+    }
+  ],
+  "summary": {
+    "by_level": {
+      "1": {
+        "graph": 0.8287037037037037,
+        "baseline": 0.75,
+        "graph_only": 0.75
+      },
+      "2": {
+        "graph": 0.7546296296296297,
+        "baseline": 0.6018518518518519,
+        "graph_only": 0.7361111111111112
+      },
+      "3": {
+        "graph": 0.6759259259259259,
+        "baseline": 0.6574074074074074,
+        "graph_only": 0.7592592592592592
+      },
+      "4": {
+        "graph": 0.9523809523809524,
+        "baseline": 0.7738095238095238,
+        "graph_only": 0.9523809523809524
+      }
+    },
+    "overall": {
+      "graph": 0.7932692307692307,
+      "baseline": 0.6858974358974359,
+      "graph_only": 0.7740384615384616
+    }
+  }
+}
