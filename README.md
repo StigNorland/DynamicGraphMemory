@@ -27,30 +27,29 @@ This project demonstrates that **meaning is relational structure**, not token se
 
 ---
 
-## Fault Tolerance & Holographic Encoding
+## Fault Tolerance
 
-Each mature concept node stores a **holographic projection** of the global field embedding — a weighted sum over its neighbourhood's relational signatures:
-
-```
-p_v = Σ  w_vu · φ(u)   for u in N(v)
-```
-
-When a node is detected as damaged (maturity drop or failed consistency check), it is reconstructed by averaging the projections of its surviving neighbours. Because the information is *redundantly distributed* across the whole graph (exactly as a fragment of a laser hologram still encodes the full 3D image), reconstruction does not require a central store.
+RGM is notably robust to memory damage. At **75% random node loss**, the graph still outperforms a KV-cache baseline by +0.080 on QA tasks.
 
 **Evaluated results (52 QA items, simulated node removal):**
 
-| Damage | Intact graph | Damaged (no field) | Damaged (+ field) | Baseline (KV-cache) |
-|---|---|---|---|---|
-| 25% | 0.814 | 0.795 | 0.804 | 0.697 |
-| 50% | 0.814 | 0.782 | 0.771 | 0.697 |
-| 75% | 0.814 | 0.777 | 0.739 | 0.697 |
+| Damage | Intact graph | Damaged graph | Baseline (KV-cache) |
+|---|---|---|---|
+| 25% | 0.814 | 0.795 | 0.697 |
+| 50% | 0.814 | 0.782 | 0.697 |
+| 75% | 0.814 | 0.777 | 0.697 |
 
-Key findings:
-- At **75% node loss**, the damaged graph (0.777) still outperforms the KV-cache baseline (0.697) by +0.080 — robustness is real.
-- The **75-token holographic field summary** achieves 6.7× compression vs the full graph context, within 0.009 of the full graph at low damage.
-- At high damage, the field summary competes with surviving nodes for the token budget; **graph topology** (small-world hub nodes) is the primary resilience mechanism.
+The resilience mechanism is **small-world graph topology**: a small number of high-maturity hub nodes carry disproportionate structural information, and random deletion at any damage level is unlikely to remove all of them simultaneously.
 
-This makes RGM a strong candidate for **resource-constrained or high-radiation environments** (edge computing, space systems) where memory corruption is expected and a minimal fixed-cost context representation is preferable to a full graph.
+### Holographic Field Layer (compression primitive)
+
+Each mature node also stores a low-dimensional projection of the global field embedding — inspired by the holographic principle that any fragment encodes the whole. This produces a fixed-cost **75-token field summary** of the entire graph, regardless of conversation length.
+
+Evaluation showed this is best understood as a **compression tool**, not a recovery mechanism:
+- At low damage (25%), the 75-token summary matches the full graph context (500+ tokens) within 0.009 — a **6.7× compression** with negligible cost.
+- At high damage, the field summary competes with surviving nodes for the token budget and slightly hurts performance; the graph's topology is doing the recovery work.
+
+The fixed-cost summary is particularly useful in **token-budget-constrained environments** (long conversations, edge deployment) where loading the full graph is not feasible.
 
 ---
 
