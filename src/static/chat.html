@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RGM Live Chat</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+:root {
+  --bg:#f7f6f3; --bg2:#ffffff; --bg3:#f0ede8;
+  --border:#e0ded8; --text:#1a1a18; --text2:#666660;
+  --accent:#4a7cf0; --amber:#b87d00; --green:#2a7a3b;
+  --purple:#6f42c1; --red:#c0392b;
+  --r:10px; --font:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+
+/* Setup */
+#setup{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100}
+#sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:32px;width:420px;display:flex;flex-direction:column;gap:14px}
+#sc h1{font-size:18px;font-weight:600}
+#sc p{font-size:13px;color:var(--text2);line-height:1.6}
+#sc input{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:monospace;outline:none}
+#sc input:focus{border-color:var(--accent)}
+#sc button{padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:500}
+#sc button:hover{background:#3a6ce0}
+#serr{color:var(--red);font-size:12px;display:none}
+
+/* Main */
+#main{display:none;height:100vh}
+#layout{display:flex;height:100%}
+
+/* Chat */
+#chat-col{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg2);border-right:1px solid var(--border)}
+#chat-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#chat-hdr h2{font-size:14px;font-weight:600;flex:1}
+#ctxbadge{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg3);color:var(--text2);cursor:pointer;user-select:none;border:1px solid var(--border)}
+#ctxbadge.on{background:#e8f0fb;color:var(--accent);border-color:var(--accent)}
+#msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.msg{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:88%;word-break:break-word;white-space:pre-wrap}
+.msg.user{background:#e8f0fb;align-self:flex-end}
+.msg.assistant{background:var(--bg3);align-self:flex-start}
+.msg.system{background:#fff8e1;font-size:11px;align-self:center;border-radius:20px;padding:3px 14px;color:var(--amber)}
+.msg.aha{background:#fff3cd;align-self:center;border-radius:20px;padding:4px 14px;font-size:12px;color:var(--amber);font-weight:600}
+#typing{display:none;align-self:flex-start;color:var(--text2);font-size:12px;font-style:italic;padding:4px 14px}
+#inrow{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+#txt{flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:var(--font)}
+#txt:focus{border-color:var(--accent)}
+#sbtn{padding:9px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500}
+#sbtn:hover{background:#3a6ce0}
+#sbtn:disabled{background:var(--border);color:var(--text2);cursor:default}
+
+/* Graph panel */
+#g-col{width:340px;display:flex;flex-direction:column;background:var(--bg)}
+#g-hdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+#g-hdr span{font-size:12px;font-weight:600}
+#turnbadge{font-size:11px;color:var(--text2);font-weight:400}
+#tabs{display:flex;border-bottom:1px solid var(--border)}
+.tab{flex:1;padding:7px 4px;font-size:11px;text-align:center;cursor:pointer;border:none;background:none;color:var(--text2);border-bottom:2px solid transparent}
+.tab.on{color:var(--text);font-weight:600;border-bottom:2px solid var(--text)}
+#gbody{flex:1;overflow:hidden;position:relative}
+.pane{display:none;height:100%;overflow-y:auto;padding:10px 12px}
+.pane.on{display:block}
+#pane-viz{padding:0;overflow:hidden}
+
+/* Nodes */
+.nrow{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)}
+.nrow:last-child{border:none}
+.nbg{width:44px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;flex-shrink:0}
+.nbar{height:6px;border-radius:3px;transition:width 0.4s}
+.nlbl{flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nmat{min-width:30px;text-align:right;font-size:10px;color:var(--text2)}
+.nbdg{font-size:9px;padding:1px 5px;border-radius:8px;flex-shrink:0}
+.nbdg.s{background:#d4edda;color:#155724}
+.nbdg.p{background:#e8d5fb;color:var(--purple)}
+.sec{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;padding:6px 0 3px}
+
+/* Merges */
+.mrow{padding:6px 0;border-bottom:1px solid var(--border);font-size:11px}
+.mrow:last-child{border:none}
+.mt{color:var(--amber);font-weight:600;margin-bottom:2px}
+.md{color:var(--text2)}
+
+/* Stats */
+.srow{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--bg3)}
+.srow:last-child{border:none}
+.sv{font-weight:600}
+.ssec{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 4px}
+.cbw{height:7px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:2px}
+.cb{height:7px;border-radius:3px;transition:width 0.4s}
+
+/* Viz */
+#viz-svg{width:100%;height:100%;display:block}
+.lnk{stroke:var(--border);stroke-width:1}
+.lnk.hi{stroke:var(--accent);opacity:0.5}
+.nc{stroke-width:1.5;cursor:pointer}
+.nc.s{stroke:var(--accent)}
+.nc.p{stroke:var(--purple);stroke-dasharray:3 2}
+.nl{font-size:9px;fill:var(--text);text-anchor:middle;pointer-events:none}
+#vtt{position:absolute;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;pointer-events:none;display:none;max-width:180px;box-shadow:0 2px 8px rgba(0,0,0,.08);line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- Setup -->
+<div id="setup">
+  <div id="sc">
+    <h1>RGM Live Chat</h1>
+    <p>Every message you send is ingested into a <strong>Relational Graph Memory</strong> — concepts form nodes, edges strengthen with repetition, and "aha" merge events fire when two mature concepts unify.</p>
+    <p>Watch the graph panel on the right as the conversation builds. Toggle between <em>baseline</em> and <em>graph-assembled</em> context to see the difference.</p>
+    <input id="akey" type="password" placeholder="sk-ant-api03-…" autocomplete="off" />
+    <div id="serr">Key should start with sk-ant-</div>
+    <button onclick="startApp()">Start →</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <div id="layout">
+    <div id="chat-col">
+      <div id="chat-hdr">
+        <h2>RGM Live Chat</h2>
+        <span id="ctxbadge" onclick="toggleCtx()" title="Click to toggle context mode">baseline ctx</span>
+      </div>
+      <div id="msgs"></div>
+      <div id="typing">Claude is thinking…</div>
+      <div id="inrow">
+        <input id="txt" placeholder="Type a message — Enter to send" />
+        <button id="sbtn" onclick="sendMsg()">Send</button>
+      </div>
+    </div>
+
+    <div id="g-col">
+      <div id="g-hdr">
+        <span>Memory Graph</span>
+        <span id="turnbadge">turn 0</span>
+      </div>
+      <div id="tabs">
+        <button class="tab on" onclick="showTab('nodes',this)">Nodes</button>
+        <button class="tab" onclick="showTab('viz',this)">Graph</button>
+        <button class="tab" onclick="showTab('merges',this)">Aha!</button>
+        <button class="tab" onclick="showTab('stats',this)">Stats</button>
+      </div>
+      <div id="gbody">
+        <div class="pane on" id="pane-nodes"></div>
+        <div class="pane" id="pane-viz"><svg id="viz-svg"></svg><div id="vtt"></div></div>
+        <div class="pane" id="pane-merges"><p style="color:var(--text2);font-size:12px;padding:8px 0">No merges yet — keep chatting…</p></div>
+        <div class="pane" id="pane-stats"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// LOCAL GRAPH STATE  (populated from server SSE events)
+// ═══════════════════════════════════════════════════
+let graphState = {
+  nodes:    [],   // [{id, label, prov, maturity}]
+  edges:    [],   // [{src, tgt, type, w}]
+  merges:   [],   // [{nodeA, nodeB, mergedInto, cascade, mag, turn}]
+  stats:    {},   // mirror of graph.summary()
+  mergeThr: 0.3,
+  matThr:   5.0,
+};
+let nodeMap  = {};  // id -> node  (rebuilt in applyGraphState)
+let adjMap   = {};  // id -> [neighbor_id, ...]  (rebuilt in applyGraphState)
+let CostLog  = [];  // [{turn, g, b, mode}]
+
+function applyGraphState(state) {
+  graphState.nodes    = state.nodes    || [];
+  graphState.edges    = state.edges    || [];
+  graphState.merges   = state.merges   || [];
+  graphState.stats    = state.stats    || {};
+  graphState.mergeThr = state.mergeThr != null ? state.mergeThr : 0.3;
+  graphState.matThr   = state.matThr   != null ? state.matThr  : 5.0;
+  if (state.cost_log) CostLog = state.cost_log;
+
+  // Rebuild lookup maps
+  nodeMap = {};
+  adjMap  = {};
+  for (const n of graphState.nodes) {
+    nodeMap[n.id] = n;
+    adjMap[n.id]  = [];
+  }
+  for (const e of graphState.edges) {
+    if (!adjMap[e.src]) adjMap[e.src] = [];
+    if (!adjMap[e.tgt]) adjMap[e.tgt] = [];
+    adjMap[e.src].push(e.tgt);
+    adjMap[e.tgt].push(e.src);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// D3 GRAPH VIZ
+// ═══════════════════════════════════════════════════
+let sim = null, vnodes = [], vlinks = [];
+
+function initViz(){
+  const svg = d3.select('#viz-svg');
+  svg.append('g').attr('class','links-g');
+  svg.append('g').attr('class','nodes-g');
+  const el = document.getElementById('pane-viz');
+  const cx = el.clientWidth/2||150, cy = el.clientHeight/2||200;
+  sim = d3.forceSimulation()
+    .force('link', d3.forceLink().id(d=>d.id).distance(55).strength(0.4))
+    .force('charge', d3.forceManyBody().strength(-80))
+    .force('center', d3.forceCenter(cx,cy))
+    .force('collide', d3.forceCollide(18))
+    .alphaDecay(0.03)
+    .on('tick', ()=>{
+      d3.select('#viz-svg .links-g').selectAll('line')
+        .attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
+        .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+      d3.select('#viz-svg .nodes-g').selectAll('g')
+        .attr('transform',d=>`translate(${d.x},${d.y})`);
+    });
+  const zoom = d3.zoom().scaleExtent([0.2,5]).on('zoom',e=>{
+    svg.select('.links-g').attr('transform',e.transform);
+    svg.select('.nodes-g').attr('transform',e.transform);
+  });
+  svg.call(zoom);
+}
+
+function refreshViz(){
+  if (!sim) return;
+  const svg  = d3.select('#viz-svg');
+  const allN = [...graphState.nodes].sort((a,b)=>b.maturity-a.maturity).slice(0,50);
+  const nset = new Set(allN.map(n=>n.id));
+  const allL = graphState.edges
+    .filter(e=>nset.has(e.src)&&nset.has(e.tgt)&&e.w>0.25)
+    .sort((a,b)=>b.w-a.w).slice(0,100);
+
+  const posMap = {};
+  vnodes.forEach(n=>{ posMap[n.id] = {x:n.x, y:n.y, vx:n.vx||0, vy:n.vy||0}; });
+  vnodes = allN.map(n=>({id:n.id, label:n.label, prov:n.prov, maturity:n.maturity, ...(posMap[n.id]||{})}));
+  vlinks = allL.map(e=>({source:e.src, target:e.tgt, w:e.w, type:e.type}));
+  const mx = Math.max(...vnodes.map(n=>n.maturity), 1);
+
+  const lsel = svg.select('.links-g').selectAll('line').data(vlinks, d=>`${d.source}|${d.target}`);
+  lsel.enter().append('line')
+    .attr('class',d=>d.w>0.6?'lnk hi':'lnk')
+    .attr('stroke-opacity',d=>0.2+d.w*0.5)
+    .attr('stroke-width',d=>d.w*2);
+  lsel.exit().remove();
+
+  const nsel = svg.select('.nodes-g').selectAll('g').data(vnodes, d=>d.id);
+  const ne   = nsel.enter().append('g')
+    .call(d3.drag()
+      .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag', (e,d)=>{ d.fx=e.x; d.fy=e.y; })
+      .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
+    )
+    .on('mouseover',(e,d)=>{
+      const tt   = document.getElementById('vtt');
+      const nb   = (adjMap[d.id]||[]).map(nid=>nodeMap[nid]?.label).filter(Boolean).slice(0,4);
+      const rect = document.getElementById('pane-viz').getBoundingClientRect();
+      tt.innerHTML = `<strong>${d.label}</strong><br>maturity: ${d.maturity.toFixed(2)}<br>${d.prov?'⬡ provisional':'● stable'}<br>links: ${nb.join(', ')||'—'}`;
+      tt.style.display = 'block';
+      tt.style.left    = (e.clientX-rect.left+10)+'px';
+      tt.style.top     = (e.clientY-rect.top-10)+'px';
+    })
+    .on('mouseout', ()=>{ document.getElementById('vtt').style.display='none'; });
+  ne.append('circle').attr('class',d=>`nc ${d.prov?'p':'s'}`);
+  ne.append('text').attr('class','nl').attr('dy','3.5px');
+
+  const na = nsel.merge(ne);
+  na.select('circle')
+    .attr('class',d=>`nc ${d.prov?'p':'s'}`)
+    .attr('r',d=>5+(d.maturity/mx)*9)
+    .attr('fill',d=>d.prov?'#e8d5fb':'#e8f0fb')
+    .attr('stroke',d=>d.prov?'#9b59b6':'#4a7cf0');
+  na.select('text')
+    .text(d=>d.label.length>11?d.label.slice(0,10)+'…':d.label)
+    .attr('dy',d=>-(6+(d.maturity/mx)*9)-2);
+  nsel.exit().remove();
+
+  sim.nodes(vnodes);
+  sim.force('link').links(vlinks);
+  sim.alpha(0.3).restart();
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+let currentTab = 'nodes', turnCount = 0;
+
+function renderNodes(){
+  const ns = [...graphState.nodes].sort((a,b)=>b.maturity-a.maturity);
+  const mx = Math.max(...ns.map(n=>n.maturity), 1);
+  const stable = ns.filter(n=>!n.prov), prov = ns.filter(n=>n.prov);
+  let h = '';
+  if (stable.length) {
+    h += `<div class="sec">Stable (${stable.length})</div>`;
+    for (const n of stable) {
+      const pct = Math.min(100,(n.maturity/mx)*100);
+      const deg = (adjMap[n.id]||[]).length;
+      h += `<div class="nrow">
+        <div class="nbg"><div class="nbar" style="width:${pct}%;background:#4a7cf0"></div></div>
+        <span class="nlbl" title="${n.label}">${n.label}</span>
+        <span class="nbdg s">d${deg}</span>
+        <span class="nmat">${n.maturity.toFixed(1)}</span>
+      </div>`;
+    }
+  }
+  if (prov.length) {
+    h += `<div class="sec" style="margin-top:8px">Provisional (${prov.length})</div>`;
+    for (const n of prov.slice(0,25)) {
+      const pct = Math.min(100,(n.maturity/mx)*100);
+      h += `<div class="nrow">
+        <div class="nbg"><div class="nbar" style="width:${pct}%;background:#9b59b6"></div></div>
+        <span class="nlbl" style="color:var(--text2)" title="${n.label}">${n.label}</span>
+        <span class="nbdg p">prov</span>
+        <span class="nmat">${n.maturity.toFixed(1)}</span>
+      </div>`;
+    }
+    if (prov.length>25) h += `<div style="font-size:11px;color:var(--text2);padding:4px 0">…and ${prov.length-25} more</div>`;
+  }
+  if (!ns.length) h = '<p style="color:var(--text2);font-size:12px;padding:8px 0">No concepts yet — start chatting!</p>';
+  document.getElementById('pane-nodes').innerHTML = h;
+}
+
+function renderMerges(){
+  const el = document.getElementById('pane-merges');
+  if (!graphState.merges.length) {
+    el.innerHTML = '<p style="color:var(--text2);font-size:12px;padding:8px 0">No merges yet — keep chatting…</p>';
+    return;
+  }
+  let h = '';
+  for (const m of [...graphState.merges].reverse()) {
+    h += `<div class="mrow">
+      <div class="mt">✦ "${m.nodeA}" + "${m.nodeB}"</div>
+      <div class="md">cascade ${m.cascade} · magnitude ${m.mag.toFixed(1)} · turn ${m.turn}</div>
+    </div>`;
+  }
+  el.innerHTML = h;
+}
+
+function renderStats(){
+  const s    = graphState.stats;
+  const last = CostLog[CostLog.length-1] || {g:0, b:0, turn:0};
+  const ratio   = last.b>0 ? (last.g/last.b).toFixed(2) : '—';
+  const saving  = last.b>0 ? Math.round((1-last.g/last.b)*100) : 0;
+  const total   = s.nodes_total || graphState.nodes.length;
+  const stable  = s.nodes_stable || 0;
+  const edges   = s.edges_total || graphState.edges.length;
+  const merges  = graphState.merges.length;
+  const meanMat = s.mean_maturity != null ? s.mean_maturity.toFixed(2) : '0.00';
+
+  let h = `
+    <div class="ssec">Graph</div>
+    <div class="srow"><span>Nodes total</span><span class="sv">${total}</span></div>
+    <div class="srow"><span>Stable / provisional</span><span class="sv">${stable} / ${total-stable}</span></div>
+    <div class="srow"><span>Edges</span><span class="sv">${edges}</span></div>
+    <div class="srow"><span>Merges (aha!)</span><span class="sv" style="color:var(--amber)">${merges}</span></div>
+    <div class="srow"><span>Mean maturity</span><span class="sv">${meanMat}</span></div>
+    <div class="srow"><span>Merge threshold</span><span class="sv">${graphState.mergeThr.toFixed(3)}</span></div>
+    <div class="srow"><span>Maturity threshold</span><span class="sv">${graphState.matThr.toFixed(2)}</span></div>
+    <div class="ssec" style="margin-top:12px">Context cost (last turn)</div>
+    <div class="srow"><span>Graph ctx</span><span class="sv">${last.g} words</span></div>
+    <div class="srow"><span>Baseline ctx</span><span class="sv">${last.b} words</span></div>
+    <div class="srow"><span>Ratio</span><span class="sv" style="color:${saving>0?'var(--green)':'var(--red)'}">${ratio}x${saving>0?' ('+saving+'% less)':''}</span></div>`;
+
+  if (CostLog.length>1) {
+    const recent = CostLog.slice(-8);
+    const mx = Math.max(...recent.flatMap(c=>[c.g,c.b]), 1);
+    h += `<div class="ssec" style="margin-top:12px">Cost over time</div>
+          <div style="display:flex;flex-direction:column;gap:3px">`;
+    for (const c of recent) {
+      h += `<div style="font-size:10px;color:var(--text2)">T${c.turn}</div>
+            <div title="Graph: ${c.g}w" class="cbw"><div class="cb" style="width:${Math.round(c.g/mx*100)}%;background:#4a7cf0"></div></div>
+            <div title="Baseline: ${c.b}w" class="cbw" style="margin-top:2px"><div class="cb" style="width:${Math.round(c.b/mx*100)}%;background:#ccc"></div></div>`;
+    }
+    h += `</div><div style="font-size:10px;color:var(--text2);margin-top:6px"><span style="color:#4a7cf0">■</span> graph &nbsp;<span style="color:#ccc">■</span> baseline</div>`;
+  }
+  document.getElementById('pane-stats').innerHTML = h;
+}
+
+function renderAll(){
+  renderNodes(); renderMerges(); renderStats();
+  if (currentTab==='viz') refreshViz();
+  document.getElementById('turnbadge').textContent = `turn ${turnCount}`;
+}
+
+// ═══════════════════════════════════════════════════
+// UI CONTROLS
+// ═══════════════════════════════════════════════════
+function showTab(name, btn){
+  currentTab = name;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pane-'+name).classList.add('on');
+  if (name==='viz') { if (!sim) initViz(); refreshViz(); }
+}
+
+function toggleCtx(){
+  useGraph = !useGraph;
+  const b = document.getElementById('ctxbadge');
+  b.textContent = useGraph ? 'graph ctx ✦' : 'baseline ctx';
+  if (useGraph) b.classList.add('on'); else b.classList.remove('on');
+  addMsg('system', `Context mode → ${useGraph?'graph-assembled (relevant turns by structure)':'baseline (most recent turns)'}`);
+}
+
+function addMsg(role, text){
+  const el = document.getElementById('msgs');
+  const d  = document.createElement('div');
+  d.className  = 'msg '+role;
+  d.textContent = text;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+  return d;
+}
+
+// ═══════════════════════════════════════════════════
+// SEND MESSAGE — streams from /api/chat
+// ═══════════════════════════════════════════════════
+let useGraph = false;
+
+async function sendMsg(){
+  const inp  = document.getElementById('txt');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  document.getElementById('sbtn').disabled = true;
+  addMsg('user', text);
+
+  document.getElementById('typing').style.display = 'block';
+  document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
+
+  let assistantEl = null;
+
+  try {
+    const resp = await fetch('/api/chat', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify({message: text, mode: useGraph ? 'graph' : 'baseline'}),
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(()=>({}));
+      throw new Error(err.error || `HTTP ${resp.status}`);
+    }
+
+    const reader  = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let   buffer  = '';
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, {stream: true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // retain any incomplete trailing line
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        if (!raw) continue;
+        try {
+          const ev = JSON.parse(raw);
+          if (ev.type === 'token') {
+            if (!assistantEl) {
+              document.getElementById('typing').style.display = 'none';
+              assistantEl = addMsg('assistant', '');
+            }
+            assistantEl.textContent += ev.text;
+            document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
+          } else if (ev.type === 'aha') {
+            addMsg('aha', `✦ Aha! "${ev.nodeA}" + "${ev.nodeB}" unified (cascade: ${ev.cascade})`);
+          } else if (ev.type === 'graph_state') {
+            applyGraphState(ev);
+            turnCount++;
+            renderAll();
+          }
+          // 'done' event — nothing to do
+        } catch(e) {
+          console.warn('SSE parse error', e, raw);
+        }
+      }
+    }
+  } catch(e) {
+    document.getElementById('typing').style.display = 'none';
+    addMsg('system', `Error: ${e.message}`);
+  }
+
+  document.getElementById('sbtn').disabled = false;
+  inp.focus();
+}
+
+// ═══════════════════════════════════════════════════
+// STARTUP — POSTs API key to /api/init
+// ═══════════════════════════════════════════════════
+async function startApp(){
+  const key  = document.getElementById('akey').value.trim();
+  const serr = document.getElementById('serr');
+  if (!key.startsWith('sk-')) {
+    serr.textContent = 'Key should start with sk-ant-';
+    serr.style.display = 'block';
+    return;
+  }
+  serr.style.display = 'none';
+
+  try {
+    const resp = await fetch('/api/init', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify({api_key: key}),
+    });
+    if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
+
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('main').style.display  = 'block';
+    initViz();
+    addMsg('system', 'Graph memory active — every message builds the concept graph.');
+    addMsg('system', 'Click "baseline ctx" in the header to switch to graph-assembled context.');
+    addMsg('system', 'Try the Graph tab to see nodes forming in real time. Merges appear as ✦ Aha! events.');
+    renderAll();
+    document.getElementById('txt').focus();
+  } catch(e) {
+    serr.textContent   = 'Failed to connect to server: ' + e.message;
+    serr.style.display = 'block';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('txt').addEventListener('keydown', e=>{
+    if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+  });
+  document.getElementById('akey').addEventListener('keydown', e=>{
+    if (e.key==='Enter') startApp();
+  });
+});
+</script>
+</body>
+</html>

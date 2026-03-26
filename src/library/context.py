@@ -16,8 +16,6 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
-import status
-
 from .graph import ConceptGraph, NodeType, EdgeType
 
 # ---------------------------------------------------------------------------
