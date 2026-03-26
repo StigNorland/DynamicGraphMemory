@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RGM Live Chat</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <style>
 :root {
   --bg:#f7f6f3; --bg2:#ffffff; --bg3:#f0ede8;
@@ -38,9 +39,26 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 #ctxbadge{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg3);color:var(--text2);cursor:pointer;user-select:none;border:1px solid var(--border)}
 #ctxbadge.on{background:#e8f0fb;color:var(--accent);border-color:var(--accent)}
 #msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
-.msg{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:88%;word-break:break-word;white-space:pre-wrap}
-.msg.user{background:#e8f0fb;align-self:flex-end}
+.msg{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:88%;word-break:break-word}
+.msg.user{background:#e8f0fb;align-self:flex-end;white-space:pre-wrap}
 .msg.assistant{background:var(--bg3);align-self:flex-start}
+/* Markdown styles inside assistant bubbles */
+.msg.assistant p{margin:4px 0}
+.msg.assistant p:first-child{margin-top:0}.msg.assistant p:last-child{margin-bottom:0}
+.msg.assistant h1,.msg.assistant h2,.msg.assistant h3{font-weight:600;margin:10px 0 4px;line-height:1.3}
+.msg.assistant h1{font-size:15px}.msg.assistant h2{font-size:14px}.msg.assistant h3{font-size:13px}
+.msg.assistant ul,.msg.assistant ol{padding-left:18px;margin:4px 0}
+.msg.assistant li{margin:2px 0}
+.msg.assistant code{background:rgba(0,0,0,.07);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:12px}
+.msg.assistant pre{background:rgba(0,0,0,.07);padding:10px 12px;border-radius:8px;overflow-x:auto;margin:6px 0}
+.msg.assistant pre code{background:none;padding:0;font-size:12px}
+.msg.assistant blockquote{border-left:3px solid var(--border);padding-left:10px;color:var(--text2);margin:4px 0}
+.msg.assistant a{color:var(--accent);text-decoration:none}.msg.assistant a:hover{text-decoration:underline}
+.msg.assistant strong{font-weight:600}
+.msg.assistant table{border-collapse:collapse;font-size:12px;margin:6px 0}
+.msg.assistant th,.msg.assistant td{border:1px solid var(--border);padding:4px 8px}
+.msg.assistant th{background:var(--bg3);font-weight:600}
+.msg.assistant hr{border:none;border-top:1px solid var(--border);margin:8px 0}
 .msg.system{background:#fff8e1;font-size:11px;align-self:center;border-radius:20px;padding:3px 14px;color:var(--amber)}
 .msg.aha{background:#fff3cd;align-self:center;border-radius:20px;padding:4px 14px;font-size:12px;color:var(--amber);font-weight:600}
 #typing{display:none;align-self:flex-start;color:var(--text2);font-size:12px;font-style:italic;padding:4px 14px}
@@ -51,8 +69,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 #sbtn:hover{background:#3a6ce0}
 #sbtn:disabled{background:var(--border);color:var(--text2);cursor:default}
 
+/* Resizer */
+#resizer{width:5px;flex-shrink:0;cursor:col-resize;background:var(--border);transition:background 0.15s;position:relative;z-index:1}
+#resizer:hover,#resizer.dragging{background:var(--accent)}
+
 /* Graph panel */
-#g-col{width:340px;display:flex;flex-direction:column;background:var(--bg)}
+#g-col{width:340px;min-width:180px;max-width:700px;display:flex;flex-direction:column;background:var(--bg)}
 #g-hdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 #g-hdr span{font-size:12px;font-weight:600}
 #turnbadge{font-size:11px;color:var(--text2);font-weight:400}
@@ -131,6 +153,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       </div>
     </div>
 
+    <div id="resizer"></div>
+
     <div id="g-col">
       <div id="g-hdr">
         <span>Memory Graph</span>
@@ -153,6 +177,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 </div>
 
 <script>
+// Configure marked
+marked.setOptions({ breaks: true, gfm: true });
+
 // ═══════════════════════════════════════════════════
 // LOCAL GRAPH STATE  (populated from server SSE events)
 // ═══════════════════════════════════════════════════
@@ -406,8 +433,13 @@ function toggleCtx(){
 function addMsg(role, text){
   const el = document.getElementById('msgs');
   const d  = document.createElement('div');
-  d.className  = 'msg '+role;
-  d.textContent = text;
+  d.className = 'msg '+role;
+  if (role === 'assistant') {
+    d._raw = text || '';
+    d.innerHTML = marked.parse(d._raw);
+  } else {
+    d.textContent = text;
+  }
   el.appendChild(d);
   el.scrollTop = el.scrollHeight;
   return d;
@@ -464,7 +496,8 @@ async function sendMsg(){
               document.getElementById('typing').style.display = 'none';
               assistantEl = addMsg('assistant', '');
             }
-            assistantEl.textContent += ev.text;
+            assistantEl._raw += ev.text;
+            assistantEl.innerHTML = marked.parse(assistantEl._raw);
             document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
           } else if (ev.type === 'aha') {
             addMsg('aha', `✦ Aha! "${ev.nodeA}" + "${ev.nodeB}" unified (cascade: ${ev.cascade})`);
@@ -523,7 +556,38 @@ async function startApp(){
   }
 }
 
+// ═══════════════════════════════════════════════════
+// RESIZER — drag to adjust panel widths
+// ═══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', ()=>{
+  const resizer = document.getElementById('resizer');
+  const gCol    = document.getElementById('g-col');
+  const MIN_W = 180, MAX_W = 700;
+
+  resizer.addEventListener('mousedown', e=>{
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = gCol.offsetWidth;
+    resizer.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    function onMove(e){
+      const newW = Math.min(MAX_W, Math.max(MIN_W, startW + (startX - e.clientX)));
+      gCol.style.width = newW + 'px';
+      if (currentTab === 'viz') refreshViz();
+    }
+    function onUp(){
+      resizer.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
   document.getElementById('txt').addEventListener('keydown', e=>{
     if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
   });
