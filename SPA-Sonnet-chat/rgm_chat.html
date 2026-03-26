@@ -154,39 +154,90 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
 <script>
 // ═══════════════════════════════════════════════════
-// STOPWORDS
+// CONCEPT EXTRACTION — Haiku LLM (mirrors context.py)
 // ═══════════════════════════════════════════════════
-const SW = new Set(['the','a','an','is','are','was','were','be','been','being',
-  'have','has','had','do','does','did','will','would','could','should','may',
-  'might','can','to','of','in','for','on','with','at','by','from','up','about',
-  'into','i','you','he','she','it','we','they','what','which','who','that','this',
-  'these','those','and','but','or','nor','so','yet','not','just','also','very',
-  'more','its','our','your','their','my','his','her','how','why','get','all',
-  'some','use','one','back','say','know','think','time','them','out','make',
-  'like','then','than','too','own','same','even','such','now','here','there',
-  'when','where','much','many','each','every','both','few','other','another',
-  'well','still','only','never','always','often','really','actually','basically',
-  'simply','quite','rather','already','yet','though','although','because','since',
-  'while','if','unless','until','whether','however','therefore','thus','hence',
-  'indeed','instead','otherwise','moreover','furthermore','meanwhile','let','new',
-  'want','need','see','look','take','give','come','go','put','ask','seem','feel',
-  'try','keep','let','begin','show','hear','play','run','move','live','believe',
-  'hold','bring','happen','write','provide','sit','stand','lose','pay','meet',
-  'include','continue','set','learn','change','lead','understand','watch','follow',
-  'stop','create','speak','read','spend','grow','open','walk','win','offer','remember']);
 
-// ═══════════════════════════════════════════════════
-// CONCEPT EXTRACTOR
-// ═══════════════════════════════════════════════════
-function extract(text) {
+const _conceptCache = {};
+
+function _cacheKey(speaker, text) {
+  const s = speaker + ':' + text;
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h) ^ s.charCodeAt(i);
+  return (h >>> 0).toString(16);
+}
+
+// Exact prompt from context.py
+const CONCEPT_PROMPT = `IMPORTANT: Output ONLY a raw JSON array. No markdown, no code fences, no explanation.
+First character must be [ and last character must be ]
+Extract the key concepts from this conversation turn as a JSON array of strings.
+
+A concept is a domain term that:
+- Could be a node in a knowledge graph or glossary entry
+- Means the same thing regardless of which sentence it appears in
+- Good examples: "retrieval_path", "big_five_traits", "holographic_memory", "merge_event", "bioelectric_field"
+- Bad examples: "thing", "way", "the part that", "very", "interesting", "lot"
+
+Rules:
+- snake_case labels only
+- 6-12 concepts maximum, prefer fewer high-quality over many low-quality
+- Prefer specific over generic ("context_window" over "memory")
+- Multi-word concepts are fine ("bioelectric_field", "merge_event")
+- Output ONLY the JSON array, no explanation, no markdown
+
+Turn ({speaker}):
+{text}`;
+
+async function extract(text, speaker) {
+  const key = _cacheKey(speaker, text);
+  if (_conceptCache[key]) return _conceptCache[key];
+
+  try {
+    const prompt = CONCEPT_PROMPT
+      .replace('{speaker}', speaker)
+      .replace('{text}', text.slice(0, 1500));
+
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 256,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!r.ok) throw new Error('Haiku ' + r.status);
+    const d = await r.json();
+    let raw = (d.content?.[0]?.text || '[]').trim()
+      .replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '').trim();
+    const concepts = JSON.parse(raw);
+    if (!Array.isArray(concepts)) throw new Error('not array');
+    const result = concepts.slice(0, 12).map(c => String(c).toLowerCase().trim()).filter(Boolean);
+    _conceptCache[key] = result;
+    return result;
+  } catch (e) {
+    console.warn('concept extraction failed, fallback:', e);
+    return _fallbackExtract(text);
+  }
+}
+
+function _fallbackExtract(text) {
+  const SW = new Set(['the','a','an','is','are','was','were','be','been','have',
+    'has','had','do','does','did','will','would','could','should','may','might',
+    'can','to','of','in','for','on','with','at','by','from','i','you','he','she',
+    'it','we','they','and','but','or','not','this','that','these','those']);
   const words = text.toLowerCase().replace(/[^\w\s]/g,' ').split(/\s+/);
   const seen = new Set(), res = [];
   for (const w of words) {
-    if (w.length > 2 && !SW.has(w) && !seen.has(w) && !/^\d+$/.test(w)) {
+    if (w.length > 3 && !SW.has(w) && !seen.has(w) && !/^\d+$/.test(w)) {
       seen.add(w); res.push(w);
     }
   }
-  return res;
+  return res.slice(0, 12);
 }
 
 // ═══════════════════════════════════════════════════
@@ -201,10 +252,13 @@ const G = {
     return 5.0 / Math.pow(Math.max(1, n/60), 0.3);
   },
   get mergeThr() {
+    // Floor raised to 0.55 — merges must share a substantial fraction of
+    // relational signature, not just one coincidental neighbour.
+    // Dynamic range: as graph densifies the bar rises slightly (not falls).
     const ids = Object.keys(this.nodes);
-    if (!ids.length) return 0.30;
+    if (!ids.length) return 0.65;
     const d = ids.reduce((s,id)=>s+Object.keys(this.adj[id]||{}).length,0)/ids.length;
-    return Math.max(0.05, Math.min(0.30, 0.30/(1+d*0.1)));
+    return Math.min(0.80, 0.55 + d * 0.02);
   },
 
   newNode(lbl) {
@@ -273,18 +327,27 @@ const G = {
   },
 
   sigSim(aid,bid) {
+    // Weighted signature: each (neighbour_label:edge_type) entry carries the
+    // edge weight. Intersection uses min-weight. Requires ≥3 shared entries
+    // to avoid single-neighbour coincidences triggering a merge.
     const sig=id=>{
-      const s=new Set();
+      const m=new Map();
       Object.entries(this.adj[id]||{}).forEach(([nid,k])=>{
         const e=this.edges[k],n=this.nodes[nid];
-        if(e&&n) s.add(`${n.label}:${e.type}`);
+        if(e&&n&&e.w>=0.5) m.set(`${n.label}:${e.type}`, e.w);
       });
-      return s;
+      return m;
     };
     const sa=sig(aid),sb=sig(bid);
-    if(!sa.size||!sb.size) return 0;
-    let i=0; sa.forEach(x=>{if(sb.has(x))i++;});
-    return i/(sa.size+sb.size-i);
+    // Need at least 3 strong neighbours on each side
+    if(sa.size<3||sb.size<3) return 0;
+    let inter=0, union=0;
+    sa.forEach((wa,k)=>{ inter+=sb.has(k)?Math.min(wa,sb.get(k)):0; union+=wa; });
+    sb.forEach((wb,k)=>{ if(!sa.has(k)) union+=wb; });
+    const jaccard=union>0?inter/union:0;
+    // Also require at least 3 shared keys, not just weight ratio
+    let sharedKeys=0; sa.forEach((_,k)=>{ if(sb.has(k)) sharedKeys++; });
+    return sharedKeys>=3 ? jaccard : 0;
   },
 
   nbrs(id) {
@@ -302,8 +365,13 @@ const G = {
 
   checkMerge(id) {
     const node=this.nodes[id]; if(!node) return;
+    // Both nodes must be stable AND have meaningful maturity
+    const minMat = Math.max(3.0, this.matThr * 0.8);
+    if(node.maturity < minMat) return;
     for(const c of Object.values(this.nodes)) {
-      if(!c.prov&&c.id!==id&&this.sigSim(id,c.id)>=this.mergeThr){this.doMerge(id,c.id);return;}
+      if(!c.prov&&c.id!==id&&c.maturity>=minMat&&this.sigSim(id,c.id)>=this.mergeThr){
+        this.doMerge(id,c.id); return;
+      }
     }
   },
 
@@ -387,11 +455,11 @@ const S = {
 // ═══════════════════════════════════════════════════
 // INGEST
 // ═══════════════════════════════════════════════════
-function ingest(spk,text){
+async function ingest(spk,text){
   const prev=G.merges.length;
   const pos=S.append(spk,text);
   G.convPos=pos;
-  const concepts=extract(text);
+  const concepts=await extract(text,spk);
   const ids=[];
   G.beginPass();
   let last=null;
@@ -414,9 +482,9 @@ function ingest(spk,text){
 // ═══════════════════════════════════════════════════
 // CONTEXT ASSEMBLY
 // ═══════════════════════════════════════════════════
-function ctxGraph(query,budget=500){
+async function ctxGraph(query,budget=500){
   const seeds=[];
-  for(const lbl of extract(query)){
+  for(const lbl of await extract(query,'query')){
     const [mid,sc]=G.findMatch(lbl);
     if(mid&&sc>0.3) seeds.push([mid,sc]);
   }
@@ -474,7 +542,7 @@ let KEY='', useGraph=false;
 const history=[], CostLog=[];
 
 async function callClaude(msg){
-  const gc=ctxGraph(msg), bc=ctxBase();
+  const gc=await ctxGraph(msg), bc=ctxBase();
   CostLog.push({turn:S.turns.length+1,g:wc(gc),b:wc(bc),mode:useGraph?'graph':'baseline'});
   const ctx=useGraph?gc:bc;
   const sys=useGraph
@@ -709,7 +777,7 @@ async function sendMsg(){
   document.getElementById('sbtn').disabled=true;
   addMsg('user',text);
 
-  const newMerges=ingest('user',text);
+  const newMerges=await ingest('user',text);
   turnCount++;
   for(const m of newMerges) addMsg('aha',`✦ Aha! "${m.nodeA}" + "${m.nodeB}" unified (cascade: ${m.cascade})`);
   renderAll();
@@ -720,7 +788,7 @@ async function sendMsg(){
   try{
     const reply=await callClaude(text);
     document.getElementById('typing').style.display='none';
-    const rm=ingest('assistant',reply);
+    const rm=await ingest('assistant',reply);
     turnCount++;
     addMsg('assistant',reply);
     for(const m of rm) addMsg('aha',`✦ Aha! "${m.nodeA}" + "${m.nodeB}" unified (cascade: ${m.cascade})`);
