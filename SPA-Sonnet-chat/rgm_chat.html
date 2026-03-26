@@ -179,9 +179,10 @@ A concept is a domain term that:
 
 Rules:
 - snake_case labels only
-- 6-12 concepts maximum, prefer fewer high-quality over many low-quality
+- 4-6 concepts maximum — be ruthless, only the most domain-specific terms
 - Prefer specific over generic ("context_window" over "memory")
 - Multi-word concepts are fine ("bioelectric_field", "merge_event")
+- If a turn has no clear domain concepts, return []
 - Output ONLY the JSON array, no explanation, no markdown
 
 Turn ({speaker}):
@@ -216,7 +217,7 @@ async function extract(text, speaker) {
       .replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '').trim();
     const concepts = JSON.parse(raw);
     if (!Array.isArray(concepts)) throw new Error('not array');
-    const result = concepts.slice(0, 12).map(c => String(c).toLowerCase().trim()).filter(Boolean);
+    const result = concepts.slice(0, 6).map(c => String(c).toLowerCase().trim()).filter(Boolean);
     _conceptCache[key] = result;
     return result;
   } catch (e) {
@@ -339,15 +340,15 @@ const G = {
       return m;
     };
     const sa=sig(aid),sb=sig(bid);
-    // Need at least 3 strong neighbours on each side
-    if(sa.size<3||sb.size<3) return 0;
+    // Need at least 2 strong neighbours on each side to form a signature
+    if(sa.size<2||sb.size<2) return 0;
     let inter=0, union=0;
     sa.forEach((wa,k)=>{ inter+=sb.has(k)?Math.min(wa,sb.get(k)):0; union+=wa; });
     sb.forEach((wb,k)=>{ if(!sa.has(k)) union+=wb; });
     const jaccard=union>0?inter/union:0;
-    // Also require at least 3 shared keys, not just weight ratio
+    // Require ≥2 shared keys AND jaccard above a hard floor of 0.4
     let sharedKeys=0; sa.forEach((_,k)=>{ if(sb.has(k)) sharedKeys++; });
-    return sharedKeys>=3 ? jaccard : 0;
+    return (sharedKeys>=2 && jaccard>=0.40) ? jaccard : 0;
   },
 
   nbrs(id) {
@@ -482,7 +483,7 @@ async function ingest(spk,text){
 // ═══════════════════════════════════════════════════
 // CONTEXT ASSEMBLY
 // ═══════════════════════════════════════════════════
-async function ctxGraph(query,budget=500){
+async function ctxGraph(query,budget=300){
   const seeds=[];
   for(const lbl of await extract(query,'query')){
     const [mid,sc]=G.findMatch(lbl);
@@ -502,7 +503,8 @@ async function ctxGraph(query,budget=500){
       if(txt){const t=txt.split(' ').length;if(tok+t<=budget){parts.push([node.maturity,txt]);tok+=t;}}
     }
     for(const [nbId,w,la] of G.nbrs(nid)){
-      if(!vis.has(nbId)&&G.nodes[nbId]){
+      // Only follow edges with meaningful weight — cuts shallow traversal
+      if(!vis.has(nbId)&&G.nodes[nbId]&&w>=0.4){
         const nbm=G.nodes[nbId].maturity;
         front.push([nbId,w*0.7+nbm*0.1+(la/Math.max(1,G.convPos))*0.2]);
       }
@@ -523,7 +525,7 @@ async function ctxGraph(query,budget=500){
   return parts.map(p=>p[1]).join('\n');
 }
 
-function ctxBase(budget=500){
+function ctxBase(budget=300){
   const parts=[]; let tok=0;
   for(let i=S.turns.length-1;i>=0;i--){
     const t=S.turns[i], txt=`${t.spk}: ${t.text}`, tc=txt.split(' ').length;
@@ -542,7 +544,7 @@ let KEY='', useGraph=false;
 const history=[], CostLog=[];
 
 async function callClaude(msg){
-  const gc=await ctxGraph(msg), bc=ctxBase();
+  const gc=await ctxGraph(msg,300), bc=ctxBase(300);
   CostLog.push({turn:S.turns.length+1,g:wc(gc),b:wc(bc),mode:useGraph?'graph':'baseline'});
   const ctx=useGraph?gc:bc;
   const sys=useGraph
