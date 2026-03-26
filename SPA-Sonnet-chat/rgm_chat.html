@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RGM Live Chat</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+:root {
+  --bg:#f7f6f3; --bg2:#ffffff; --bg3:#f0ede8;
+  --border:#e0ded8; --text:#1a1a18; --text2:#666660;
+  --accent:#4a7cf0; --amber:#b87d00; --green:#2a7a3b;
+  --purple:#6f42c1; --red:#c0392b;
+  --r:10px; --font:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+
+/* Setup */
+#setup{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100}
+#sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:32px;width:420px;display:flex;flex-direction:column;gap:14px}
+#sc h1{font-size:18px;font-weight:600}
+#sc p{font-size:13px;color:var(--text2);line-height:1.6}
+#sc input{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:monospace;outline:none}
+#sc input:focus{border-color:var(--accent)}
+#sc button{padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:500}
+#sc button:hover{background:#3a6ce0}
+#serr{color:var(--red);font-size:12px;display:none}
+
+/* Main */
+#main{display:none;height:100vh}
+#layout{display:flex;height:100%}
+
+/* Chat */
+#chat-col{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg2);border-right:1px solid var(--border)}
+#chat-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+#chat-hdr h2{font-size:14px;font-weight:600;flex:1}
+#ctxbadge{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg3);color:var(--text2);cursor:pointer;user-select:none;border:1px solid var(--border)}
+#ctxbadge.on{background:#e8f0fb;color:var(--accent);border-color:var(--accent)}
+#msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.msg{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:88%;word-break:break-word;white-space:pre-wrap}
+.msg.user{background:#e8f0fb;align-self:flex-end}
+.msg.assistant{background:var(--bg3);align-self:flex-start}
+.msg.system{background:#fff8e1;font-size:11px;align-self:center;border-radius:20px;padding:3px 14px;color:var(--amber)}
+.msg.aha{background:#fff3cd;align-self:center;border-radius:20px;padding:4px 14px;font-size:12px;color:var(--amber);font-weight:600}
+#typing{display:none;align-self:flex-start;color:var(--text2);font-size:12px;font-style:italic;padding:4px 14px}
+#inrow{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+#txt{flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:var(--font)}
+#txt:focus{border-color:var(--accent)}
+#sbtn{padding:9px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500}
+#sbtn:hover{background:#3a6ce0}
+#sbtn:disabled{background:var(--border);color:var(--text2);cursor:default}
+
+/* Graph panel */
+#g-col{width:340px;display:flex;flex-direction:column;background:var(--bg)}
+#g-hdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+#g-hdr span{font-size:12px;font-weight:600}
+#turnbadge{font-size:11px;color:var(--text2);font-weight:400}
+#tabs{display:flex;border-bottom:1px solid var(--border)}
+.tab{flex:1;padding:7px 4px;font-size:11px;text-align:center;cursor:pointer;border:none;background:none;color:var(--text2);border-bottom:2px solid transparent}
+.tab.on{color:var(--text);font-weight:600;border-bottom:2px solid var(--text)}
+#gbody{flex:1;overflow:hidden;position:relative}
+.pane{display:none;height:100%;overflow-y:auto;padding:10px 12px}
+.pane.on{display:block}
+#pane-viz{padding:0;overflow:hidden}
+
+/* Nodes */
+.nrow{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)}
+.nrow:last-child{border:none}
+.nbg{width:44px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;flex-shrink:0}
+.nbar{height:6px;border-radius:3px;transition:width 0.4s}
+.nlbl{flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nmat{min-width:30px;text-align:right;font-size:10px;color:var(--text2)}
+.nbdg{font-size:9px;padding:1px 5px;border-radius:8px;flex-shrink:0}
+.nbdg.s{background:#d4edda;color:#155724}
+.nbdg.p{background:#e8d5fb;color:var(--purple)}
+.sec{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;padding:6px 0 3px}
+
+/* Merges */
+.mrow{padding:6px 0;border-bottom:1px solid var(--border);font-size:11px}
+.mrow:last-child{border:none}
+.mt{color:var(--amber);font-weight:600;margin-bottom:2px}
+.md{color:var(--text2)}
+
+/* Stats */
+.srow{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--bg3)}
+.srow:last-child{border:none}
+.sv{font-weight:600}
+.ssec{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 4px}
+.cbw{height:7px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:2px}
+.cb{height:7px;border-radius:3px;transition:width 0.4s}
+
+/* Viz */
+#viz-svg{width:100%;height:100%;display:block}
+.lnk{stroke:var(--border);stroke-width:1}
+.lnk.hi{stroke:var(--accent);opacity:0.5}
+.nc{stroke-width:1.5;cursor:pointer}
+.nc.s{stroke:var(--accent)}
+.nc.p{stroke:var(--purple);stroke-dasharray:3 2}
+.nl{font-size:9px;fill:var(--text);text-anchor:middle;pointer-events:none}
+#vtt{position:absolute;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;pointer-events:none;display:none;max-width:180px;box-shadow:0 2px 8px rgba(0,0,0,.08);line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- Setup -->
+<div id="setup">
+  <div id="sc">
+    <h1>RGM Live Chat</h1>
+    <p>Every message you send is ingested into a <strong>Relational Graph Memory</strong> — concepts form nodes, edges strengthen with repetition, and "aha" merge events fire when two mature concepts unify.</p>
+    <p>Watch the graph panel on the right as the conversation builds. Toggle between <em>baseline</em> and <em>graph-assembled</em> context to see the difference.</p>
+    <input id="akey" type="password" placeholder="sk-ant-api03-…" autocomplete="off" />
+    <div id="serr">Key should start with sk-ant-</div>
+    <button onclick="startApp()">Start →</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <div id="layout">
+    <div id="chat-col">
+      <div id="chat-hdr">
+        <h2>RGM Live Chat</h2>
+        <span id="ctxbadge" onclick="toggleCtx()" title="Click to toggle context mode">baseline ctx</span>
+      </div>
+      <div id="msgs"></div>
+      <div id="typing">Claude is thinking…</div>
+      <div id="inrow">
+        <input id="txt" placeholder="Type a message — Enter to send" />
+        <button id="sbtn" onclick="sendMsg()">Send</button>
+      </div>
+    </div>
+
+    <div id="g-col">
+      <div id="g-hdr">
+        <span>Memory Graph</span>
+        <span id="turnbadge">turn 0</span>
+      </div>
+      <div id="tabs">
+        <button class="tab on" onclick="showTab('nodes',this)">Nodes</button>
+        <button class="tab" onclick="showTab('viz',this)">Graph</button>
+        <button class="tab" onclick="showTab('merges',this)">Aha!</button>
+        <button class="tab" onclick="showTab('stats',this)">Stats</button>
+      </div>
+      <div id="gbody">
+        <div class="pane on" id="pane-nodes"></div>
+        <div class="pane" id="pane-viz"><svg id="viz-svg"></svg><div id="vtt"></div></div>
+        <div class="pane" id="pane-merges"><p style="color:var(--text2);font-size:12px;padding:8px 0">No merges yet — keep chatting…</p></div>
+        <div class="pane" id="pane-stats"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STOPWORDS
+// ═══════════════════════════════════════════════════
+const SW = new Set(['the','a','an','is','are','was','were','be','been','being',
+  'have','has','had','do','does','did','will','would','could','should','may',
+  'might','can','to','of','in','for','on','with','at','by','from','up','about',
+  'into','i','you','he','she','it','we','they','what','which','who','that','this',
+  'these','those','and','but','or','nor','so','yet','not','just','also','very',
+  'more','its','our','your','their','my','his','her','how','why','get','all',
+  'some','use','one','back','say','know','think','time','them','out','make',
+  'like','then','than','too','own','same','even','such','now','here','there',
+  'when','where','much','many','each','every','both','few','other','another',
+  'well','still','only','never','always','often','really','actually','basically',
+  'simply','quite','rather','already','yet','though','although','because','since',
+  'while','if','unless','until','whether','however','therefore','thus','hence',
+  'indeed','instead','otherwise','moreover','furthermore','meanwhile','let','new',
+  'want','need','see','look','take','give','come','go','put','ask','seem','feel',
+  'try','keep','let','begin','show','hear','play','run','move','live','believe',
+  'hold','bring','happen','write','provide','sit','stand','lose','pay','meet',
+  'include','continue','set','learn','change','lead','understand','watch','follow',
+  'stop','create','speak','read','spend','grow','open','walk','win','offer','remember']);
+
+// ═══════════════════════════════════════════════════
+// CONCEPT EXTRACTOR
+// ═══════════════════════════════════════════════════
+function extract(text) {
+  const words = text.toLowerCase().replace(/[^\w\s]/g,' ').split(/\s+/);
+  const seen = new Set(), res = [];
+  for (const w of words) {
+    if (w.length > 2 && !SW.has(w) && !seen.has(w) && !/^\d+$/.test(w)) {
+      seen.add(w); res.push(w);
+    }
+  }
+  return res;
+}
+
+// ═══════════════════════════════════════════════════
+// GRAPH ENGINE (port of graph.py)
+// ═══════════════════════════════════════════════════
+const G = {
+  nodes:{}, edges:{}, adj:{},
+  merges:[], convPos:0, _w:0, _hashes:[],
+
+  get matThr() {
+    const n = Object.keys(this.nodes).length;
+    return 5.0 / Math.pow(Math.max(1, n/60), 0.3);
+  },
+  get mergeThr() {
+    const ids = Object.keys(this.nodes);
+    if (!ids.length) return 0.30;
+    const d = ids.reduce((s,id)=>s+Object.keys(this.adj[id]||{}).length,0)/ids.length;
+    return Math.max(0.05, Math.min(0.30, 0.30/(1+d*0.1)));
+  },
+
+  newNode(lbl) {
+    const id = `c::${lbl}::${Object.keys(this.nodes).length}`;
+    this.nodes[id] = {id, label:lbl, prov:true, maturity:0, convPos:this.convPos};
+    this.adj[id] = {};
+    return id;
+  },
+
+  addEdge(src,tgt,type,w=1.0) {
+    const k = `${src}|${tgt}|${type}`;
+    if (this.edges[k]) {
+      this.edges[k].w = Math.min(1.0, this.edges[k].w+0.1);
+      this.edges[k].la = this.convPos;
+      return false;
+    }
+    this.edges[k] = {src,tgt,type,w,la:this.convPos,cp:this.convPos};
+    this.adj[src]=this.adj[src]||{}; this.adj[tgt]=this.adj[tgt]||{};
+    this.adj[src][tgt]=k; this.adj[tgt][src]=k;
+    return true;
+  },
+
+  removeEdge(k) {
+    const e=this.edges[k]; if(!e) return;
+    if(this.adj[e.src]) delete this.adj[e.src][e.tgt];
+    if(this.adj[e.tgt]) delete this.adj[e.tgt][e.src];
+    delete this.edges[k];
+  },
+
+  reinforce(id) {
+    Object.values(this.adj[id]||{}).forEach(k=>{
+      if(this.edges[k]){this.edges[k].w=Math.min(1.0,this.edges[k].w+0.1);this.edges[k].la=this.convPos;}
+    });
+  },
+
+  updateMat(id) {
+    const nbrs=this.adj[id]||{};
+    const edges=Object.values(nbrs).map(k=>this.edges[k]).filter(Boolean);
+    if(!edges.length) return;
+    const mw=edges.reduce((s,e)=>s+e.w,0)/edges.length;
+    const nbIds=Object.keys(nbrs);
+    const nbMat=nbIds.reduce((s,nid)=>s+(this.nodes[nid]?this.nodes[nid].maturity:0),0);
+    const nf=1.0+(nbIds.length?nbMat/nbIds.length:0)*0.1;
+    if(this.nodes[id]) this.nodes[id].maturity=edges.length*mw*nf;
+  },
+
+  bigrams(s) {
+    const r=new Set(); s=s.toLowerCase();
+    for(let i=0;i<s.length-1;i++) r.add(s.slice(i,i+2));
+    return r;
+  },
+  lsim(a,b) {
+    a=a.toLowerCase(); b=b.toLowerCase();
+    if(a===b) return 1.0;
+    const ba=this.bigrams(a),bb=this.bigrams(b);
+    if(!ba.size||!bb.size) return 0;
+    let i=0; ba.forEach(g=>{if(bb.has(g))i++;});
+    return i/(ba.size+bb.size-i);
+  },
+  findMatch(lbl) {
+    let best=null,bs=0;
+    for(const n of Object.values(this.nodes)){
+      const s=this.lsim(lbl,n.label); if(s>bs){bs=s;best=n.id;}
+    }
+    return [best,bs];
+  },
+
+  sigSim(aid,bid) {
+    const sig=id=>{
+      const s=new Set();
+      Object.entries(this.adj[id]||{}).forEach(([nid,k])=>{
+        const e=this.edges[k],n=this.nodes[nid];
+        if(e&&n) s.add(`${n.label}:${e.type}`);
+      });
+      return s;
+    };
+    const sa=sig(aid),sb=sig(bid);
+    if(!sa.size||!sb.size) return 0;
+    let i=0; sa.forEach(x=>{if(sb.has(x))i++;});
+    return i/(sa.size+sb.size-i);
+  },
+
+  nbrs(id) {
+    return Object.entries(this.adj[id]||{}).map(([nid,k])=>{
+      const e=this.edges[k];
+      return e&&this.nodes[nid]?[nid,e.w,e.la]:null;
+    }).filter(Boolean);
+  },
+
+  stabilize(id) {
+    if(!this.nodes[id]) return;
+    this.nodes[id].prov=false;
+    this.checkMerge(id);
+  },
+
+  checkMerge(id) {
+    const node=this.nodes[id]; if(!node) return;
+    for(const c of Object.values(this.nodes)) {
+      if(!c.prov&&c.id!==id&&this.sigSim(id,c.id)>=this.mergeThr){this.doMerge(id,c.id);return;}
+    }
+  },
+
+  doMerge(aid,bid) {
+    if(!this.nodes[aid]||!this.nodes[bid]) return;
+    const la=this.nodes[aid].label, lb=this.nodes[bid].label;
+    const existing=new Set(Object.keys(this.adj[aid]||{}));
+    const newE=[];
+    const toR=Object.values(this.adj[bid]||{}).slice();
+    toR.forEach(k=>{
+      const e=this.edges[k]; if(!e) return;
+      const ns=e.src===bid?aid:e.src, nt=e.tgt===bid?aid:e.tgt;
+      this.removeEdge(k);
+      if(ns===nt) return;
+      const nk=`${ns}|${nt}|${e.type}`;
+      if(!existing.has(nt)) newE.push(nk);
+      if(!this.edges[nk]){
+        this.edges[nk]={src:ns,tgt:nt,type:e.type,w:e.w,la:this.convPos,cp:this.convPos};
+        this.adj[ns]=this.adj[ns]||{}; this.adj[nt]=this.adj[nt]||{};
+        this.adj[ns][nt]=nk; this.adj[nt][ns]=nk;
+      } else {
+        this.edges[nk].w=Math.min(1.0,this.edges[nk].w+e.w);
+      }
+    });
+    const cascade=newE.length, mag=cascade*(this.nodes[aid]?this.nodes[aid].maturity:1);
+    this.merges.push({nodeA:la,nodeB:lb,mergedInto:aid,cascade,mag,turn:S.turns.length});
+    delete this.adj[bid]; delete this.nodes[bid];
+    if(this.nodes[aid]){this.updateMat(aid);this.checkMerge(aid);}
+  },
+
+  write(lbl, related=[]) {
+    let novelty=false;
+    const [mid,sim]=this.findMatch(lbl);
+    let nid;
+    if(mid===null){nid=this.newNode(lbl);novelty=true;}
+    else if(sim>=0.85){nid=mid;this.reinforce(nid);}
+    else{nid=this.newNode(lbl);this.addEdge(nid,mid,'semantic',sim);novelty=true;}
+    for(const rid of related){if(this.nodes[rid]){if(this.addEdge(nid,rid,'temporal'))novelty=true;}}
+    this.updateMat(nid);
+    const n=this.nodes[nid];
+    if(n&&n.prov&&n.maturity>=this.matThr) this.stabilize(nid);
+    if(novelty) this._w++;
+    return [nid,novelty];
+  },
+
+  hash() {
+    const s=Object.values(this.nodes).map(n=>`${n.id}:${Math.round(n.maturity*10)/10}:${n.prov?1:0}`).sort().join('|');
+    let h=0; for(let i=0;i<s.length;i++) h=(Math.imul(31,h)+s.charCodeAt(i))|0;
+    return h.toString(16);
+  },
+
+  beginPass(){this._w=0;},
+  endPass(){
+    const h=this.hash(), loop=this._hashes.includes(h);
+    this._hashes.push(h); if(this._hashes.length>8) this._hashes.shift();
+    return{writes:this._w,converged:this._w===0,loop};
+  },
+  advance(){this.convPos++;},
+  summary(){
+    const ns=Object.values(this.nodes);
+    const mat=ns.reduce((s,n)=>s+n.maturity,0)/Math.max(ns.length,1);
+    return{total:ns.length,stable:ns.filter(n=>!n.prov).length,
+           edges:Object.keys(this.edges).length,merges:this.merges.length,
+           meanMat:Math.round(mat*100)/100};
+  }
+};
+
+// ═══════════════════════════════════════════════════
+// BACKING STORE
+// ═══════════════════════════════════════════════════
+const S = {
+  turns:[],
+  append(spk,text,nodes=[]){
+    const pos=this.turns.length;
+    this.turns.push({pos,spk,text,nodes});
+    return pos;
+  },
+  getText(pos){const t=this.turns[pos];return t?`${t.spk}: ${t.text}`:'';},
+};
+
+// ═══════════════════════════════════════════════════
+// INGEST
+// ═══════════════════════════════════════════════════
+function ingest(spk,text){
+  const prev=G.merges.length;
+  const pos=S.append(spk,text);
+  G.convPos=pos;
+  const concepts=extract(text);
+  const ids=[];
+  G.beginPass();
+  let last=null;
+  for(const c of concepts){
+    const [nid]=G.write(c,last?[last]:[]);
+    ids.push(nid); last=nid;
+  }
+  S.turns[pos].nodes=ids;
+  G.advance();
+  G.beginPass();
+  for(const id of Object.keys(G.nodes)){
+    const n=G.nodes[id]; if(!n) continue;
+    G.updateMat(id);
+    if(n.prov&&n.maturity>=G.matThr){G.stabilize(id);G._w++;}
+  }
+  G.endPass();
+  return G.merges.slice(prev);
+}
+
+// ═══════════════════════════════════════════════════
+// CONTEXT ASSEMBLY
+// ═══════════════════════════════════════════════════
+function ctxGraph(query,budget=500){
+  const seeds=[];
+  for(const lbl of extract(query)){
+    const [mid,sc]=G.findMatch(lbl);
+    if(mid&&sc>0.3) seeds.push([mid,sc]);
+  }
+  if(!seeds.length) return ctxBase(budget);
+  const parts=[],vis=new Set(),visPos=new Set();
+  let tok=0, front=[...seeds].sort((a,b)=>b[1]-a[1]);
+  while(front.length&&tok<budget){
+    const [nid]=front.shift();
+    if(!G.nodes[nid]||vis.has(nid)) continue;
+    vis.add(nid);
+    const node=G.nodes[nid];
+    if(!visPos.has(node.convPos)){
+      visPos.add(node.convPos);
+      const txt=S.getText(node.convPos);
+      if(txt){const t=txt.split(' ').length;if(tok+t<=budget){parts.push([node.maturity,txt]);tok+=t;}}
+    }
+    for(const [nbId,w,la] of G.nbrs(nid)){
+      if(!vis.has(nbId)&&G.nodes[nbId]){
+        const nbm=G.nodes[nbId].maturity;
+        front.push([nbId,w*0.7+nbm*0.1+(la/Math.max(1,G.convPos))*0.2]);
+      }
+    }
+    front.sort((a,b)=>b[1]-a[1]);
+  }
+  if(G.merges.length){
+    const top=[...G.merges].sort((a,b)=>b.mag-a.mag).slice(0,2);
+    for(const m of top){
+      if(G.nodes[m.mergedInto]){
+        const txt=`[insight: '${m.nodeA}' + '${m.nodeB}' unified, ${m.cascade} new connections]`;
+        const t=txt.split(' ').length;
+        if(tok+t<=budget){parts.push([999,txt]);tok+=t;}
+      }
+    }
+  }
+  parts.sort((a,b)=>b[0]-a[0]);
+  return parts.map(p=>p[1]).join('\n');
+}
+
+function ctxBase(budget=500){
+  const parts=[]; let tok=0;
+  for(let i=S.turns.length-1;i>=0;i--){
+    const t=S.turns[i], txt=`${t.spk}: ${t.text}`, tc=txt.split(' ').length;
+    if(tok+tc>budget) break;
+    parts.unshift(txt); tok+=tc;
+  }
+  return parts.join('\n');
+}
+
+function wc(s){return s?s.trim().split(/\s+/).length:0;}
+
+// ═══════════════════════════════════════════════════
+// CLAUDE API
+// ═══════════════════════════════════════════════════
+let KEY='', useGraph=false;
+const history=[], CostLog=[];
+
+async function callClaude(msg){
+  const gc=ctxGraph(msg), bc=ctxBase();
+  CostLog.push({turn:S.turns.length+1,g:wc(gc),b:wc(bc),mode:useGraph?'graph':'baseline'});
+  const ctx=useGraph?gc:bc;
+  const sys=useGraph
+    ?`You are a helpful assistant. Context assembled by Relational Graph Memory (most structurally relevant turns, not necessarily most recent):\n\n${ctx}\n\nRespond concisely.`
+    :`You are a helpful assistant. Recent conversation:\n\n${ctx}\n\nRespond concisely.`;
+  history.push({role:'user',content:msg});
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':KEY,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4096,system:sys,messages:history})
+  });
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${r.status}`);}
+  const d=await r.json();
+  const reply=d.content?.[0]?.text||'(no response)';
+  history.push({role:'assistant',content:reply});
+  return reply;
+}
+
+// ═══════════════════════════════════════════════════
+// D3 GRAPH VIZ
+// ═══════════════════════════════════════════════════
+let sim=null, vnodes=[], vlinks=[];
+
+function initViz(){
+  const svg=d3.select('#viz-svg');
+  svg.append('g').attr('class','links-g');
+  svg.append('g').attr('class','nodes-g');
+  const el=document.getElementById('pane-viz');
+  const cx=el.clientWidth/2||150, cy=el.clientHeight/2||200;
+  sim=d3.forceSimulation()
+    .force('link',d3.forceLink().id(d=>d.id).distance(55).strength(0.4))
+    .force('charge',d3.forceManyBody().strength(-80))
+    .force('center',d3.forceCenter(cx,cy))
+    .force('collide',d3.forceCollide(18))
+    .alphaDecay(0.03)
+    .on('tick',()=>{
+      d3.select('#viz-svg .links-g').selectAll('line')
+        .attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
+        .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+      d3.select('#viz-svg .nodes-g').selectAll('g')
+        .attr('transform',d=>`translate(${d.x},${d.y})`);
+    });
+  const zoom=d3.zoom().scaleExtent([0.2,5]).on('zoom',e=>{
+    svg.select('.links-g').attr('transform',e.transform);
+    svg.select('.nodes-g').attr('transform',e.transform);
+  });
+  svg.call(zoom);
+}
+
+function refreshViz(){
+  if(!sim) return;
+  const svg=d3.select('#viz-svg');
+  const allN=Object.values(G.nodes).sort((a,b)=>b.maturity-a.maturity).slice(0,50);
+  const nset=new Set(allN.map(n=>n.id));
+  const allL=Object.values(G.edges).filter(e=>nset.has(e.src)&&nset.has(e.tgt)&&e.w>0.25).sort((a,b)=>b.w-a.w).slice(0,100);
+  const posMap={};
+  vnodes.forEach(n=>{posMap[n.id]={x:n.x,y:n.y,vx:n.vx||0,vy:n.vy||0};});
+  vnodes=allN.map(n=>({id:n.id,label:n.label,prov:n.prov,maturity:n.maturity,...(posMap[n.id]||{})}));
+  vlinks=allL.map(e=>({source:e.src,target:e.tgt,w:e.w,type:e.type}));
+  const mx=Math.max(...vnodes.map(n=>n.maturity),1);
+
+  const lsel=svg.select('.links-g').selectAll('line').data(vlinks,d=>`${d.source}|${d.target}`);
+  lsel.enter().append('line').attr('class',d=>d.w>0.6?'lnk hi':'lnk').attr('stroke-opacity',d=>0.2+d.w*0.5).attr('stroke-width',d=>d.w*2);
+  lsel.exit().remove();
+
+  const nsel=svg.select('.nodes-g').selectAll('g').data(vnodes,d=>d.id);
+  const ne=nsel.enter().append('g')
+    .call(d3.drag()
+      .on('start',(e,d)=>{if(!e.active)sim.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
+      .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;})
+      .on('end',(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null;})
+    )
+    .on('mouseover',(e,d)=>{
+      const tt=document.getElementById('vtt');
+      const nb=G.nbrs(d.id).map(([nid])=>G.nodes[nid]?.label).filter(Boolean).slice(0,4);
+      const rect=document.getElementById('pane-viz').getBoundingClientRect();
+      tt.innerHTML=`<strong>${d.label}</strong><br>maturity: ${d.maturity.toFixed(2)}<br>${d.prov?'⬡ provisional':'● stable'}<br>links: ${nb.join(', ')||'—'}`;
+      tt.style.display='block';
+      tt.style.left=(e.clientX-rect.left+10)+'px';
+      tt.style.top=(e.clientY-rect.top-10)+'px';
+    })
+    .on('mouseout',()=>{document.getElementById('vtt').style.display='none';});
+  ne.append('circle').attr('class',d=>`nc ${d.prov?'p':'s'}`);
+  ne.append('text').attr('class','nl').attr('dy','3.5px');
+
+  const na=nsel.merge(ne);
+  na.select('circle')
+    .attr('class',d=>`nc ${d.prov?'p':'s'}`)
+    .attr('r',d=>5+(d.maturity/mx)*9)
+    .attr('fill',d=>d.prov?'#e8d5fb':'#e8f0fb')
+    .attr('stroke',d=>d.prov?'#9b59b6':'#4a7cf0');
+  na.select('text').text(d=>d.label.length>11?d.label.slice(0,10)+'…':d.label)
+    .attr('dy',d=>-(6+(d.maturity/mx)*9)-2);
+  nsel.exit().remove();
+
+  sim.nodes(vnodes);
+  sim.force('link').links(vlinks);
+  sim.alpha(0.3).restart();
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+let currentTab='nodes', turnCount=0;
+
+function renderNodes(){
+  const ns=Object.values(G.nodes).sort((a,b)=>b.maturity-a.maturity);
+  const mx=Math.max(...ns.map(n=>n.maturity),1);
+  const stable=ns.filter(n=>!n.prov), prov=ns.filter(n=>n.prov);
+  let h='';
+  if(stable.length){
+    h+=`<div class="sec">Stable (${stable.length})</div>`;
+    for(const n of stable){
+      const pct=Math.min(100,(n.maturity/mx)*100);
+      const deg=Object.keys(G.adj[n.id]||{}).length;
+      h+=`<div class="nrow">
+        <div class="nbg"><div class="nbar" style="width:${pct}%;background:#4a7cf0"></div></div>
+        <span class="nlbl" title="${n.label}">${n.label}</span>
+        <span class="nbdg s">d${deg}</span>
+        <span class="nmat">${n.maturity.toFixed(1)}</span>
+      </div>`;
+    }
+  }
+  if(prov.length){
+    h+=`<div class="sec" style="margin-top:8px">Provisional (${prov.length})</div>`;
+    for(const n of prov.slice(0,25)){
+      const pct=Math.min(100,(n.maturity/mx)*100);
+      h+=`<div class="nrow">
+        <div class="nbg"><div class="nbar" style="width:${pct}%;background:#9b59b6"></div></div>
+        <span class="nlbl" style="color:var(--text2)" title="${n.label}">${n.label}</span>
+        <span class="nbdg p">prov</span>
+        <span class="nmat">${n.maturity.toFixed(1)}</span>
+      </div>`;
+    }
+    if(prov.length>25) h+=`<div style="font-size:11px;color:var(--text2);padding:4px 0">…and ${prov.length-25} more</div>`;
+  }
+  if(!ns.length) h='<p style="color:var(--text2);font-size:12px;padding:8px 0">No concepts yet — start chatting!</p>';
+  document.getElementById('pane-nodes').innerHTML=h;
+}
+
+function renderMerges(){
+  const el=document.getElementById('pane-merges');
+  if(!G.merges.length){el.innerHTML='<p style="color:var(--text2);font-size:12px;padding:8px 0">No merges yet — keep chatting…</p>';return;}
+  let h='';
+  for(const m of [...G.merges].reverse()){
+    h+=`<div class="mrow">
+      <div class="mt">✦ "${m.nodeA}" + "${m.nodeB}"</div>
+      <div class="md">cascade ${m.cascade} · magnitude ${m.mag.toFixed(1)} · turn ${m.turn}</div>
+    </div>`;
+  }
+  el.innerHTML=h;
+}
+
+function renderStats(){
+  const s=G.summary();
+  const last=CostLog[CostLog.length-1]||{g:0,b:0};
+  const ratio=last.b>0?(last.g/last.b).toFixed(2):'—';
+  const saving=last.b>0?Math.round((1-last.g/last.b)*100):0;
+  let h=`
+    <div class="ssec">Graph</div>
+    <div class="srow"><span>Nodes total</span><span class="sv">${s.total}</span></div>
+    <div class="srow"><span>Stable / provisional</span><span class="sv">${s.stable} / ${s.total-s.stable}</span></div>
+    <div class="srow"><span>Edges</span><span class="sv">${s.edges}</span></div>
+    <div class="srow"><span>Merges (aha!)</span><span class="sv" style="color:var(--amber)">${s.merges}</span></div>
+    <div class="srow"><span>Mean maturity</span><span class="sv">${s.meanMat}</span></div>
+    <div class="srow"><span>Merge threshold</span><span class="sv">${G.mergeThr.toFixed(3)}</span></div>
+    <div class="srow"><span>Maturity threshold</span><span class="sv">${G.matThr.toFixed(2)}</span></div>
+    <div class="ssec" style="margin-top:12px">Context cost (last turn)</div>
+    <div class="srow"><span>Graph ctx</span><span class="sv">${last.g} words</span></div>
+    <div class="srow"><span>Baseline ctx</span><span class="sv">${last.b} words</span></div>
+    <div class="srow"><span>Ratio</span><span class="sv" style="color:${saving>0?'var(--green)':'var(--red)'}">${ratio}x${saving>0?' ('+saving+'% less)':''}</span></div>`;
+
+  if(CostLog.length>1){
+    const recent=CostLog.slice(-8);
+    const mx=Math.max(...recent.flatMap(c=>[c.g,c.b]),1);
+    h+=`<div class="ssec" style="margin-top:12px">Cost over time</div>
+        <div style="display:flex;flex-direction:column;gap:3px">`;
+    for(const c of recent){
+      h+=`<div style="font-size:10px;color:var(--text2)">T${c.turn}</div>
+          <div title="Graph: ${c.g}w" class="cbw"><div class="cb" style="width:${Math.round(c.g/mx*100)}%;background:#4a7cf0"></div></div>
+          <div title="Baseline: ${c.b}w" class="cbw" style="margin-top:2px"><div class="cb" style="width:${Math.round(c.b/mx*100)}%;background:#ccc"></div></div>`;
+    }
+    h+=`</div><div style="font-size:10px;color:var(--text2);margin-top:6px"><span style="color:#4a7cf0">■</span> graph &nbsp;<span style="color:#ccc">■</span> baseline</div>`;
+  }
+  document.getElementById('pane-stats').innerHTML=h;
+}
+
+function renderAll(){
+  renderNodes(); renderMerges(); renderStats();
+  if(currentTab==='viz') refreshViz();
+  document.getElementById('turnbadge').textContent=`turn ${turnCount}`;
+}
+
+// ═══════════════════════════════════════════════════
+// UI CONTROLS
+// ═══════════════════════════════════════════════════
+function showTab(name,btn){
+  currentTab=name;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pane-'+name).classList.add('on');
+  if(name==='viz'){if(!sim)initViz();refreshViz();}
+}
+
+function toggleCtx(){
+  useGraph=!useGraph;
+  const b=document.getElementById('ctxbadge');
+  b.textContent=useGraph?'graph ctx ✦':'baseline ctx';
+  if(useGraph) b.classList.add('on'); else b.classList.remove('on');
+  addMsg('system',`Context mode → ${useGraph?'graph-assembled (relevant turns by structure)':'baseline (most recent turns)'}`);
+}
+
+function addMsg(role,text){
+  const el=document.getElementById('msgs');
+  const d=document.createElement('div');
+  d.className='msg '+role; d.textContent=text;
+  el.appendChild(d); el.scrollTop=el.scrollHeight;
+  return d;
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('txt');
+  const text=inp.value.trim();
+  if(!text) return;
+  inp.value='';
+  document.getElementById('sbtn').disabled=true;
+  addMsg('user',text);
+
+  const newMerges=ingest('user',text);
+  turnCount++;
+  for(const m of newMerges) addMsg('aha',`✦ Aha! "${m.nodeA}" + "${m.nodeB}" unified (cascade: ${m.cascade})`);
+  renderAll();
+
+  document.getElementById('typing').style.display='block';
+  document.getElementById('msgs').scrollTop=document.getElementById('msgs').scrollHeight;
+
+  try{
+    const reply=await callClaude(text);
+    document.getElementById('typing').style.display='none';
+    const rm=ingest('assistant',reply);
+    turnCount++;
+    addMsg('assistant',reply);
+    for(const m of rm) addMsg('aha',`✦ Aha! "${m.nodeA}" + "${m.nodeB}" unified (cascade: ${m.cascade})`);
+    renderAll();
+  } catch(e){
+    document.getElementById('typing').style.display='none';
+    addMsg('system',`Error: ${e.message}`);
+  }
+  document.getElementById('sbtn').disabled=false;
+  inp.focus();
+}
+
+// ═══════════════════════════════════════════════════
+// STARTUP
+// ═══════════════════════════════════════════════════
+function startApp(){
+  const key=document.getElementById('akey').value.trim();
+  if(!key.startsWith('sk-')){document.getElementById('serr').style.display='block';return;}
+  KEY=key;
+  document.getElementById('setup').style.display='none';
+  document.getElementById('main').style.display='block';
+  initViz();
+  addMsg('system','Graph memory active — every message builds the concept graph.');
+  addMsg('system','Click "baseline ctx" in the header to switch to graph-assembled context.');
+  addMsg('system','Try the Graph tab to see nodes forming in real time. Merges appear as ✦ Aha! events.');
+  renderAll();
+  document.getElementById('txt').focus();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('txt').addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}
+  });
+  document.getElementById('akey').addEventListener('keydown',e=>{
+    if(e.key==='Enter') startApp();
+  });
+});
+</script>
+</body>
+</html>
