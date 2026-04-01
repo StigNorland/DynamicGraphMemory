@@ -121,6 +121,43 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .nc.p{stroke:var(--purple);stroke-dasharray:3 2}
 .nl{font-size:9px;fill:var(--text);text-anchor:middle;pointer-events:none}
 #vtt{position:absolute;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;pointer-events:none;display:none;max-width:180px;box-shadow:0 2px 8px rgba(0,0,0,.08);line-height:1.5}
+
+/* Bench (LoCoMo) tab */
+.bench-btn{padding:7px 14px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:12px;cursor:pointer;font-weight:500;width:100%;margin-top:6px}
+.bench-btn:disabled{background:var(--border);color:var(--text2);cursor:default}
+.bench-btn.sec{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.bench-prog{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin:6px 0}
+.bench-prog-bar{height:5px;background:var(--accent);border-radius:3px;transition:width 0.3s}
+.bench-qrow{padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.bench-qrow:last-child{border:none}
+.bench-qhdr{display:flex;align-items:center;gap:5px}
+.bench-qtxt{font-size:11px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bench-qdetail{display:none;padding:5px 0 2px;font-size:11px;color:var(--text2);line-height:1.5}
+.bench-qrow.open .bench-qdetail{display:block}
+.cat-badge{font-size:9px;padding:1px 5px;border-radius:8px;flex-shrink:0;background:var(--bg3);color:var(--text2)}
+.cat-badge.c1{background:#d4edda;color:#155724}
+.cat-badge.c2{background:#cce5ff;color:#004085}
+.cat-badge.c3{background:#e8d5fb;color:var(--purple)}
+.cat-badge.c4,.cat-badge.c5{background:#fff3cd;color:var(--amber)}
+.bench-bars{display:flex;gap:3px;flex-shrink:0}
+.bench-bar-wrap{width:34px;font-size:9px;color:var(--text2);text-align:center}
+.bench-bar-bg{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:1px}
+.bench-bar-fill{height:5px;border-radius:3px;transition:width 0.4s}
+.bf-graph{background:var(--accent)}
+.bf-baseline{background:var(--green)}
+.bf-graph_only{background:var(--purple)}
+.bench-sum-tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
+.bench-sum-tbl th{text-align:left;font-weight:600;padding:4px 6px;border-bottom:1px solid var(--border)}
+.bench-sum-tbl td{padding:4px 6px;border-bottom:1px solid var(--bg3)}
+.bench-inf{font-size:11px;color:var(--text2);line-height:1.6;padding:2px 0}
+.bench-file-row{display:flex;flex-direction:column;gap:4px;margin-bottom:4px}
+.bench-file-row label{font-size:11px;color:var(--text2)}
+.bench-file-row input[type=file]{font-size:11px}
+.bench-file-row select{font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text)}
+.bench-chip{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:10px;background:var(--bg3);color:var(--text2);margin-right:3px}
+.bench-mode-row{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0}
+.bench-mode-row label{font-size:11px;display:flex;align-items:center;gap:3px;cursor:pointer}
+.bench-err{font-size:11px;color:var(--red);margin:4px 0}
 </style>
 </head>
 <body>
@@ -165,12 +202,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
         <button class="tab" onclick="showTab('viz',this)">Graph</button>
         <button class="tab" onclick="showTab('merges',this)">Aha!</button>
         <button class="tab" onclick="showTab('stats',this)">Stats</button>
+        <button class="tab" onclick="showTab('bench',this)">Bench</button>
       </div>
       <div id="gbody">
         <div class="pane on" id="pane-nodes"></div>
         <div class="pane" id="pane-viz"><svg id="viz-svg"></svg><div id="vtt"></div></div>
         <div class="pane" id="pane-merges"><p style="color:var(--text2);font-size:12px;padding:8px 0">No merges yet — keep chatting…</p></div>
         <div class="pane" id="pane-stats"></div>
+        <div class="pane" id="pane-bench"></div>
       </div>
     </div>
   </div>
@@ -420,6 +459,7 @@ function showTab(name, btn){
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
   document.getElementById('pane-'+name).classList.add('on');
   if (name==='viz') { if (!sim) initViz(); refreshViz(); }
+  if (name==='bench') renderBench();
 }
 
 function toggleCtx(){
@@ -554,6 +594,401 @@ async function startApp(){
     serr.textContent   = 'Failed to connect to server: ' + e.message;
     serr.style.display = 'block';
   }
+}
+
+// ═══════════════════════════════════════════════════
+// LOCOMO BENCHMARK
+// ═══════════════════════════════════════════════════
+let locomoState = {
+  phase:          'idle',    // idle|loaded|ingesting|ready|evaluating|done
+  sampleInfo:     null,
+  results:        [],
+  summary:        null,
+  ingestProgress: {done: 0, total: 0},
+  evalProgress:   {done: 0, total: 0},
+  ahaCount:       0,
+  rawData:        null,      // full parsed JSON array
+  selectedIndex:  0,
+  error:          '',
+};
+
+const CAT_LABELS = {1:'Cat1 retrieval',2:'Cat2 temporal',3:'Cat3 inference',4:'Cat4 multi-hop',5:'Cat5 adversarial'};
+
+function renderBench() {
+  const pane = document.getElementById('pane-bench');
+  if (!pane) return;
+  const p = locomoState.phase;
+
+  if (p === 'idle') {
+    pane.innerHTML = `
+      <div class="ssec">LoCoMo Benchmark</div>
+      <p class="bench-inf">Load <code>locomo10.json</code> to run the ACL 2024 long-term memory benchmark against the graph memory system.</p>
+      <div class="bench-file-row" style="margin-top:8px">
+        <label>JSON file</label>
+        <input type="file" accept=".json" onchange="locomoFileChange(this)">
+      </div>
+      <div class="bench-file-row" id="bench-sel-row" style="display:none">
+        <label>Sample</label>
+        <select id="bench-sel" onchange="locomoState.selectedIndex=parseInt(this.value)"></select>
+      </div>
+      <div id="bench-err" class="bench-err" style="display:none"></div>
+      <button class="bench-btn" id="bench-load-btn" disabled onclick="locomoLoad()">Load Sample →</button>`;
+    return;
+  }
+
+  if (p === 'loaded') {
+    const s = locomoState.sampleInfo;
+    pane.innerHTML = `
+      <div class="ssec">LoCoMo Benchmark</div>
+      <div class="srow"><span>${s.sample_id}</span><span class="sv">${s.speaker_a} × ${s.speaker_b}</span></div>
+      <div class="srow"><span>Sessions</span><span class="sv">${s.sessions}</span></div>
+      <div class="srow"><span>Turns</span><span class="sv">${s.total_turns}</span></div>
+      <div class="srow"><span>QA items</span><span class="sv">${s.qa_count}</span></div>
+      <div id="bench-err" class="bench-err" style="display:none"></div>
+      <button class="bench-btn" onclick="locomoIngest()">Ingest Conversation →</button>
+      <button class="bench-btn sec" style="margin-top:4px" onclick="locomoReset()">← Change Sample</button>`;
+    return;
+  }
+
+  if (p === 'ingesting') {
+    const prog = locomoState.ingestProgress;
+    const pct  = prog.total ? Math.round(prog.done / prog.total * 100) : 0;
+    pane.innerHTML = `
+      <div class="ssec">Ingesting Conversation…</div>
+      <p class="bench-inf">Turn ${prog.done} of ${prog.total} (${pct}%)</p>
+      <div class="bench-prog"><div class="bench-prog-bar" style="width:${pct}%"></div></div>
+      <p class="bench-inf" id="bench-speaker" style="color:var(--text2)"></p>
+      <p class="bench-inf">✦ Aha! merges so far: <strong>${locomoState.ahaCount}</strong></p>
+      <p class="bench-inf" style="margin-top:6px;font-style:italic;color:var(--text2)">First run may take several minutes (LLM concept extraction per turn). Results are cached.</p>`;
+    return;
+  }
+
+  if (p === 'ready') {
+    const s   = locomoState.sampleInfo;
+    const gs  = graphState.stats;
+    pane.innerHTML = `
+      <div class="ssec">Graph Ready — ${s.sample_id}</div>
+      <div class="srow"><span>Nodes</span><span class="sv">${gs.nodes || 0}</span></div>
+      <div class="srow"><span>Edges</span><span class="sv">${gs.edges || 0}</span></div>
+      <div class="srow"><span>Merges</span><span class="sv">${gs.merges || 0}</span></div>
+      <div class="ssec" style="margin-top:10px">Evaluation settings</div>
+      <div class="srow"><span>Token budget</span>
+        <input id="bench-budget" type="number" value="400" min="100" max="2000"
+          style="width:60px;font-size:11px;padding:2px 5px;border:1px solid var(--border);border-radius:4px;text-align:right">
+      </div>
+      <div style="font-size:10px;color:var(--text2);margin:4px 0 2px">Context modes</div>
+      <div class="bench-mode-row">
+        <label><input type="checkbox" id="m-graph" checked> <span style="color:var(--accent)">■</span> graph</label>
+        <label><input type="checkbox" id="m-baseline" checked> <span style="color:var(--green)">■</span> baseline</label>
+        <label><input type="checkbox" id="m-graph_only" checked> <span style="color:var(--purple)">■</span> graph_only</label>
+      </div>
+      <div id="bench-err" class="bench-err" style="display:none"></div>
+      <button class="bench-btn" onclick="locomoRunEval()">Run Evaluation →</button>
+      <button class="bench-btn sec" style="margin-top:4px" onclick="locomoIngest()">Re-ingest</button>
+      <button class="bench-btn sec" style="margin-top:4px" onclick="locomoReset()">← Change Sample</button>`;
+    return;
+  }
+
+  if (p === 'evaluating') {
+    const ep  = locomoState.evalProgress;
+    const pct = ep.total ? Math.round(ep.done / ep.total * 100) : 0;
+    let rows  = locomoState.results.map((r,i) => benchQRowHTML(r, i)).join('');
+    pane.innerHTML = `
+      <div class="ssec">Evaluating… ${ep.done}/${ep.total} (${pct}%)</div>
+      <div class="bench-prog"><div class="bench-prog-bar" style="width:${pct}%"></div></div>
+      <div id="bench-qlist" style="margin-top:8px">${rows}</div>`;
+    return;
+  }
+
+  if (p === 'done') {
+    const sum  = locomoState.summary;
+    const modes = Object.keys(locomoState.results[0]?.conditions || {});
+    const modeColors = {graph:'var(--accent)',baseline:'var(--green)',graph_only:'var(--purple)'};
+
+    let catRows = '';
+    const catLabels = {1:'Cat1 retrieval',2:'Cat2 temporal',3:'Cat3 inference',4:'Cat4 multi-hop',5:'Cat5 adversarial'};
+    for (const [cat, scores] of Object.entries(sum.by_category || {}).sort()) {
+      catRows += `<tr><td>${catLabels[cat] || 'Cat'+cat}</td>` +
+        modes.map(m => `<td style="text-align:right;color:${modeColors[m]||'inherit'}">${(scores[m]||0).toFixed(2)}</td>`).join('') +
+        '</tr>';
+    }
+    const ov = sum.overall || {};
+    catRows += `<tr style="font-weight:600;border-top:1px solid var(--border)"><td>Overall</td>` +
+      modes.map(m => `<td style="text-align:right;color:${modeColors[m]||'inherit'}">${(ov[m]||0).toFixed(2)}</td>`).join('') +
+      '</tr>';
+
+    let rows = locomoState.results.map((r,i) => benchQRowHTML(r, i)).join('');
+
+    pane.innerHTML = `
+      <div class="ssec">Results — ${locomoState.sampleInfo?.sample_id}</div>
+      <table class="bench-sum-tbl">
+        <thead><tr><th>Category</th>${modes.map(m=>`<th style="text-align:right;color:${modeColors[m]||'inherit'}">${m}</th>`).join('')}</tr></thead>
+        <tbody>${catRows}</tbody>
+      </table>
+      <button class="bench-btn sec" style="margin-top:8px;width:auto;padding:5px 12px" onclick="locomoExportJSON()">Download JSON</button>
+      <button class="bench-btn sec" style="margin-top:4px;width:auto;padding:5px 12px;margin-left:4px" onclick="locomoRunEval()">Run Again</button>
+      <button class="bench-btn sec" style="margin-top:4px;width:auto;padding:5px 12px;margin-left:4px" onclick="locomoReset()">New Sample</button>
+      <div class="ssec" style="margin-top:10px">Question details</div>
+      <div id="bench-qlist">${rows}</div>`;
+    return;
+  }
+}
+
+function benchQRowHTML(result, index) {
+  const modes = Object.keys(result.conditions || {});
+  const modeColors = {graph:'bf-graph',baseline:'bf-baseline',graph_only:'bf-graph_only'};
+  const cat   = result.category || 0;
+  const catCls= cat >= 1 && cat <= 5 ? `c${cat}` : '';
+  const bars  = modes.map(m => {
+    const score = result.conditions[m]?.score ?? 0;
+    const pct   = Math.round(score * 100);
+    return `<div class="bench-bar-wrap">
+      <div>${m.replace('_',' ').replace('graph','G').replace('baseline','B').replace('only','O')}</div>
+      <div class="bench-bar-bg"><div class="bench-bar-fill ${modeColors[m]||''}" style="width:${pct}%"></div></div>
+      <div style="font-size:9px;font-weight:600">${score.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+
+  const detail = modes.map(m => {
+    const c = result.conditions[m] || {};
+    return `<div style="margin-top:5px"><strong style="color:${m==='graph'?'var(--accent)':m==='baseline'?'var(--green)':'var(--purple)'}">${m}</strong> (score: ${(c.score??0).toFixed(2)})<br>
+      <em>${c.answer || ''}</em><br>
+      <span style="color:var(--text2);font-size:10px">${c.reasoning || ''}</span></div>`;
+  }).join('');
+
+  const qtxt  = (result.question || '').slice(0, 80) + ((result.question||'').length > 80 ? '…' : '');
+  return `<div class="bench-qrow" onclick="this.classList.toggle('open')">
+    <div class="bench-qhdr">
+      <span class="cat-badge ${catCls}">${CAT_LABELS[cat]||'Cat'+cat}</span>
+      <span class="bench-qtxt">${qtxt}</span>
+      <div class="bench-bars">${bars}</div>
+    </div>
+    <div class="bench-qdetail">
+      <div><strong>Q:</strong> ${result.question}</div>
+      <div><strong>Ref:</strong> ${result.reference}</div>
+      ${detail}
+    </div>
+  </div>`;
+}
+
+function locomoFileChange(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error('Expected a JSON array');
+      locomoState.rawData = data;
+      const sel = document.getElementById('bench-sel');
+      if (!sel) return;
+      sel.innerHTML = data.map((s,i) => `<option value="${i}">Sample ${i+1}${s.sample_id ? ' — '+s.sample_id : ''}</option>`).join('');
+      locomoState.selectedIndex = 0;
+      document.getElementById('bench-sel-row').style.display = '';
+      document.getElementById('bench-load-btn').disabled = false;
+    } catch(err) {
+      document.getElementById('bench-err').textContent = 'Parse error: ' + err.message;
+      document.getElementById('bench-err').style.display = '';
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function locomoLoad() {
+  const errEl = document.getElementById('bench-err');
+  if (!locomoState.rawData) return;
+  try {
+    const resp = await fetch('/api/locomo/load', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify({data: locomoState.rawData, sample_index: locomoState.selectedIndex}),
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e.error||`HTTP ${resp.status}`); }
+    const info = await resp.json();
+    locomoState.sampleInfo = info;
+    locomoState.phase      = 'loaded';
+    locomoState.results    = [];
+    locomoState.summary    = null;
+    renderBench();
+  } catch(e) {
+    if (errEl) { errEl.textContent = e.message; errEl.style.display = ''; }
+  }
+}
+
+async function locomoIngest() {
+  locomoState.phase          = 'ingesting';
+  locomoState.ahaCount       = 0;
+  locomoState.ingestProgress = {done: 0, total: 0};
+  renderBench();
+
+  try {
+    const resp = await fetch('/api/locomo/ingest', {method: 'POST'});
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e.error||`HTTP ${resp.status}`); }
+
+    const reader  = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let   buffer  = '';
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, {stream: true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (line.startsWith(': ')) continue;  // keepalive comment
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        if (!raw) continue;
+        try {
+          const ev = JSON.parse(raw);
+          if (ev.type === 'progress') {
+            locomoState.ingestProgress = {done: ev.done, total: ev.total};
+            // Update progress bar in place without full re-render
+            const pane = document.getElementById('pane-bench');
+            if (pane) {
+              const bar = pane.querySelector('.bench-prog-bar');
+              const pct = ev.total ? Math.round(ev.done / ev.total * 100) : 0;
+              if (bar) bar.style.width = pct + '%';
+              const inf = pane.querySelector('.bench-inf');
+              if (inf) inf.textContent = `Turn ${ev.done} of ${ev.total} (${pct}%)`;
+              const spkEl = document.getElementById('bench-speaker');
+              if (spkEl) spkEl.textContent = ev.speaker || '';
+            }
+          } else if (ev.type === 'aha') {
+            locomoState.ahaCount++;
+          } else if (ev.type === 'graph_state') {
+            applyGraphState(ev);
+            renderAll();
+          } else if (ev.type === 'done') {
+            locomoState.phase = 'ready';
+            renderBench();
+          }
+        } catch(e) { console.warn('SSE parse', e); }
+      }
+    }
+  } catch(e) {
+    locomoState.phase = 'loaded';
+    locomoState.error = e.message;
+    renderBench();
+  }
+}
+
+async function locomoRunEval() {
+  const budget = parseInt(document.getElementById('bench-budget')?.value || '400');
+  const modes  = ['graph','baseline','graph_only'].filter(m => {
+    const el = document.getElementById('m-' + m);
+    return el && el.checked;
+  });
+  if (!modes.length) { alert('Select at least one context mode.'); return; }
+
+  locomoState.phase        = 'evaluating';
+  locomoState.results      = [];
+  locomoState.summary      = null;
+  locomoState.evalProgress = {done: 0, total: 0};
+  renderBench();
+
+  try {
+    const resp = await fetch('/api/locomo/run-eval', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify({token_budget: budget, modes}),
+    });
+    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e.error||`HTTP ${resp.status}`); }
+
+    const reader  = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let   buffer  = '';
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, {stream: true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        if (!raw) continue;
+        try {
+          const ev = JSON.parse(raw);
+          if (ev.type === 'question_start') {
+            locomoState.evalProgress = {done: ev.index, total: ev.total};
+            const pane = document.getElementById('pane-bench');
+            if (pane) {
+              const bar = pane.querySelector('.bench-prog-bar');
+              const pct = ev.total ? Math.round(ev.index / ev.total * 100) : 0;
+              if (bar) bar.style.width = pct + '%';
+              const hdr = pane.querySelector('.ssec');
+              if (hdr) hdr.textContent = `Evaluating… ${ev.index}/${ev.total} (${pct}%)`;
+            }
+          } else if (ev.type === 'question_result') {
+            const result = {
+              question:   ev.question,
+              reference:  ev.reference,
+              category:   ev.category,
+              conditions: ev.conditions,
+            };
+            locomoState.results.push(result);
+            locomoState.evalProgress.done = ev.index + 1;
+            // Append row to list without full re-render
+            const list = document.getElementById('bench-qlist');
+            if (list) {
+              const div = document.createElement('div');
+              div.innerHTML = benchQRowHTML(result, ev.index);
+              list.appendChild(div.firstElementChild);
+            }
+            // Update header
+            const total = locomoState.evalProgress.total || 1;
+            const pct = Math.round((ev.index+1) / total * 100);
+            const pane = document.getElementById('pane-bench');
+            if (pane) {
+              const bar = pane.querySelector('.bench-prog-bar');
+              if (bar) bar.style.width = pct + '%';
+              const hdr = pane.querySelector('.ssec');
+              if (hdr) hdr.textContent = `Evaluating… ${ev.index+1}/${total} (${pct}%)`;
+            }
+          } else if (ev.type === 'eval_complete') {
+            locomoState.summary = ev.summary;
+            locomoState.phase   = 'done';
+            renderBench();
+          }
+        } catch(e) { console.warn('SSE parse', e); }
+      }
+    }
+  } catch(e) {
+    locomoState.phase = 'ready';
+    locomoState.error = e.message;
+    renderBench();
+  }
+}
+
+function locomoReset() {
+  locomoState.phase      = 'idle';
+  locomoState.sampleInfo = null;
+  locomoState.results    = [];
+  locomoState.summary    = null;
+  locomoState.rawData    = null;
+  locomoState.error      = '';
+  renderBench();
+}
+
+function locomoExportJSON() {
+  const payload = {
+    sampleInfo: locomoState.sampleInfo,
+    results:    locomoState.results,
+    summary:    locomoState.summary,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const ts   = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  a.href     = url;
+  a.download = `locomo_${locomoState.sampleInfo?.sample_id || 'eval'}_${ts}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ═══════════════════════════════════════════════════
