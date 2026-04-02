@@ -200,15 +200,13 @@ async def api_chat(req: ChatRequest):
         else:
             ctx = _assembler.assemble_baseline(token_budget)
 
-        ctx_words      = len(ctx.split()) if ctx else 0
-        baseline_ctx   = _assembler.assemble_baseline(token_budget)
-        baseline_words = len(baseline_ctx.split()) if baseline_ctx else 0
-        _cost_log.append({
-            "turn": len(_assembler.store.turns),
-            "g":    ctx_words,
-            "b":    baseline_words,
-            "mode": req.mode,
-        })
+        def _est_tokens(text: str) -> int:
+            """Rough token estimate: words × 1.33 (good enough for comparison)."""
+            return round(len(text.split()) * 1.33) if text else 0
+
+        baseline_ctx    = _assembler.assemble_baseline(token_budget)
+        graph_ctx_tok   = _est_tokens(ctx)
+        baseline_ctx_tok = _est_tokens(baseline_ctx)
 
         # --- Build system message ---
         if req.mode == "graph":
@@ -233,6 +231,16 @@ async def api_chat(req: ChatRequest):
             for text in stream.text_stream:
                 full_reply += text
                 yield f"data: {json.dumps({'type':'token','text':text})}\n\n"
+            usage = stream.get_final_message().usage
+
+        _cost_log.append({
+            "turn":    len(_assembler.store.turns),
+            "mode":    req.mode,
+            "g":       graph_ctx_tok,       # estimated context tokens (graph)
+            "b":       baseline_ctx_tok,    # estimated context tokens (baseline)
+            "inp":     usage.input_tokens,  # actual billed input tokens
+            "out":     usage.output_tokens, # actual billed output tokens
+        })
 
         # --- Ingest assistant reply ---
         _assembler.ingest("assistant", full_reply)
