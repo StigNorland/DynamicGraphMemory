@@ -96,6 +96,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .nbdg{font-size:9px;padding:1px 5px;border-radius:8px;flex-shrink:0}
 .nbdg.s{background:#d4edda;color:#155724}
 .nbdg.p{background:#e8d5fb;color:var(--purple)}
+.nbdg.et{font-size:9px;padding:1px 5px;border-radius:8px;font-weight:600;letter-spacing:0.3px}
 .sec{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;padding:6px 0 3px}
 
 /* Merges */
@@ -267,6 +268,36 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 marked.setOptions({ breaks: true, gfm: true });
 
 // ═══════════════════════════════════════════════════
+// ENTITY TYPE DISPLAY TABLES
+// ═══════════════════════════════════════════════════
+const ET_SHORT = {
+  PERSON:'PER', ORG:'ORG', GPE:'GEO', LOC:'LOC',
+  PRODUCT:'PRD', WORK_OF_ART:'ART', NORP:'GRP', FAC:'FAC', EVENT:'EVT',
+};
+const ET_STYLE = {
+  PERSON:      'background:#d4edda;color:#155724',   // green
+  ORG:         'background:#fde8c8;color:#7a4000',   // orange
+  GPE:         'background:#d1e8ff;color:#0a3d6b',   // blue
+  LOC:         'background:#d1e8ff;color:#0a3d6b',   // blue
+  PRODUCT:     'background:#fce4ec;color:#880e4f',   // pink
+  WORK_OF_ART: 'background:#ede7f6;color:#4527a0',   // purple
+  NORP:        'background:#fff9c4;color:#6d4c00',   // yellow
+  FAC:         'background:#e0f2f1;color:#004d40',   // teal
+  EVENT:       'background:#fbe9e7;color:#bf360c',   // red-orange
+};
+const ET_COLOR_D3 = {
+  PERSON:'#a5d6a7', ORG:'#ffcc80', GPE:'#90caf9', LOC:'#90caf9',
+  PRODUCT:'#f48fb1', WORK_OF_ART:'#ce93d8', NORP:'#fff176',
+  FAC:'#80cbc4', EVENT:'#ffab91',
+};
+function etBadge(et) {
+  if (!et) return '';
+  const s = ET_STYLE[et] || 'background:#eee;color:#333';
+  const t = ET_SHORT[et]  || et.slice(0,3);
+  return `<span class="nbdg et" style="${s}" title="${et}">${t}</span>`;
+}
+
+// ═══════════════════════════════════════════════════
 // LOCAL GRAPH STATE  (populated from server SSE events)
 // ═══════════════════════════════════════════════════
 let graphState = {
@@ -347,7 +378,7 @@ function refreshViz(){
 
   const posMap = {};
   vnodes.forEach(n=>{ posMap[n.id] = {x:n.x, y:n.y, vx:n.vx||0, vy:n.vy||0}; });
-  vnodes = allN.map(n=>({id:n.id, label:n.label, prov:n.prov, maturity:n.maturity, ...(posMap[n.id]||{})}));
+  vnodes = allN.map(n=>({id:n.id, label:n.label, prov:n.prov, maturity:n.maturity, entity_type:n.entity_type||null, ...(posMap[n.id]||{})}));
   vlinks = allL.map(e=>({source:e.src, target:e.tgt, w:e.w, type:e.type}));
   const mx = Math.max(...vnodes.map(n=>n.maturity), 1);
 
@@ -369,21 +400,47 @@ function refreshViz(){
       const tt   = document.getElementById('vtt');
       const nb   = (adjMap[d.id]||[]).map(nid=>nodeMap[nid]?.label).filter(Boolean).slice(0,4);
       const rect = document.getElementById('pane-viz').getBoundingClientRect();
-      tt.innerHTML = `<strong>${d.label}</strong><br>maturity: ${d.maturity.toFixed(2)}<br>${d.prov?'⬡ provisional':'● stable'}<br>links: ${nb.join(', ')||'—'}`;
+      const etLine = d.entity_type ? `<br><span style="font-weight:600">${ET_SHORT[d.entity_type]||d.entity_type}</span> entity` : '';
+      tt.innerHTML = `<strong>${d.label}</strong>${etLine}<br>maturity: ${d.maturity.toFixed(2)}<br>${d.prov?'⬡ provisional':'● stable'}<br>links: ${nb.join(', ')||'—'}`;
       tt.style.display = 'block';
       tt.style.left    = (e.clientX-rect.left+10)+'px';
       tt.style.top     = (e.clientY-rect.top-10)+'px';
     })
     .on('mouseout', ()=>{ document.getElementById('vtt').style.display='none'; });
-  ne.append('circle').attr('class',d=>`nc ${d.prov?'p':'s'}`);
+  // Entities get a diamond (rect rotated 45°); concepts get a circle
+  ne.each(function(d) {
+    const g = d3.select(this);
+    if (d.entity_type) {
+      g.append('rect').attr('class','nc-ent');
+    } else {
+      g.append('circle').attr('class',d=>`nc ${d.prov?'p':'s'}`);
+    }
+  });
   ne.append('text').attr('class','nl').attr('dy','3.5px');
 
   const na = nsel.merge(ne);
-  na.select('circle')
-    .attr('class',d=>`nc ${d.prov?'p':'s'}`)
-    .attr('r',d=>5+(d.maturity/mx)*9)
-    .attr('fill',d=>d.prov?'#e8d5fb':'#e8f0fb')
-    .attr('stroke',d=>d.prov?'#9b59b6':'#4a7cf0');
+  na.each(function(d) {
+    const g   = d3.select(this);
+    const r   = 5 + (d.maturity/mx)*9;
+    const ent = g.select('rect.nc-ent');
+    const cir = g.select('circle');
+    if (!ent.empty()) {
+      const s = r * 1.3;
+      ent.attr('width', s).attr('height', s)
+         .attr('x', -s/2).attr('y', -s/2)
+         .attr('transform', 'rotate(45)')
+         .attr('fill',   ET_COLOR_D3[d.entity_type] || '#ddd')
+         .attr('stroke', d.prov ? '#aaa' : '#555')
+         .attr('stroke-width', 1.5)
+         .attr('stroke-dasharray', d.prov ? '3 2' : null);
+    }
+    if (!cir.empty()) {
+      cir.attr('class',`nc ${d.prov?'p':'s'}`)
+         .attr('r', r)
+         .attr('fill',   d.prov?'#e8d5fb':'#e8f0fb')
+         .attr('stroke', d.prov?'#9b59b6':'#4a7cf0');
+    }
+  });
   na.select('text')
     .text(d=>d.label.length>11?d.label.slice(0,10)+'…':d.label)
     .attr('dy',d=>-(6+(d.maturity/mx)*9)-2);
@@ -400,34 +457,42 @@ function refreshViz(){
 let currentTab = 'nodes', turnCount = 0;
 
 function renderNodes(){
-  const ns = [...graphState.nodes].sort((a,b)=>b.maturity-a.maturity);
-  const mx = Math.max(...ns.map(n=>n.maturity), 1);
-  const stable = ns.filter(n=>!n.prov), prov = ns.filter(n=>n.prov);
+  const ns      = [...graphState.nodes].sort((a,b)=>b.maturity-a.maturity);
+  const mx      = Math.max(...ns.map(n=>n.maturity), 1);
+  const entities = ns.filter(n=>n.entity_type);
+  const concepts = ns.filter(n=>!n.entity_type);
+  const stable   = concepts.filter(n=>!n.prov);
+  const prov     = concepts.filter(n=>n.prov);
+
+  function nodeRow(n, barColor, lblStyle='') {
+    const pct = Math.min(100,(n.maturity/mx)*100);
+    const deg = (adjMap[n.id]||[]).length;
+    const stBadge = n.prov
+      ? `<span class="nbdg p">prov</span>`
+      : `<span class="nbdg s">d${deg}</span>`;
+    return `<div class="nrow">
+      <div class="nbg"><div class="nbar" style="width:${pct}%;background:${barColor}"></div></div>
+      <span class="nlbl"${lblStyle} title="${n.label}">${n.label}</span>
+      ${etBadge(n.entity_type)}${stBadge}
+      <span class="nmat">${n.maturity.toFixed(1)}</span>
+    </div>`;
+  }
+
   let h = '';
-  if (stable.length) {
-    h += `<div class="sec">Stable (${stable.length})</div>`;
-    for (const n of stable) {
-      const pct = Math.min(100,(n.maturity/mx)*100);
-      const deg = (adjMap[n.id]||[]).length;
-      h += `<div class="nrow">
-        <div class="nbg"><div class="nbar" style="width:${pct}%;background:#4a7cf0"></div></div>
-        <span class="nlbl" title="${n.label}">${n.label}</span>
-        <span class="nbdg s">d${deg}</span>
-        <span class="nmat">${n.maturity.toFixed(1)}</span>
-      </div>`;
+  if (entities.length) {
+    h += `<div class="sec">Entities (${entities.length})</div>`;
+    for (const n of entities) {
+      const col = ET_COLOR_D3[n.entity_type] || '#aaa';
+      h += nodeRow(n, col, n.prov ? ' style="color:var(--text2)"' : '');
     }
   }
+  if (stable.length) {
+    h += `<div class="sec"${entities.length?' style="margin-top:8px"':''}>Stable concepts (${stable.length})</div>`;
+    for (const n of stable) h += nodeRow(n, '#4a7cf0');
+  }
   if (prov.length) {
-    h += `<div class="sec" style="margin-top:8px">Provisional (${prov.length})</div>`;
-    for (const n of prov.slice(0,25)) {
-      const pct = Math.min(100,(n.maturity/mx)*100);
-      h += `<div class="nrow">
-        <div class="nbg"><div class="nbar" style="width:${pct}%;background:#9b59b6"></div></div>
-        <span class="nlbl" style="color:var(--text2)" title="${n.label}">${n.label}</span>
-        <span class="nbdg p">prov</span>
-        <span class="nmat">${n.maturity.toFixed(1)}</span>
-      </div>`;
-    }
+    h += `<div class="sec" style="margin-top:8px">Provisional concepts (${prov.length})</div>`;
+    for (const n of prov.slice(0,25)) h += nodeRow(n, '#9b59b6', ' style="color:var(--text2)"');
     if (prov.length>25) h += `<div style="font-size:11px;color:var(--text2);padding:4px 0">…and ${prov.length-25} more</div>`;
   }
   if (!ns.length) h = '<p style="color:var(--text2);font-size:12px;padding:8px 0">No concepts yet — start chatting!</p>';

@@ -97,7 +97,13 @@ def build_graph_state() -> dict:
     g = _assembler.graph
 
     nodes = [
-        {"id": n.id, "label": n.label, "prov": n.provisional, "maturity": n.maturity}
+        {
+            "id":          n.id,
+            "label":       n.label,
+            "prov":        n.provisional,
+            "maturity":    n.maturity,
+            "entity_type": n.meta.get("entity_type"),   # None for concepts
+        }
         for n in g.nodes.values()
     ]
     edges = [
