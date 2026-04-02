@@ -140,6 +140,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 #viz-svg{width:100%;height:100%;display:block}
 .lnk{stroke:var(--border);stroke-width:1}
 .lnk.hi{stroke:var(--accent);opacity:0.5}
+.lnk.cross{stroke:#f0b429;stroke-dasharray:4 3;opacity:0.5}
 .nc{stroke-width:1.5;cursor:pointer}
 .nc.s{stroke:var(--accent)}
 .nc.p{stroke:var(--purple);stroke-dasharray:3 2}
@@ -352,6 +353,7 @@ function initViz(){
     .force('charge', d3.forceManyBody().strength(-80))
     .force('center', d3.forceCenter(cx,cy))
     .force('collide', d3.forceCollide(18))
+    .force('level', d3.forceY(d => cy + (d.level - 1) * 70).strength(0.15))
     .alphaDecay(0.03)
     .on('tick', ()=>{
       d3.select('#viz-svg .links-g').selectAll('line')
@@ -378,13 +380,13 @@ function refreshViz(){
 
   const posMap = {};
   vnodes.forEach(n=>{ posMap[n.id] = {x:n.x, y:n.y, vx:n.vx||0, vy:n.vy||0}; });
-  vnodes = allN.map(n=>({id:n.id, label:n.label, prov:n.prov, maturity:n.maturity, entity_type:n.entity_type||null, ...(posMap[n.id]||{})}));
+  vnodes = allN.map(n=>({id:n.id, label:n.label, prov:n.prov, maturity:n.maturity, entity_type:n.entity_type||null, level:n.level??1, ...(posMap[n.id]||{})}));
   vlinks = allL.map(e=>({source:e.src, target:e.tgt, w:e.w, type:e.type}));
   const mx = Math.max(...vnodes.map(n=>n.maturity), 1);
 
   const lsel = svg.select('.links-g').selectAll('line').data(vlinks, d=>`${d.source}|${d.target}`);
   lsel.enter().append('line')
-    .attr('class',d=>d.w>0.6?'lnk hi':'lnk')
+    .attr('class',d=>d.type==='instantiates'?'lnk cross':d.w>0.6?'lnk hi':'lnk')
     .attr('stroke-opacity',d=>0.2+d.w*0.5)
     .attr('stroke-width',d=>d.w*2);
   lsel.exit().remove();
@@ -467,35 +469,41 @@ function renderNodes(){
   function nodeRow(n, barColor, lblStyle='') {
     const pct = Math.min(100,(n.maturity/mx)*100);
     const deg = (adjMap[n.id]||[]).length;
-    const stBadge = n.prov
-      ? `<span class="nbdg p">prov</span>`
-      : `<span class="nbdg s">d${deg}</span>`;
+    const lvl = n.level != null ? n.level : 1;
+    const lvlBadge = `<span class="nbdg" style="background:${lvl===0?'#e8f5e9':lvl===1?'#e8f0fb':'#ede7f6'};color:${lvl===0?'#2e7d32':lvl===1?'#1a237e':'#4a148c'};font-size:8px">L${lvl}</span>`;
+    const stBadge  = lvl === 0
+      ? `<span class="nbdg s">d${deg}</span>`
+      : (n.prov ? `<span class="nbdg p">prov</span>` : `<span class="nbdg s">d${deg}</span>`);
+    const factTip  = (n.facts && n.facts.length)
+      ? ` title="${n.label}: ${n.facts.slice(-1)[0].replace(/"/g,'&quot;')}"`
+      : ` title="${n.label}"`;
     return `<div class="nrow">
       <div class="nbg"><div class="nbar" style="width:${pct}%;background:${barColor}"></div></div>
-      <span class="nlbl"${lblStyle} title="${n.label}">${n.label}</span>
-      ${etBadge(n.entity_type)}${stBadge}
+      <span class="nlbl"${lblStyle}${factTip}>${n.label}</span>
+      ${lvlBadge}${etBadge(n.entity_type)}${stBadge}
       <span class="nmat">${n.maturity.toFixed(1)}</span>
     </div>`;
   }
 
   let h = '';
   if (entities.length) {
-    h += `<div class="sec">Entities (${entities.length})</div>`;
-    for (const n of entities) {
+    h += `<div class="sec">Ground entities — L0 (${entities.length})</div>`;
+    for (const n of entities.slice(0, 40)) {
       const col = ET_COLOR_D3[n.entity_type] || '#aaa';
-      h += nodeRow(n, col, n.prov ? ' style="color:var(--text2)"' : '');
+      h += nodeRow(n, col);
     }
+    if (entities.length > 40) h += `<div style="font-size:11px;color:var(--text2);padding:4px 0">…and ${entities.length-40} more</div>`;
   }
   if (stable.length) {
-    h += `<div class="sec"${entities.length?' style="margin-top:8px"':''}>Stable concepts (${stable.length})</div>`;
+    h += `<div class="sec"${entities.length?' style="margin-top:8px"':''}>Stable concepts — L1 (${stable.length})</div>`;
     for (const n of stable) h += nodeRow(n, '#4a7cf0');
   }
   if (prov.length) {
-    h += `<div class="sec" style="margin-top:8px">Provisional concepts (${prov.length})</div>`;
+    h += `<div class="sec" style="margin-top:8px">Provisional concepts — L1 (${prov.length})</div>`;
     for (const n of prov.slice(0,25)) h += nodeRow(n, '#9b59b6', ' style="color:var(--text2)"');
     if (prov.length>25) h += `<div style="font-size:11px;color:var(--text2);padding:4px 0">…and ${prov.length-25} more</div>`;
   }
-  if (!ns.length) h = '<p style="color:var(--text2);font-size:12px;padding:8px 0">No concepts yet — start chatting!</p>';
+  if (!ns.length) h = '<p style="color:var(--text2);font-size:12px;padding:8px 0">No nodes yet — start chatting!</p>';
   document.getElementById('pane-nodes').innerHTML = h;
 }
 
@@ -546,6 +554,7 @@ function renderStats(){
     <div class="ssec">Graph memory</div>
     <div class="srow"><span>Nodes</span><span class="sv">${total}</span></div>
     <div class="srow"><span>Stable / provisional</span><span class="sv">${stable} / ${total-stable}</span></div>
+    <div class="srow"><span>L0 entities / L1 concepts</span><span class="sv">${(s.nodes_by_level&&s.nodes_by_level[0])||0} / ${(s.nodes_by_level&&s.nodes_by_level[1])||0}</span></div>
     <div class="srow"><span>Edges</span><span class="sv">${edges}</span></div>
     <div class="srow"><span>Merges (aha!)</span><span class="sv" style="color:var(--amber)">${merges}</span></div>
     <div class="srow"><span>Mean maturity</span><span class="sv">${meanMat}</span></div>
