@@ -28,6 +28,52 @@ except ImportError:
     _EXTRACTOR_AVAILABLE = False
 
 # ---------------------------------------------------------------------------
+# spaCy NER — lazy-loaded for entity extraction
+# ---------------------------------------------------------------------------
+_NLP = None
+
+def _get_nlp():
+    """Lazy-load spaCy model; returns None if unavailable."""
+    global _NLP
+    if _NLP is not None:
+        return _NLP
+    try:
+        import spacy
+        _NLP = spacy.load("en_core_web_sm")
+    except Exception:
+        _NLP = False   # mark as unavailable so we don't retry every call
+    return _NLP if _NLP else None
+
+# Entity labels worth keeping as graph nodes (skip pure numerics / temporals)
+_ENTITY_KEEP = {
+    "PERSON", "ORG", "GPE", "LOC",
+    "PRODUCT", "WORK_OF_ART", "NORP", "FAC", "EVENT",
+}
+
+def _extract_entities_spacy(text: str) -> list[tuple[str, str]]:
+    """Return [(snake_case_label, ENTITY_TYPE), ...] for named entities in text."""
+    nlp = _get_nlp()
+    if nlp is None:
+        return []
+    try:
+        doc = nlp(text[:2000])
+        seen, results = set(), []
+        for ent in doc.ents:
+            if ent.label_ not in _ENTITY_KEEP:
+                continue
+            label = re.sub(r"[^a-z0-9_]", "_",
+                           ent.text.lower().strip().replace(" ", "_"))
+            label = re.sub(r"_+", "_", label).strip("_")
+            if not label or len(label) < 2 or label in seen:
+                continue
+            seen.add(label)
+            results.append((label, ent.label_))
+        return results
+    except Exception as e:
+        print(f"    [entity_ner] error: {e}", flush=True)
+        return []
+
+# ---------------------------------------------------------------------------
 # LLM concept extraction — loaded once at module level
 # ---------------------------------------------------------------------------
 import json as _json
@@ -352,6 +398,22 @@ class ContextAssembler:
             written_ids.append(node_id)
             novelties.append(is_new)
             prev_id = node_id
+
+        # --- Entity extraction (spaCy NER) ---
+        # Runs alongside concept extraction; entities become first-class nodes
+        # tagged with their NER type in meta["entity_type"].
+        for ent_label, ent_type in _extract_entities_spacy(text):
+            node_id, is_new = self.graph.write(
+                label      = ent_label,
+                node_type  = NodeType.CONCEPT,
+                related_to = [],
+                edge_type  = EdgeType.SEMANTIC,
+            )
+            if node_id in self.graph.nodes:
+                node = self.graph.nodes[node_id]
+                node.meta.setdefault("entity_type", ent_type)
+            written_ids.append(node_id)
+            novelties.append(is_new)
 
         self.store.turns[pos].nodes = written_ids
         self.graph.advance()
