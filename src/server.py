@@ -13,6 +13,7 @@ import json
 import os
 import sys
 import time
+from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, StreamingResponse, JSONResponse
@@ -80,7 +81,8 @@ class LoCoMoRunRequest(BaseModel):
 
 
 class IngestRequest(BaseModel):
-    turns: list[dict]  # [{"speaker": "user"|"assistant", "text": "..."}]
+    turns: list[dict]           # [{"speaker": "user"|"assistant", "text": "..."}]
+    session_start: str = ""     # ISO-8601 datetime string (e.g. "2025-01-15T10:00")
 
 
 # ---------------------------------------------------------------------------
@@ -174,12 +176,36 @@ async def api_ingest(req: IngestRequest):
     async def generate():
         total = len(req.turns)
         ingested = 0
+
+        # Parse session_start; fall back to "now" if absent/invalid
+        session_ts: datetime | None = None
+        if req.session_start:
+            try:
+                session_ts = datetime.fromisoformat(req.session_start)
+                if session_ts.tzinfo is None:
+                    session_ts = session_ts.replace(tzinfo=timezone.utc)
+            except ValueError:
+                session_ts = None
+
         for i, turn in enumerate(req.turns):
             speaker = str(turn.get("speaker", "user")).lower()
             text    = str(turn.get("text", "")).strip()
             if not text:
                 continue
-            _assembler.ingest(speaker, text)
+
+            # Per-turn timestamp: explicit field > session_start + 1 min/turn > None
+            ts: datetime | None = None
+            if "timestamp" in turn:
+                try:
+                    ts = datetime.fromisoformat(str(turn["timestamp"]))
+                    if ts.tzinfo is None:
+                        ts = ts.replace(tzinfo=timezone.utc)
+                except ValueError:
+                    ts = None
+            if ts is None and session_ts is not None:
+                ts = session_ts + timedelta(minutes=i)
+
+            _assembler.ingest(speaker, text, timestamp=ts)
             ingested += 1
             preview = text[:60] + ("…" if len(text) > 60 else "")
             yield f"data: {json.dumps({'type':'progress','done':i+1,'total':total,'speaker':speaker,'preview':preview})}\n\n"

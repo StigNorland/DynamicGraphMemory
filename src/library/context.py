@@ -14,6 +14,7 @@ Authors: Stig Norland, Claude (Anthropic)
 
 import re
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 from .graph import ConceptGraph, NodeType, NodeLevel, EdgeType
@@ -192,10 +193,11 @@ except ImportError:
 @dataclass
 class Turn:
     """A single conversation turn with its graph pointers."""
-    pos:     int        # position in conversation
-    speaker: str        # "user" or "assistant"
-    text:    str        # raw text — the full fidelity record
-    nodes:   list[str]  # graph node ids created/activated by this turn
+    pos:       int                    # position in conversation
+    speaker:   str                    # "user" or "assistant"
+    text:      str                    # raw text — the full fidelity record
+    nodes:     list[str]              # graph node ids created/activated by this turn
+    timestamp: Optional[datetime] = None  # wall-clock time of the turn (if known)
 
 
 class BackingStore:
@@ -210,13 +212,15 @@ class BackingStore:
         self.turns: list[Turn] = []
 
     def append(self, speaker: str, text: str,
-               nodes: list[str] = None) -> int:
+               nodes: list[str] = None,
+               timestamp: Optional[datetime] = None) -> int:
         pos = len(self.turns)
         self.turns.append(Turn(
-            pos     = pos,
-            speaker = speaker,
-            text    = text,
-            nodes   = nodes or [],
+            pos       = pos,
+            speaker   = speaker,
+            text      = text,
+            nodes     = nodes or [],
+            timestamp = timestamp,
         ))
         return pos
 
@@ -383,8 +387,9 @@ class ContextAssembler:
     # Ingestion
     # -------------------------------------------------------------------
 
-    def ingest(self, speaker: str, text: str) -> dict:
-        pos = self.store.append(speaker, text)
+    def ingest(self, speaker: str, text: str,
+               timestamp: Optional[datetime] = None) -> dict:
+        pos = self.store.append(speaker, text, timestamp=timestamp)
         self.graph.conv_pos = pos
 
         # Update bioelectric field with this turn (before graph write)
