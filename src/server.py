@@ -27,6 +27,16 @@ from library.graph import ConceptGraph
 
 app = FastAPI()
 
+
+@app.on_event("startup")
+async def on_startup():
+    import datetime
+    ts = datetime.datetime.now().strftime("%H:%M:%S")
+    print(f"\n{'='*50}", flush=True)
+    print(f"  🔄  RGM server (re)started at {ts}", flush=True)
+    print(f"{'='*50}\n", flush=True)
+
+
 # ---------------------------------------------------------------------------
 # Server-level state (single-user, local use)
 # ---------------------------------------------------------------------------
@@ -45,6 +55,10 @@ class InitRequest(BaseModel):
 class ChatRequest(BaseModel):
     message: str
     mode: str = "baseline"  # "graph" | "baseline"
+
+
+class IngestRequest(BaseModel):
+    turns: list[dict]  # [{"speaker": "user"|"assistant", "text": "..."}]
 
 
 # ---------------------------------------------------------------------------
@@ -119,6 +133,34 @@ async def api_reset():
     )
     _cost_log = []
     return {"ok": True}
+
+
+@app.post("/api/ingest")
+async def api_ingest(req: IngestRequest):
+    """Replay a list of turns into the graph without calling Claude."""
+    if _assembler is None or _client is None:
+        return JSONResponse({"error": "not initialized"}, status_code=400)
+
+    async def generate():
+        total = len(req.turns)
+        ingested = 0
+        for i, turn in enumerate(req.turns):
+            speaker = str(turn.get("speaker", "user")).lower()
+            text    = str(turn.get("text", "")).strip()
+            if not text:
+                continue
+            _assembler.ingest(speaker, text)
+            ingested += 1
+            preview = text[:60] + ("…" if len(text) > 60 else "")
+            yield f"data: {json.dumps({'type':'progress','done':i+1,'total':total,'speaker':speaker,'preview':preview})}\n\n"
+
+        state = build_graph_state()
+        state["type"]     = "graph_state"
+        state["cost_log"] = _cost_log
+        yield f"data: {json.dumps(state)}\n\n"
+        yield f"data: {json.dumps({'type':'done','ingested':ingested})}\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
 
 
 @app.get("/api/graph-state")

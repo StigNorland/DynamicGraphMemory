@@ -112,6 +112,29 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .cbw{height:7px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:2px}
 .cb{height:7px;border-radius:3px;transition:width 0.4s}
 
+/* Import modal */
+#import-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+#import-overlay.on{display:flex}
+#import-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:540px;max-height:82vh;display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+#import-box h3{font-size:14px;font-weight:600}
+#import-box p{font-size:12px;color:var(--text2);line-height:1.6}
+#import-fmt{font-size:11px;background:var(--bg3);padding:7px 10px;border-radius:6px;font-family:monospace;white-space:pre;overflow-x:auto}
+#import-ta{min-height:160px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:monospace;resize:vertical;outline:none;width:100%}
+#import-ta:focus{border-color:var(--accent)}
+#import-file-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)}
+#import-bar-wrap{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;display:none}
+#import-bar{height:5px;background:var(--accent);border-radius:3px;transition:width 0.2s;width:0%}
+#import-prog{font-size:11px;color:var(--text2);min-height:16px;font-family:monospace}
+#import-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:2px}
+#import-btns button{padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;border:1px solid var(--border);font-weight:500}
+#import-go{background:var(--accent);color:#fff;border-color:var(--accent)}
+#import-go:hover{background:#3a6ce0}
+#import-go:disabled{background:var(--border);color:var(--text2);cursor:default;border-color:var(--border)}
+#import-cancel{background:var(--bg2);color:var(--text)}
+#import-cancel:hover{background:var(--bg3)}
+#import-hdr-btn{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--bg3);color:var(--text2);cursor:pointer;border:1px solid var(--border);font-weight:500}
+#import-hdr-btn:hover{background:var(--bg);border-color:var(--text2)}
+
 /* Viz */
 #viz-svg{width:100%;height:100%;display:block}
 .lnk{stroke:var(--border);stroke-width:1}
@@ -137,6 +160,29 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
   </div>
 </div>
 
+<!-- Import modal -->
+<div id="import-overlay" onclick="if(event.target===this)closeImport()">
+  <div id="import-box">
+    <h3>Import Conversation into Graph Memory</h3>
+    <p>Paste a JSON array of turns below, or load a <code>.json</code> file. Each turn needs a <code>speaker</code> ("user" or "assistant") and a <code>text</code> field. The turns are ingested into the graph <em>without</em> calling Claude — no tokens billed for the conversation itself.</p>
+    <div id="import-fmt">[
+  {"speaker": "user",      "text": "How does memory work?"},
+  {"speaker": "assistant", "text": "Memory involves encoding..."}
+]</div>
+    <textarea id="import-ta" placeholder='Paste JSON here…'></textarea>
+    <div id="import-file-row">
+      <label>or load file:</label>
+      <input type="file" id="import-file" accept=".json" onchange="loadImportFile(event)" />
+    </div>
+    <div id="import-bar-wrap"><div id="import-bar"></div></div>
+    <div id="import-prog"></div>
+    <div id="import-btns">
+      <button id="import-cancel" onclick="closeImport()">Cancel</button>
+      <button id="import-go" onclick="runImport()">Import →</button>
+    </div>
+  </div>
+</div>
+
 <!-- Main -->
 <div id="main">
   <div id="layout">
@@ -144,6 +190,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       <div id="chat-hdr">
         <h2>RGM Live Chat</h2>
         <span id="ctxbadge" onclick="toggleCtx()" title="Click to toggle context mode">baseline ctx</span>
+        <button id="import-hdr-btn" onclick="openImport()" title="Import a past conversation into graph memory">Import conv.</button>
       </div>
       <div id="msgs"></div>
       <div id="typing">Claude is thinking…</div>
@@ -554,6 +601,101 @@ async function startApp(){
     serr.textContent   = 'Failed to connect to server: ' + e.message;
     serr.style.display = 'block';
   }
+}
+
+// ═══════════════════════════════════════════════════
+// IMPORT CONVERSATION
+// ═══════════════════════════════════════════════════
+function openImport(){
+  document.getElementById('import-overlay').classList.add('on');
+  document.getElementById('import-prog').textContent = '';
+  document.getElementById('import-bar').style.width  = '0%';
+  document.getElementById('import-bar-wrap').style.display = 'none';
+  document.getElementById('import-go').disabled = false;
+}
+
+function closeImport(){
+  document.getElementById('import-overlay').classList.remove('on');
+}
+
+function loadImportFile(e){
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => { document.getElementById('import-ta').value = ev.target.result; };
+  reader.readAsText(f);
+}
+
+async function runImport(){
+  const raw = document.getElementById('import-ta').value.trim();
+  if (!raw) return;
+
+  let turns;
+  try {
+    turns = JSON.parse(raw);
+    if (!Array.isArray(turns)) throw new Error('Expected a JSON array of turns');
+    if (!turns.length)         throw new Error('Array is empty');
+  } catch(e) {
+    document.getElementById('import-prog').textContent = '✗ ' + e.message;
+    return;
+  }
+
+  const goBtn   = document.getElementById('import-go');
+  const prog    = document.getElementById('import-prog');
+  const bar     = document.getElementById('import-bar');
+  const barWrap = document.getElementById('import-bar-wrap');
+
+  goBtn.disabled        = true;
+  barWrap.style.display = 'block';
+  prog.textContent      = 'Starting…';
+
+  try {
+    const resp = await fetch('/api/ingest', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify({turns}),
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(()=>({}));
+      throw new Error(err.error || `HTTP ${resp.status}`);
+    }
+
+    const reader  = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let   buffer  = '';
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, {stream: true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        if (!raw) continue;
+        try {
+          const ev = JSON.parse(raw);
+          if (ev.type === 'progress') {
+            const pct = Math.round(ev.done / ev.total * 100);
+            bar.style.width  = pct + '%';
+            prog.textContent = `${ev.done}/${ev.total}  ${ev.speaker}: ${ev.preview}`;
+          } else if (ev.type === 'graph_state') {
+            applyGraphState(ev);
+            renderAll();
+          } else if (ev.type === 'done') {
+            prog.textContent = `✓ ${ev.ingested} turns ingested into graph memory`;
+            addMsg('system', `Imported ${ev.ingested} turns — graph primed. Start chatting!`);
+          }
+        } catch(e) { console.warn('import parse error', e); }
+      }
+    }
+  } catch(e) {
+    prog.textContent = '✗ ' + e.message;
+  }
+
+  goBtn.disabled = false;
 }
 
 // ═══════════════════════════════════════════════════

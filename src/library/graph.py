@@ -94,7 +94,9 @@ class ConceptGraph:
     # Retrieval: label similarity required to treat an incoming concept as
     # the same node rather than a new one.  Pure surface-form comparison —
     # maturity is irrelevant here.  A match is a match.
-    RETRIEVAL_THRESHOLD   = 0.85
+    # 0.65 catches near-variants like feature_detection/feature_extraction
+    # while still keeping genuinely different concepts separate.
+    RETRIEVAL_THRESHOLD   = 0.65
 
     # Merge: base Jaccard threshold on relational *signature* similarity.
     # Only stable (mature) nodes are merge candidates — maturity gates
