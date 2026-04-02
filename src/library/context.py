@@ -79,9 +79,10 @@ def _extract_concepts_llm(text: str, speaker: str, client,
 
     try:
         response = client.messages.create(
-            model      = model,
-            max_tokens = 256,
-            messages   = [{
+            model       = model,
+            max_tokens  = 256,
+            temperature = 0,   # deterministic — same text always → same labels
+            messages    = [{
                 "role":    "user",
                 "content": _CONCEPT_PROMPT.format(
                     speaker = speaker,
@@ -96,7 +97,7 @@ def _extract_concepts_llm(text: str, speaker: str, client,
         concepts = _json.loads(raw)
         if not isinstance(concepts, list):
             return []
-        result = [str(c).lower().strip() for c in concepts[:12] if c]
+        result = [str(c).lower().strip() for c in concepts[:6] if c]
         cache_file.write_text(_json.dumps(result))
         return result
     except Exception as e:
@@ -355,6 +356,18 @@ class ContextAssembler:
         self.store.turns[pos].nodes = written_ids
         self.graph.advance()
 
+        # Global stabilisation pass — maturity can grow via neighbourhood
+        # effects after write time, leaving nodes provisional even when they
+        # have crossed the threshold.  Mirror the JS SPA behaviour: re-check
+        # every provisional node and stabilise any that are now ready.
+        for nid in list(self.graph.nodes.keys()):
+            node = self.graph.nodes.get(nid)
+            if node and node.provisional:
+                self.graph._update_maturity(nid)
+                node = self.graph.nodes.get(nid)  # re-fetch (merge may remove it)
+                if node and node.maturity >= self.graph.maturity_threshold:
+                    self.graph._stabilize(nid)
+
         status = self.graph.end_pass()
         status["concepts_extracted"] = len(concepts)
         status["nodes_created"]      = sum(novelties)
@@ -399,10 +412,9 @@ class ContextAssembler:
             print(f"    [extract] → spaCy {len(result)} concepts", flush=True)
             return result
 
-        # 4. Stopword fallback
-        result = self._extract_stopword_fallback(text)
-        print(f"    [extract] → stopword {len(result)} concepts", flush=True)
-        return result
+        # 4. Stopword fallback — produces low-quality generic labels, skip when
+        #    LLM returned [] (meaning no domain concepts in this turn).
+        return []
 
     def _extract_via_llm(self, text: str) -> list[str]:
         """Use LLM extractor (falls back to spaCy internally on failure)."""
