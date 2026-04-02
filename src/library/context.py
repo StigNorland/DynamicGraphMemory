@@ -16,7 +16,7 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
-from .graph import ConceptGraph, NodeType, EdgeType
+from .graph import ConceptGraph, NodeType, NodeLevel, EdgeType
 
 # ---------------------------------------------------------------------------
 # Typed-triple extractor (spaCy — with stopword fallback)
@@ -72,6 +72,14 @@ def _extract_entities_spacy(text: str) -> list[tuple[str, str]]:
     except Exception as e:
         print(f"    [entity_ner] error: {e}", flush=True)
         return []
+
+def _extract_entity_fact(text: str, entity_label: str) -> Optional[str]:
+    """Return the first sentence in text that mentions this entity label."""
+    normalized = entity_label.replace("_", " ")
+    for sent in re.split(r'[.!?\n]', text):
+        if normalized.lower() in sent.lower():
+            return sent.strip()
+    return None
 
 # ---------------------------------------------------------------------------
 # LLM concept extraction — loaded once at module level
@@ -282,9 +290,16 @@ class ContextAssembler:
         query_labels   = self._extract_concepts(query, "query")
         query_node_ids = []
         for label in query_labels:
-            node_id, score = self.graph._find_match(label, NodeType.CONCEPT)
+            # Search concept level (L1)
+            node_id, score = self.graph._find_match(
+                label, NodeType.CONCEPT, level=NodeLevel.CONCEPT)
             if node_id and score > 0.3:
                 query_node_ids.append((node_id, score))
+            # Also search ground level (L0) — entities can seed traversal
+            node_id, score = self.graph._find_match(
+                label, NodeType.CONCEPT, level=NodeLevel.GROUND)
+            if node_id and score > 0.3:
+                query_node_ids.append((node_id, score + 0.5))  # slight boost
 
         if not query_node_ids:
             return self._fallback_context(token_budget)
@@ -307,14 +322,25 @@ class ContextAssembler:
 
             node = self.graph.nodes[node_id]
 
-            if node.conv_pos not in visited_positions:
-                visited_positions.add(node.conv_pos)
-                turn_text = self.store.get_text(node.conv_pos)
-                if turn_text:
-                    fragment_tokens = self._count_tokens(turn_text)
+            if node.level == NodeLevel.GROUND:
+                # L0 entity: emit accumulated facts instead of full turn text
+                facts = node.meta.get("facts", [])
+                if facts:
+                    fact_text = f"[{node.label}] " + " | ".join(facts[-3:])
+                    fragment_tokens = self._count_tokens(fact_text)
                     if tokens_used + fragment_tokens <= token_budget:
-                        context_parts.append((node.maturity, turn_text))
+                        context_parts.append((node.maturity + 0.5, fact_text))
                         tokens_used += fragment_tokens
+            else:
+                # L1+ concept: dereference backing store as before
+                if node.conv_pos not in visited_positions:
+                    visited_positions.add(node.conv_pos)
+                    turn_text = self.store.get_text(node.conv_pos)
+                    if turn_text:
+                        fragment_tokens = self._count_tokens(turn_text)
+                        if tokens_used + fragment_tokens <= token_budget:
+                            context_parts.append((node.maturity, turn_text))
+                            tokens_used += fragment_tokens
 
             neighbors = self.graph._get_neighbors(node_id)
             total_turns = max(1, self.graph.conv_pos)
@@ -399,21 +425,41 @@ class ContextAssembler:
             novelties.append(is_new)
             prev_id = node_id
 
-        # --- Entity extraction (spaCy NER) ---
-        # Runs alongside concept extraction; entities become first-class nodes
-        # tagged with their NER type in meta["entity_type"].
+        # --- Entity extraction (spaCy NER) — level-0 GROUND nodes ---
+        # Written at NodeLevel.GROUND: stable immediately, no maturity, no merge.
+        # Facts from the current turn are accumulated in meta["facts"].
+        entity_ids = []
         for ent_label, ent_type in _extract_entities_spacy(text):
             node_id, is_new = self.graph.write(
                 label      = ent_label,
                 node_type  = NodeType.CONCEPT,
                 related_to = [],
                 edge_type  = EdgeType.SEMANTIC,
+                level      = NodeLevel.GROUND,
             )
             if node_id in self.graph.nodes:
                 node = self.graph.nodes[node_id]
                 node.meta.setdefault("entity_type", ent_type)
+                fact = _extract_entity_fact(text, ent_label)
+                if fact:
+                    node.meta.setdefault("facts", [])
+                    if fact not in node.meta["facts"]:
+                        node.meta["facts"].append(fact)
             written_ids.append(node_id)
             novelties.append(is_new)
+            entity_ids.append(node_id)
+
+        # --- INSTANTIATES edges: L0 entities → L1 concepts (same turn) ---
+        # Bridges the two levels so context traversal can cross from a
+        # concrete entity into the abstract concept space and back.
+        concept_ids = [
+            nid for nid in written_ids
+            if nid in self.graph.nodes
+            and self.graph.nodes[nid].level >= NodeLevel.CONCEPT
+        ]
+        for ent_id in entity_ids:
+            for con_id in concept_ids:
+                self.graph._add_edge(ent_id, con_id, EdgeType.INSTANTIATES, weight=0.5)
 
         self.store.turns[pos].nodes = written_ids
         self.graph.advance()

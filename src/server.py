@@ -80,7 +80,9 @@ def build_graph_state() -> dict:
             "label":       n.label,
             "prov":        n.provisional,
             "maturity":    n.maturity,
-            "entity_type": n.meta.get("entity_type"),   # None for concepts
+            "level":       n.level,
+            "entity_type": n.meta.get("entity_type"),
+            "facts":       n.meta.get("facts", []),
         }
         for n in g.nodes.values()
     ]

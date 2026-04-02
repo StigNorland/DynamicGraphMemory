@@ -15,7 +15,7 @@ import math
 import hashlib
 import json
 from collections import defaultdict
-from enum import Enum
+from enum import Enum, IntEnum
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -30,10 +30,18 @@ class NodeType(Enum):
     CAUSAL   = "causal"
 
 
+class NodeLevel(IntEnum):
+    GROUND  = 0   # concrete named entities (NER) — stable immediately, no merge
+    CONCEPT = 1   # abstract patterns (LLM extraction) — maturity + merge
+    META    = 2   # future higher-order abstractions
+
+
 class EdgeType(Enum):
-    SEMANTIC = "semantic"
-    TEMPORAL = "temporal"
-    CAUSAL   = "causal"
+    SEMANTIC     = "semantic"
+    TEMPORAL     = "temporal"
+    CAUSAL       = "causal"
+    INSTANTIATES = "instantiates"   # level-0 entity → level-1 concept
+    ABSTRACTS    = "abstracts"      # level-1 concept → level-2 meta (future)
 
 
 # -------------------------------------------------------------------
@@ -45,6 +53,7 @@ class Node:
     id:          str
     node_type:   NodeType
     label:       str
+    level:       int         = NodeLevel.CONCEPT   # 0=ground entity, 1=concept, 2=meta
     provisional: bool        = True
     maturity:    float       = 0.0
     conv_pos:    int         = 0
@@ -136,13 +145,14 @@ class ConceptGraph:
 
     def write(self, label: str, node_type: NodeType,
               related_to: list[str] = None,
-              edge_type: EdgeType = EdgeType.SEMANTIC) -> tuple[str, bool]:
+              edge_type: EdgeType = EdgeType.SEMANTIC,
+              level: int = NodeLevel.CONCEPT) -> tuple[str, bool]:
         novelty = False
 
-        match_id, similarity = self._find_match(label, node_type)
+        match_id, similarity = self._find_match(label, node_type, level)
 
         if match_id is None:
-            node_id = self._create_node(label, node_type)
+            node_id = self._create_node(label, node_type, level)
             novelty = True
         elif similarity >= self.RETRIEVAL_THRESHOLD:
             # Same concept — reinforce regardless of maturity.
@@ -152,7 +162,7 @@ class ConceptGraph:
         else:
             # Partial match — create a new node with a delta edge to the
             # closest existing node, capturing the difference.
-            node_id = self._create_node(label, node_type)
+            node_id = self._create_node(label, node_type, level)
             self._add_edge(node_id, match_id, EdgeType.SEMANTIC, weight=similarity)
             novelty = True
 
@@ -163,10 +173,12 @@ class ConceptGraph:
                     if created:
                         novelty = True
 
-        self._update_maturity(node_id)
-        if self.nodes[node_id].provisional:
-            if self.nodes[node_id].maturity >= self.maturity_threshold:
-                self._stabilize(node_id)
+        # Level-0 (ground) nodes are stable immediately — no maturity/merge
+        if self.nodes[node_id].level >= NodeLevel.CONCEPT:
+            self._update_maturity(node_id)
+            if self.nodes[node_id].provisional:
+                if self.nodes[node_id].maturity >= self.maturity_threshold:
+                    self._stabilize(node_id)
 
         if novelty:
             self._write_count += 1
@@ -257,13 +269,16 @@ class ConceptGraph:
     # Internal: node and edge operations
     # -------------------------------------------------------------------
 
-    def _create_node(self, label: str, node_type: NodeType) -> str:
-        node_id = f"{node_type.value}::{label}::{len(self.nodes)}"
+    def _create_node(self, label: str, node_type: NodeType,
+                     level: int = NodeLevel.CONCEPT) -> str:
+        node_id = f"{node_type.value}::L{level}::{label}::{len(self.nodes)}"
         self.nodes[node_id] = Node(
-            id        = node_id,
-            node_type = node_type,
-            label     = label,
-            conv_pos  = self.conv_pos,
+            id          = node_id,
+            node_type   = node_type,
+            label       = label,
+            level       = level,
+            provisional = level >= NodeLevel.CONCEPT,  # level-0 stable immediately
+            conv_pos    = self.conv_pos,
         )
         # Ensure adjacency entry exists even for isolated nodes
         if node_id not in self._adjacency:
@@ -366,11 +381,14 @@ class ConceptGraph:
         (Jaccard on relational signature) and is independent of maturity.
         """
         node = self.nodes[node_id]
+        if node.level < NodeLevel.CONCEPT:
+            return   # ground entities never merge
         candidates = [
             n for n in self.nodes.values()
             if not n.provisional
                and n.id != node_id
                and n.node_type == node.node_type
+               and n.level >= NodeLevel.CONCEPT   # only concept-level nodes merge
         ]
         for candidate in candidates:
             similarity = self._signature_similarity(node_id, candidate.id)
@@ -444,12 +462,14 @@ class ConceptGraph:
     # Internal: similarity and matching
     # -------------------------------------------------------------------
 
-    def _find_match(self, label: str,
-                    node_type: NodeType) -> tuple[Optional[str], float]:
+    def _find_match(self, label: str, node_type: NodeType,
+                    level: int = NodeLevel.CONCEPT) -> tuple[Optional[str], float]:
         best_id    = None
         best_score = 0.0
         for node in self.nodes.values():
             if node.node_type != node_type:
+                continue
+            if node.level != level:          # level-scoped: entities never match concepts
                 continue
             score = self._label_similarity(label, node.label)
             if score > best_score:
@@ -534,6 +554,10 @@ class ConceptGraph:
             "merge_events":      len(self.merge_events),
             "mean_maturity":     (sum(n.maturity for n in self.nodes.values())
                                   / max(len(self.nodes), 1)),
+            "nodes_by_level":    {
+                lvl: sum(1 for n in self.nodes.values() if n.level == lvl)
+                for lvl in (NodeLevel.GROUND, NodeLevel.CONCEPT, NodeLevel.META)
+            },
             "aha_moments":       [
                 {"magnitude": e.magnitude, "cascade": e.cascade_depth}
                 for e in self.merge_events
