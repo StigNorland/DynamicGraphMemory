@@ -516,42 +516,93 @@ function renderMerges(){
 }
 
 function renderStats(){
-  const s    = graphState.stats;
-  const last = CostLog[CostLog.length-1] || {g:0, b:0, turn:0};
-  const ratio   = last.b>0 ? (last.g/last.b).toFixed(2) : '—';
-  const saving  = last.b>0 ? Math.round((1-last.g/last.b)*100) : 0;
+  const s       = graphState.stats;
+  const last    = CostLog[CostLog.length-1] || {};
   const total   = s.nodes_total || graphState.nodes.length;
   const stable  = s.nodes_stable || 0;
-  const edges   = s.edges_total || graphState.edges.length;
+  const edges   = s.edges_total  || graphState.edges.length;
   const merges  = graphState.merges.length;
   const meanMat = s.mean_maturity != null ? s.mean_maturity.toFixed(2) : '0.00';
 
+  // Cumulative token totals
+  const totInp  = CostLog.reduce((a,c)=>a+(c.inp||0), 0);
+  const totOut  = CostLog.reduce((a,c)=>a+(c.out||0), 0);
+  const totG    = CostLog.reduce((a,c)=>a+(c.g||0),   0);
+  const totB    = CostLog.reduce((a,c)=>a+(c.b||0),   0);
+  const totSaved = totB - totG;
+
+  // Last-turn values
+  const lastG   = last.g   || 0;
+  const lastB   = last.b   || 0;
+  const lastInp = last.inp || 0;
+  const lastOut = last.out || 0;
+  const ctxSave = lastB - lastG;
+  const ctxPct  = lastB > 0 ? Math.round((ctxSave/lastB)*100) : 0;
+  const saveCol = ctxSave >= 0 ? 'var(--green)' : 'var(--red)';
+
+  function tok(n){ return n>=1000 ? (n/1000).toFixed(1)+'k' : String(n); }
+
   let h = `
-    <div class="ssec">Graph</div>
-    <div class="srow"><span>Nodes total</span><span class="sv">${total}</span></div>
+    <div class="ssec">Graph memory</div>
+    <div class="srow"><span>Nodes</span><span class="sv">${total}</span></div>
     <div class="srow"><span>Stable / provisional</span><span class="sv">${stable} / ${total-stable}</span></div>
     <div class="srow"><span>Edges</span><span class="sv">${edges}</span></div>
     <div class="srow"><span>Merges (aha!)</span><span class="sv" style="color:var(--amber)">${merges}</span></div>
     <div class="srow"><span>Mean maturity</span><span class="sv">${meanMat}</span></div>
-    <div class="srow"><span>Merge threshold</span><span class="sv">${graphState.mergeThr.toFixed(3)}</span></div>
-    <div class="srow"><span>Maturity threshold</span><span class="sv">${graphState.matThr.toFixed(2)}</span></div>
-    <div class="ssec" style="margin-top:12px">Context cost (last turn)</div>
-    <div class="srow"><span>Graph ctx</span><span class="sv">${last.g} words</span></div>
-    <div class="srow"><span>Baseline ctx</span><span class="sv">${last.b} words</span></div>
-    <div class="srow"><span>Ratio</span><span class="sv" style="color:${saving>0?'var(--green)':'var(--red)'}">${ratio}x${saving>0?' ('+saving+'% less)':''}</span></div>`;
+    <div class="srow"><span>Maturity threshold</span><span class="sv">${graphState.matThr.toFixed(2)}</span></div>`;
 
-  if (CostLog.length>1) {
-    const recent = CostLog.slice(-8);
-    const mx = Math.max(...recent.flatMap(c=>[c.g,c.b]), 1);
-    h += `<div class="ssec" style="margin-top:12px">Cost over time</div>
-          <div style="display:flex;flex-direction:column;gap:3px">`;
-    for (const c of recent) {
-      h += `<div style="font-size:10px;color:var(--text2)">T${c.turn}</div>
-            <div title="Graph: ${c.g}w" class="cbw"><div class="cb" style="width:${Math.round(c.g/mx*100)}%;background:#4a7cf0"></div></div>
-            <div title="Baseline: ${c.b}w" class="cbw" style="margin-top:2px"><div class="cb" style="width:${Math.round(c.b/mx*100)}%;background:#ccc"></div></div>`;
-    }
-    h += `</div><div style="font-size:10px;color:var(--text2);margin-top:6px"><span style="color:#4a7cf0">■</span> graph &nbsp;<span style="color:#ccc">■</span> baseline</div>`;
+  if (CostLog.length > 0) {
+    h += `
+    <div class="ssec" style="margin-top:12px">Token cost — last turn (mode: ${last.mode||'—'})</div>
+    <div class="srow"><span>Graph context ~est</span><span class="sv" style="color:var(--accent)">${tok(lastG)} tok</span></div>
+    <div class="srow"><span>Baseline context ~est</span><span class="sv">${tok(lastB)} tok</span></div>
+    <div class="srow"><span>Context saving</span><span class="sv" style="color:${saveCol}">${ctxSave>=0?'+':''}${tok(ctxSave)} tok${lastB>0?' ('+ctxPct+'%)':''}</span></div>
+    <div class="srow" style="margin-top:4px"><span>Billed input</span><span class="sv">${tok(lastInp)} tok</span></div>
+    <div class="srow"><span>Billed output</span><span class="sv">${tok(lastOut)} tok</span></div>
+    <div class="srow"><span>Billed total</span><span class="sv" style="font-weight:700">${tok(lastInp+lastOut)} tok</span></div>`;
   }
+
+  if (CostLog.length > 1) {
+    const cumSaveCol = totSaved >= 0 ? 'var(--green)' : 'var(--red)';
+    h += `
+    <div class="ssec" style="margin-top:12px">Cumulative (${CostLog.length} turns)</div>
+    <div class="srow"><span>Total billed input</span><span class="sv">${tok(totInp)} tok</span></div>
+    <div class="srow"><span>Total billed output</span><span class="sv">${tok(totOut)} tok</span></div>
+    <div class="srow"><span>Total billed</span><span class="sv" style="font-weight:700">${tok(totInp+totOut)} tok</span></div>
+    <div class="srow"><span>Context saved vs baseline</span><span class="sv" style="color:${cumSaveCol}">${totSaved>=0?'+':''}${tok(totSaved)} tok</span></div>`;
+
+    // Per-turn chart — show billed input + context comparison
+    const recent = CostLog.slice(-10);
+    const mxInp  = Math.max(...recent.map(c=>c.inp||0), 1);
+    const mxCtx  = Math.max(...recent.flatMap(c=>[c.g||0, c.b||0]), 1);
+
+    h += `<div class="ssec" style="margin-top:12px">Billed input tokens / turn</div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">`;
+    for (const c of recent) {
+      const inp = c.inp || 0;
+      const g   = c.g   || 0;
+      const b   = c.b   || 0;
+      h += `<div style="font-size:10px;color:var(--text2);margin-bottom:1px">T${c.turn} <span style="opacity:.6">${c.mode}</span></div>
+            <div class="cbw" title="Billed input: ${inp} tok">
+              <div class="cb" style="width:${Math.round(inp/mxInp*100)}%;background:var(--text2)"></div>
+            </div>
+            <div style="display:flex;gap:2px;margin-top:2px">
+              <div class="cbw" style="flex:1" title="Graph ctx ~${g} tok">
+                <div class="cb" style="width:${Math.round(g/mxCtx*100)}%;background:var(--accent)"></div>
+              </div>
+              <div class="cbw" style="flex:1" title="Baseline ctx ~${b} tok">
+                <div class="cb" style="width:${Math.round(b/mxCtx*100)}%;background:#bbb"></div>
+              </div>
+            </div>`;
+    }
+    h += `</div>
+    <div style="font-size:10px;color:var(--text2);margin-top:6px">
+      <span style="color:var(--text2)">■</span> billed input &nbsp;
+      <span style="color:var(--accent)">■</span> graph ctx &nbsp;
+      <span style="color:#bbb">■</span> baseline ctx
+    </div>`;
+  }
+
   document.getElementById('pane-stats').innerHTML = h;
 }
 
