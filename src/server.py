@@ -77,7 +77,8 @@ class LoCoMoLoadRequest(BaseModel):
 
 class LoCoMoRunRequest(BaseModel):
     token_budget: int = 400
-    modes: list[str] = ["graph", "baseline", "graph_only"]
+    modes: list[str] = ["graph", "baseline", "graph_only", "field"]
+    runs: int = 3          # how many times to call the API per question (same context)
 
 
 class IngestRequest(BaseModel):
@@ -371,6 +372,25 @@ def _graph_only_context(graph: ConceptGraph, query: str, token_budget: int) -> s
     return "\n".join(parts)[:token_budget * 6]
 
 
+def _field_only_context() -> str:
+    """
+    Pure bioelectric field reconstruction — holographic mode.
+    Uses all nodes that have a field_projection, weighted by maturity.
+    Extremely compact: typically ~1/15 the tokens of baseline.
+    """
+    if _assembler is None or _assembler._field is None:
+        return ""
+    # Use every node that has a projection (not just stable ones)
+    visible_ids = [
+        nid for nid, n in _assembler.graph.nodes.items()
+        if n.meta.get("field_projection") is not None
+    ]
+    if not visible_ids:
+        # Fall back to all nodes
+        visible_ids = list(_assembler.graph.nodes.keys())
+    return _assembler._field.reconstruct(visible_ids, _assembler.graph)
+
+
 def _assemble_context_for_eval(mode: str, query: str, token_budget: int) -> str:
     """Assemble context using the current assembler."""
     if mode == "graph":
@@ -382,6 +402,8 @@ def _assemble_context_for_eval(mode: str, query: str, token_budget: int) -> str:
         return _assembler.assemble_baseline(token_budget=token_budget)
     if mode == "graph_only":
         return _graph_only_context(_assembler.graph, query, token_budget)
+    if mode == "field":
+        return _field_only_context()
     return ""
 
 
@@ -488,6 +510,8 @@ async def api_locomo_run_eval(req: LoCoMoRunRequest):
         qa_list = _locomo_sample.qa
         n_total = len(qa_list)
 
+        n_runs = max(1, req.runs)
+
         for qi, q in enumerate(qa_list):
             yield f"data: {json.dumps({'type':'question_start','index':qi,'total':n_total,'question':q['question'],'category':q.get('category',0)})}\n\n"
 
@@ -500,16 +524,26 @@ async def api_locomo_run_eval(req: LoCoMoRunRequest):
                     "Based only on this context, answer concisely:\n"
                     f"{q['question']}"
                 )
-                try:
-                    resp = _client.messages.create(
-                        model       = "claude-sonnet-4-6",
-                        max_tokens  = 200,
-                        temperature = 0,
-                        messages    = [{"role": "user", "content": prompt}],
-                    )
-                    model_answer = resp.content[0].text.strip()
-                except Exception as e:
-                    model_answer = f"[ERROR: {e}]"
+
+                run_records = []
+                model_answer = ""
+                for run_i in range(n_runs):
+                    try:
+                        resp = _client.messages.create(
+                            model       = "claude-sonnet-4-6",
+                            max_tokens  = 200,
+                            temperature = 0,
+                            messages    = [{"role": "user", "content": prompt}],
+                        )
+                        model_answer = resp.content[0].text.strip()
+                        run_records.append({
+                            "run":  run_i + 1,
+                            "inp":  resp.usage.input_tokens,
+                            "out":  resp.usage.output_tokens,
+                        })
+                    except Exception as e:
+                        model_answer = f"[ERROR: {e}]"
+                        run_records.append({"run": run_i + 1, "inp": 0, "out": 0, "error": str(e)})
 
                 scored = scorer.score_answer(
                     question         = q["question"],
@@ -517,11 +551,19 @@ async def api_locomo_run_eval(req: LoCoMoRunRequest):
                     model_answer     = model_answer,
                     category         = q.get("category", 1),
                 )
+
+                inp_vals = [r["inp"] for r in run_records]
+                out_vals = [r["out"] for r in run_records]
                 conditions[mode] = {
                     "context_tokens": len(ctx.split()),
                     "answer":         model_answer,
                     "score":          scored["score"],
                     "reasoning":      scored["reasoning"],
+                    "runs":           run_records,
+                    "mean_inp":       round(sum(inp_vals) / len(inp_vals)) if inp_vals else 0,
+                    "mean_out":       round(sum(out_vals) / len(out_vals)) if out_vals else 0,
+                    "min_inp":        min(inp_vals) if inp_vals else 0,
+                    "max_inp":        max(inp_vals) if inp_vals else 0,
                 }
 
             result = {
