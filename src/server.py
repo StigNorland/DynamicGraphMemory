@@ -56,6 +56,7 @@ _locomo_sample: LoCoMoSample | None = None
 _locomo_eval_results: list[dict] = []
 _locomo_state: str = "idle"        # idle|loaded|ingesting|ready|evaluating|done|error
 _locomo_progress: dict = {"done": 0, "total": 0}
+_session_timeline: str = ""        # always-prepended temporal anchor for all eval modes
 
 
 # ---------------------------------------------------------------------------
@@ -420,25 +421,27 @@ def _field_only_context() -> str:
 
 def _assemble_context_for_eval(mode: str, query: str, token_budget: int) -> str:
     """Assemble context using the current assembler."""
+    prefix = (_session_timeline + "\n\n") if _session_timeline else ""
+
     if mode == "graph":
         ctx = _assembler.assemble_graph(query=query, token_budget=token_budget)
         if not ctx.strip():
             ctx = _assembler.assemble_baseline(token_budget=token_budget)
-        return ctx
+        return prefix + ctx
     if mode == "baseline":
-        return _assembler.assemble_baseline(token_budget=token_budget)
+        return prefix + _assembler.assemble_baseline(token_budget=token_budget)
     if mode == "graph_only":
-        return _graph_only_context(_assembler.graph, query, token_budget)
+        return prefix + _graph_only_context(_assembler.graph, query, token_budget)
     if mode == "field":
-        return _field_only_context()
+        return prefix + _field_only_context()
     if mode == "field_graph":
         field = _field_only_context()
         graph = _assembler.assemble_graph(query=query, token_budget=token_budget)
         if not graph.strip():
             graph = _assembler.assemble_baseline(token_budget=token_budget)
         parts = [p for p in [field, graph] if p.strip()]
-        return "\n\n".join(parts)
-    return ""
+        return prefix + "\n\n".join(parts)
+    return prefix
 
 
 @app.post("/api/locomo/load")
@@ -481,10 +484,18 @@ async def api_locomo_ingest():
         return JSONResponse({"error": "no sample loaded"}, status_code=400)
 
     async def generate():
-        global _locomo_state, _locomo_progress
+        global _locomo_state, _locomo_progress, _session_timeline
 
         _reset_assembler()
         _locomo_state = "ingesting"
+
+        # Build compact session timeline — always prepended to every context
+        # so temporal questions are never answered without date anchors.
+        _session_timeline = "Session timeline:\n" + "\n".join(
+            f"  Session {s.session_num}: {s.datetime_str}"
+            for s in _locomo_sample.sessions
+            if s.datetime_str
+        )
 
         n_total = total_turns(_locomo_sample)
         _locomo_progress = {"done": 0, "total": n_total}
