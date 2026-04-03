@@ -475,6 +475,33 @@ class ContextAssembler:
             novelties.append(is_new)
             entity_ids.append(node_id)
 
+        # --- Speaker-as-entity: index the speaker name as a GROUND node ---
+        # Speakers only appear as text in turns where the *other* person names
+        # them — so "Caroline" is invisible to NER in her own turns.  Writing
+        # the speaker label as a GROUND entity ensures retrieval finds all
+        # turns spoken by that person when asked about them by name.
+        _SKIP_SPEAKERS = {"user", "assistant", "system", "unknown"}
+        spk_lower = speaker.strip().lower()
+        if spk_lower not in _SKIP_SPEAKERS and len(spk_lower) > 1:
+            spk_label = spk_lower.replace(" ", "_")
+            spk_id, _ = self.graph.write(
+                label      = spk_label,
+                node_type  = NodeType.CONCEPT,
+                related_to = [],
+                edge_type  = EdgeType.SEMANTIC,
+                level      = NodeLevel.GROUND,
+            )
+            if spk_id in self.graph.nodes:
+                node = self.graph.nodes[spk_id]
+                node.meta.setdefault("entity_type", "PERSON")
+                # Store a fact snippet from this turn so retrieval surfaces content
+                snippet = text[:120].rstrip() + ("…" if len(text) > 120 else "")
+                node.meta.setdefault("facts", [])
+                if snippet not in node.meta["facts"]:
+                    node.meta["facts"].append(snippet)
+            written_ids.append(spk_id)
+            entity_ids.append(spk_id)
+
         # --- INSTANTIATES edges: L0 entities → L1 concepts (same turn) ---
         # Bridges the two levels so context traversal can cross from a
         # concrete entity into the abstract concept space and back.
