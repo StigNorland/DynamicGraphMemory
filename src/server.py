@@ -13,6 +13,8 @@ import json
 import os
 import sys
 import time
+
+_INGEST_LOG_PATH = os.path.join(os.path.dirname(__file__), "ingest.log")
 from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI
@@ -151,6 +153,7 @@ async def api_init(req: InitRequest):
         graph      = ConceptGraph(),
         store      = BackingStore(),
         llm_client = _client,
+        log_path   = _INGEST_LOG_PATH,
     )
     _cost_log  = []
     return {"ok": True}
@@ -165,6 +168,7 @@ async def api_reset():
         graph      = ConceptGraph(),
         store      = BackingStore(),
         llm_client = _client,
+        log_path   = _INGEST_LOG_PATH,
     )
     _cost_log = []
     return {"ok": True}
@@ -356,6 +360,7 @@ def _reset_assembler():
         graph      = ConceptGraph(),
         store      = BackingStore(),
         llm_client = _client,
+        log_path   = _INGEST_LOG_PATH,
     )
     _cost_log = []
 

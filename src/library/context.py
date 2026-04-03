@@ -140,6 +140,49 @@ def _resolve_temporal(text: str, timestamp: Optional[datetime]) -> Optional[str]
     return f"~{raw_expr}"
 
 # ---------------------------------------------------------------------------
+# Structured ingest logger — JSON Lines
+# ---------------------------------------------------------------------------
+
+class IngestLogger:
+    """
+    Append-mode JSON Lines logger for graph ingest events.
+
+    Writes one record per line for every entity, concept, and
+    INSTANTIATES edge created during ingestion.  Pass log_path=None
+    (the default) to disable with zero overhead.
+    """
+    def __init__(self, log_path: Optional[str]):
+        self._fh = open(log_path, "a", encoding="utf-8") if log_path else None
+
+    def _write(self, obj: dict):
+        if self._fh:
+            import json as _j
+            self._fh.write(_j.dumps(obj) + "\n")
+            self._fh.flush()
+
+    def log_entity(self, turn: int, speaker: str, label: str,
+                   entity_type: str, is_new: bool, date: Optional[str]):
+        self._write({"event": "entity", "turn": turn, "speaker": speaker,
+                     "label": label, "entity_type": entity_type,
+                     "is_new": is_new, "date": date})
+
+    def log_concept(self, turn: int, speaker: str, label: str, is_new: bool):
+        self._write({"event": "concept", "turn": turn, "speaker": speaker,
+                     "label": label, "is_new": is_new})
+
+    def log_edge(self, turn: int, source: str, target: str,
+                 edge_type: str, is_new: bool, dates: list):
+        self._write({"event": "edge", "turn": turn, "source": source,
+                     "target": target, "edge_type": edge_type,
+                     "is_new": is_new, "dates": dates})
+
+    def close(self):
+        if self._fh:
+            self._fh.close()
+            self._fh = None
+
+
+# ---------------------------------------------------------------------------
 # LLM concept extraction — loaded once at module level
 # ---------------------------------------------------------------------------
 import json as _json
@@ -323,7 +366,8 @@ class ContextAssembler:
                  use_llm_extraction: bool = False,
                  use_rich_payloads:  bool = False,
                  use_field:          bool = False,
-                 ollama_model:       str  = "llama3.2"):
+                 ollama_model:       str  = "llama3.2",
+                 log_path:           Optional[str] = None):
         self.graph     = graph
         self.store     = store
         self.tokenizer = tokenizer
@@ -353,6 +397,9 @@ class ContextAssembler:
         # Always-prepend string: temporal anchors, session headers, etc.
         # Prepended to every assembled context regardless of mode.
         self.always_prepend: str = ""
+
+        # Structured ingest logger (JSON Lines); None = disabled
+        self._logger = IngestLogger(log_path)
 
     def assemble_graph(self, query: str, token_budget: int) -> str:
         query_labels   = self._extract_concepts(query, "query")
@@ -489,7 +536,7 @@ class ContextAssembler:
 
         # spaCy NER
         for ent_label, ent_type in _extract_entities_spacy(text):
-            node_id, _ = self.graph.write(
+            node_id, ent_is_new = self.graph.write(
                 label      = ent_label,
                 node_type  = NodeType.CONCEPT,
                 related_to = [],
@@ -508,13 +555,18 @@ class ContextAssembler:
                     if fact not in node.meta["facts"]:
                         node.meta["facts"].append(fact)
             entity_ids.append(node_id)
+            self._logger.log_entity(
+                turn=pos, speaker=speaker, label=ent_label,
+                entity_type=ent_type, is_new=ent_is_new,
+                date=_resolve_temporal(text, timestamp),
+            )
 
         # Speaker-as-entity
         _SKIP_SPEAKERS = {"user", "assistant", "system", "unknown"}
         spk_lower = speaker.strip().lower()
         if spk_lower not in _SKIP_SPEAKERS and len(spk_lower) > 1:
             spk_label = spk_lower.replace(" ", "_")
-            spk_id, _ = self.graph.write(
+            spk_id, spk_is_new = self.graph.write(
                 label      = spk_label,
                 node_type  = NodeType.CONCEPT,
                 related_to = [],
@@ -532,6 +584,11 @@ class ContextAssembler:
                 if snippet not in node.meta["facts"]:
                     node.meta["facts"].append(snippet)
             entity_ids.append(spk_id)
+            self._logger.log_entity(
+                turn=pos, speaker=speaker, label=spk_label,
+                entity_type="PERSON", is_new=spk_is_new,
+                date=_resolve_temporal(text, timestamp),
+            )
 
         self.store.turns[pos].nodes = entity_ids
         self.graph.advance()
@@ -583,6 +640,9 @@ class ContextAssembler:
             concept_ids.append(node_id)
             novelties.append(is_new)
             prev_id = node_id
+            self._logger.log_concept(
+                turn=pos, speaker=speaker, label=concept, is_new=is_new,
+            )
 
         # INSTANTIATES edges: existing L0 entities → new L1 concepts
         entity_ids = [
@@ -592,11 +652,18 @@ class ContextAssembler:
         ]
         date_str  = _resolve_temporal(text, turn_ts)
         edge_meta = {"dates": [date_str]} if date_str else None
+        dates     = [date_str] if date_str else []
         for ent_id in entity_ids:
             for con_id in concept_ids:
-                self.graph._add_edge(
+                is_new_edge = self.graph._add_edge(
                     ent_id, con_id, EdgeType.INSTANTIATES,
                     weight=0.5, meta=edge_meta,
+                )
+                ent_label = self.graph.nodes[ent_id].label if ent_id in self.graph.nodes else ent_id
+                con_label = self.graph.nodes[con_id].label if con_id in self.graph.nodes else con_id
+                self._logger.log_edge(
+                    turn=pos, source=ent_label, target=con_label,
+                    edge_type="INSTANTIATES", is_new=is_new_edge, dates=dates,
                 )
 
         # Append concept node ids to the turn's node list
