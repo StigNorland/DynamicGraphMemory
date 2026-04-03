@@ -172,6 +172,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .bf-baseline{background:var(--green)}
 .bf-graph_only{background:var(--purple)}
 .bf-field{background:#f0b429}
+.bf-field_graph{background:#e07b00}
 .bench-sum-tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
 .bench-sum-tbl th{text-align:left;font-weight:600;padding:4px 6px;border-bottom:1px solid var(--border)}
 .bench-sum-tbl td{padding:4px 6px;border-bottom:1px solid var(--bg3)}
@@ -861,6 +862,7 @@ function renderBench() {
         <label><input type="checkbox" id="m-baseline" checked> <span style="color:var(--green)">■</span> baseline</label>
         <label><input type="checkbox" id="m-graph_only" checked> <span style="color:var(--purple)">■</span> graph_only</label>
         <label><input type="checkbox" id="m-field" checked> <span style="color:#f0b429">■</span> field</label>
+        <label><input type="checkbox" id="m-field_graph" checked> <span style="color:#e07b00">■</span> field+graph</label>
       </div>
       <div class="srow" style="margin-top:4px"><span>Runs per question</span>
         <input id="bench-runs" type="number" value="3" min="1" max="10"
@@ -888,7 +890,7 @@ function renderBench() {
   if (p === 'done') {
     const sum  = locomoState.summary;
     const modes = Object.keys(locomoState.results[0]?.conditions || {});
-    const modeColors = {graph:'var(--accent)',baseline:'var(--green)',graph_only:'var(--purple)',field:'#f0b429'};
+    const modeColors = {graph:'var(--accent)',baseline:'var(--green)',graph_only:'var(--purple)',field:'#f0b429',field_graph:'#e07b00'};
 
     let catRows = '';
     const catLabels = {1:'Cat1 retrieval',2:'Cat2 temporal',3:'Cat3 inference',4:'Cat4 multi-hop',5:'Cat5 adversarial'};
@@ -946,14 +948,14 @@ function renderBench() {
 
 function benchQRowHTML(result, index) {
   const modes = Object.keys(result.conditions || {});
-  const modeColors = {graph:'bf-graph',baseline:'bf-baseline',graph_only:'bf-graph_only',field:'bf-field'};
-  const modeColorVar = {graph:'var(--accent)',baseline:'var(--green)',graph_only:'var(--purple)',field:'#f0b429'};
+  const modeColors = {graph:'bf-graph',baseline:'bf-baseline',graph_only:'bf-graph_only',field:'bf-field',field_graph:'bf-field_graph'};
+  const modeColorVar = {graph:'var(--accent)',baseline:'var(--green)',graph_only:'var(--purple)',field:'#f0b429',field_graph:'#e07b00'};
   const cat   = result.category || 0;
   const catCls= cat >= 1 && cat <= 5 ? `c${cat}` : '';
   const bars  = modes.map(m => {
     const score = result.conditions[m]?.score ?? 0;
     const pct   = Math.round(score * 100);
-    const short = {graph:'G',baseline:'B',graph_only:'G0',field:'F'}[m] || m;
+    const short = {graph:'G',baseline:'B',graph_only:'G0',field:'F',field_graph:'F+G'}[m] || m;
     return `<div class="bench-bar-wrap">
       <div>${short}</div>
       <div class="bench-bar-bg"><div class="bench-bar-fill ${modeColors[m]||''}" style="width:${pct}%"></div></div>
@@ -1093,7 +1095,7 @@ async function locomoIngest() {
 
 async function locomoRunEval() {
   const budget = parseInt(document.getElementById('bench-budget')?.value || '400');
-  const modes  = ['graph','baseline','graph_only','field'].filter(m => {
+  const modes  = ['graph','baseline','graph_only','field','field_graph'].filter(m => {
     const el = document.getElementById('m-' + m);
     return el && el.checked;
   });

@@ -77,7 +77,7 @@ class LoCoMoLoadRequest(BaseModel):
 
 class LoCoMoRunRequest(BaseModel):
     token_budget: int = 400
-    modes: list[str] = ["graph", "baseline", "graph_only", "field"]
+    modes: list[str] = ["graph", "baseline", "graph_only", "field", "field_graph"]
     runs: int = 3          # how many times to call the API per question (same context)
 
 
@@ -404,6 +404,13 @@ def _assemble_context_for_eval(mode: str, query: str, token_budget: int) -> str:
         return _graph_only_context(_assembler.graph, query, token_budget)
     if mode == "field":
         return _field_only_context()
+    if mode == "field_graph":
+        field = _field_only_context()
+        graph = _assembler.assemble_graph(query=query, token_budget=token_budget)
+        if not graph.strip():
+            graph = _assembler.assemble_baseline(token_budget=token_budget)
+        parts = [p for p in [field, graph] if p.strip()]
+        return "\n\n".join(parts)
     return ""
 
 
