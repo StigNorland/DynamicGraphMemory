@@ -206,6 +206,50 @@ def convergence_sweep(graph: ConceptGraph, max_passes: int = 20, window: int = 8
         monitor.record(status)
 
 
+def sleep_consolidation(graph: ConceptGraph, max_rounds: int = 10) -> dict:
+    """
+    Global consolidation pass — the 'sleep' phase.
+
+    During sequential ingest, _check_merges only fires when a node is *newly*
+    stabilised.  Nodes that stabilised early never re-check against nodes that
+    stabilised later.  This pass visits every stable L1 concept node and
+    re-runs the full merge check against the current graph, repeating until no
+    new merges fire.
+
+    Analogy: hippocampal replay during sleep — memories are compared globally,
+    not just against whatever was active at encoding time.
+    """
+    total_merges = 0
+    for rnd in range(max_rounds):
+        # First ensure all pending maturity promotions are resolved
+        convergence_sweep(graph, max_passes=5)
+
+        before = len(graph.merge_events)
+
+        # Touch every stable L1 concept node — same comparison a query would do
+        candidates = [
+            nid for nid, n in graph.nodes.items()
+            if not n.provisional and n.level >= NodeLevel.CONCEPT
+        ]
+        for node_id in candidates:
+            if node_id in graph.nodes:   # may have been merged away
+                graph._check_merges(node_id)
+
+        after = len(graph.merge_events)
+        new_merges = after - before
+        total_merges += new_merges
+
+        if new_merges == 0:
+            break   # converged
+
+    return {
+        "rounds":       rnd + 1,
+        "total_merges": total_merges,
+        "stable_nodes": sum(1 for n in graph.nodes.values() if not n.provisional),
+        "total_nodes":  len(graph.nodes),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Summary helper (mirrors evaluate.py._summarise)
 # ---------------------------------------------------------------------------

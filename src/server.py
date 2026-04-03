@@ -29,7 +29,8 @@ from library.graph import ConceptGraph
 from library.convergence import ConvergenceMonitor
 from locomo import (
     LoCoMoSample, parse_locomo_file, flatten_to_conversation, total_turns,
-    LoCoMoScorer, propagation_pass, convergence_sweep, summarise_results,
+    LoCoMoScorer, propagation_pass, convergence_sweep, sleep_consolidation,
+    summarise_results,
 )
 
 app = FastAPI()
@@ -542,8 +543,11 @@ async def api_locomo_ingest():
                     yield ": keepalive\n\n"
                     last_keepalive = now
 
-        # Final convergence sweep
+        # Final convergence sweep + sleep consolidation
         convergence_sweep(_assembler.graph)
+        yield f"data: {json.dumps({'type':'progress_msg','msg':'Sleep consolidation — global merge pass…'})}\n\n"
+        stats = sleep_consolidation(_assembler.graph)
+        yield f"data: {json.dumps({'type':'consolidation','stats':stats})}\n\n"
 
         _locomo_state = "ready"
 
@@ -555,6 +559,17 @@ async def api_locomo_ingest():
         yield f"data: {json.dumps({'type':'done'})}\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream")
+
+
+@app.post("/api/consolidate")
+async def api_consolidate():
+    """Run sleep consolidation on the current graph (global merge pass)."""
+    if _assembler is None:
+        return JSONResponse({"error": "not initialized"}, status_code=400)
+    convergence_sweep(_assembler.graph)
+    stats = sleep_consolidation(_assembler.graph)
+    state = build_graph_state()
+    return {"ok": True, "stats": stats, "graph": state}
 
 
 @app.post("/api/locomo/run-eval")

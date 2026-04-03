@@ -874,6 +874,7 @@ function renderBench() {
       </div>
       <div id="bench-err" class="bench-err" style="display:none"></div>
       <button class="bench-btn" onclick="locomoRunEval()">Run Evaluation →</button>
+      <button class="bench-btn sec" style="margin-top:4px" onclick="runConsolidate()">Sleep consolidation ✦</button>
       <button class="bench-btn sec" style="margin-top:4px" onclick="locomoIngest()">Re-ingest</button>
       <button class="bench-btn sec" style="margin-top:4px" onclick="locomoReset()">← Change Sample</button>`;
     return;
@@ -1199,6 +1200,28 @@ async function locomoRunEval() {
 
 function locomoCancel() {
   if (_evalAbort) _evalAbort.abort();
+}
+
+async function runConsolidate() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Consolidating…';
+  try {
+    const resp = await fetch('/api/consolidate', {method: 'POST'});
+    const data = await resp.json();
+    if (data.ok) {
+      const s = data.stats;
+      applyGraphState(data.graph);
+      renderAll();
+      btn.textContent = `✦ Done — ${s.total_merges} merges, ${s.rounds} rounds`;
+    } else {
+      btn.textContent = '✗ ' + (data.error || 'failed');
+    }
+  } catch(e) {
+    btn.textContent = '✗ ' + e.message;
+  } finally {
+    setTimeout(() => { btn.disabled = false; btn.textContent = 'Sleep consolidation ✦'; }, 3000);
+  }
 }
 
 function locomoReset() {
