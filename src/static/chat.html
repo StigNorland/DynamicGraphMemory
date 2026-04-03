@@ -794,6 +794,7 @@ let locomoState = {
   selectedIndex:  0,
   error:          '',
 };
+let _evalAbort = null;  // AbortController for the running eval fetch
 
 const CAT_LABELS = {1:'Cat1 retrieval',2:'Cat2 temporal',3:'Cat3 inference',4:'Cat4 multi-hop',5:'Cat5 adversarial'};
 
@@ -885,6 +886,7 @@ function renderBench() {
     pane.innerHTML = `
       <div class="ssec">Evaluating… ${ep.done}/${ep.total} (${pct}%)</div>
       <div class="bench-prog"><div class="bench-prog-bar" style="width:${pct}%"></div></div>
+      <button class="bench-btn sec" style="margin-top:6px;background:#ffeaea;border-color:#e57373;color:#c62828" onclick="locomoCancel()">✕ Cancel</button>
       <div id="bench-qlist" style="margin-top:8px">${rows}</div>`;
     return;
   }
@@ -1108,6 +1110,7 @@ async function locomoRunEval() {
   locomoState.results      = [];
   locomoState.summary      = null;
   locomoState.evalProgress = {done: 0, total: 0};
+  _evalAbort = new AbortController();
   renderBench();
 
   try {
@@ -1115,6 +1118,7 @@ async function locomoRunEval() {
       method:  'POST',
       headers: {'Content-Type': 'application/json'},
       body:    JSON.stringify({token_budget: budget, modes, runs}),
+      signal:  _evalAbort.signal,
     });
     if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error(e.error||`HTTP ${resp.status}`); }
 
@@ -1180,10 +1184,21 @@ async function locomoRunEval() {
       }
     }
   } catch(e) {
-    locomoState.phase = 'ready';
-    locomoState.error = e.message;
+    if (e.name === 'AbortError') {
+      // User cancelled — stay on 'ready' and show partial results if any
+      locomoState.phase = locomoState.results.length ? 'done' : 'ready';
+    } else {
+      locomoState.phase = 'ready';
+      locomoState.error = e.message;
+    }
     renderBench();
+  } finally {
+    _evalAbort = null;
   }
+}
+
+function locomoCancel() {
+  if (_evalAbort) _evalAbort.abort();
 }
 
 function locomoReset() {
