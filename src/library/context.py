@@ -411,55 +411,28 @@ class ContextAssembler:
     # Ingestion
     # -------------------------------------------------------------------
 
-    def ingest(self, speaker: str, text: str,
-               timestamp: Optional[datetime] = None) -> dict:
+    def ingest_entities(self, speaker: str, text: str,
+                        timestamp: Optional[datetime] = None) -> int:
+        """
+        Phase 1 — write backing store entry and extract GROUND entities.
+
+        Adds the turn to the backing store and writes all L0 nodes:
+        spaCy NER entities + speaker-as-entity.  Does NOT call the LLM.
+        Returns the backing store position (pos) for use in ingest_concepts().
+        """
         pos = self.store.append(speaker, text, timestamp=timestamp)
         self.graph.conv_pos = pos
 
-        # Update bioelectric field with this turn (before graph write)
         if self._field is not None:
             self._field.ingest_turn(speaker, text, pos)
 
-        concepts    = self._extract_concepts(text, speaker)
-        written_ids = []
-        novelties   = []
-
         self.graph.begin_pass()
 
-        prev_id = None
-        for concept in concepts:
-            node_type = self._classify_node_type(concept, text)
-            related   = [prev_id] if prev_id else []
-            edge_t    = EdgeType.TEMPORAL if prev_id else EdgeType.SEMANTIC
+        entity_ids: list[str] = []
 
-            node_id, is_new = self.graph.write(
-                label      = concept,
-                node_type  = node_type,
-                related_to = related,
-                edge_type  = edge_t,
-            )
-
-            if node_id in self.graph.nodes:
-                node = self.graph.nodes[node_id]
-                # Payload synthesis on stabilisation
-                if self._payload_synth and not node.provisional:
-                    if "payload" not in node.meta:
-                        self._payload_synth.synthesise(node, self.graph, self.store)
-                # Field projection on stabilisation
-                if self._field is not None and not node.provisional:
-                    if "field_projection" not in node.meta:
-                        self._field.project_node(node, self.graph)
-
-            written_ids.append(node_id)
-            novelties.append(is_new)
-            prev_id = node_id
-
-        # --- Entity extraction (spaCy NER) — level-0 GROUND nodes ---
-        # Written at NodeLevel.GROUND: stable immediately, no maturity, no merge.
-        # Facts from the current turn are accumulated in meta["facts"].
-        entity_ids = []
+        # spaCy NER
         for ent_label, ent_type in _extract_entities_spacy(text):
-            node_id, is_new = self.graph.write(
+            node_id, _ = self.graph.write(
                 label      = ent_label,
                 node_type  = NodeType.CONCEPT,
                 related_to = [],
@@ -474,15 +447,9 @@ class ContextAssembler:
                     node.meta.setdefault("facts", [])
                     if fact not in node.meta["facts"]:
                         node.meta["facts"].append(fact)
-            written_ids.append(node_id)
-            novelties.append(is_new)
             entity_ids.append(node_id)
 
-        # --- Speaker-as-entity: index the speaker name as a GROUND node ---
-        # Speakers only appear as text in turns where the *other* person names
-        # them — so "Caroline" is invisible to NER in her own turns.  Writing
-        # the speaker label as a GROUND entity ensures retrieval finds all
-        # turns spoken by that person when asked about them by name.
+        # Speaker-as-entity
         _SKIP_SPEAKERS = {"user", "assistant", "system", "unknown"}
         spk_lower = speaker.strip().lower()
         if spk_lower not in _SKIP_SPEAKERS and len(spk_lower) > 1:
@@ -497,38 +464,79 @@ class ContextAssembler:
             if spk_id in self.graph.nodes:
                 node = self.graph.nodes[spk_id]
                 node.meta.setdefault("entity_type", "PERSON")
-                # Store a fact snippet from this turn so retrieval surfaces content
                 snippet = text[:120].rstrip() + ("…" if len(text) > 120 else "")
                 node.meta.setdefault("facts", [])
                 if snippet not in node.meta["facts"]:
                     node.meta["facts"].append(snippet)
-            written_ids.append(spk_id)
             entity_ids.append(spk_id)
 
-        # --- INSTANTIATES edges: L0 entities → L1 concepts (same turn) ---
-        # Bridges the two levels so context traversal can cross from a
-        # concrete entity into the abstract concept space and back.
-        concept_ids = [
-            nid for nid in written_ids
+        self.store.turns[pos].nodes = entity_ids
+        self.graph.advance()
+        self.graph.end_pass()
+
+        return pos
+
+    def ingest_concepts(self, pos: int, speaker: str, text: str) -> dict:
+        """
+        Phase 2 — extract L1 concept nodes for an existing backing store turn.
+
+        Calls the LLM concept extractor, writes CONCEPT nodes, and wires
+        INSTANTIATES edges from the L0 entities already stored at pos.
+        pos must have been returned by a prior ingest_entities() call.
+        """
+        self.graph.conv_pos = pos
+
+        concepts  = self._extract_concepts(text, speaker)
+        novelties: list[bool] = []
+
+        self.graph.begin_pass()
+
+        concept_ids: list[str] = []
+        prev_id = None
+        for concept in concepts:
+            node_type = self._classify_node_type(concept, text)
+            related   = [prev_id] if prev_id else []
+            edge_t    = EdgeType.TEMPORAL if prev_id else EdgeType.SEMANTIC
+
+            node_id, is_new = self.graph.write(
+                label      = concept,
+                node_type  = node_type,
+                related_to = related,
+                edge_type  = edge_t,
+            )
+            if node_id in self.graph.nodes:
+                node = self.graph.nodes[node_id]
+                if self._payload_synth and not node.provisional:
+                    if "payload" not in node.meta:
+                        self._payload_synth.synthesise(node, self.graph, self.store)
+                if self._field is not None and not node.provisional:
+                    if "field_projection" not in node.meta:
+                        self._field.project_node(node, self.graph)
+            concept_ids.append(node_id)
+            novelties.append(is_new)
+            prev_id = node_id
+
+        # INSTANTIATES edges: existing L0 entities → new L1 concepts
+        entity_ids = [
+            nid for nid in self.store.turns[pos].nodes
             if nid in self.graph.nodes
-            and self.graph.nodes[nid].level >= NodeLevel.CONCEPT
+            and self.graph.nodes[nid].level < NodeLevel.CONCEPT
         ]
         for ent_id in entity_ids:
             for con_id in concept_ids:
                 self.graph._add_edge(ent_id, con_id, EdgeType.INSTANTIATES, weight=0.5)
 
-        self.store.turns[pos].nodes = written_ids
+        # Append concept node ids to the turn's node list
+        self.store.turns[pos].nodes = self.store.turns[pos].nodes + concept_ids
+
         self.graph.advance()
 
-        # Global stabilisation pass — maturity can grow via neighbourhood
-        # effects after write time, leaving nodes provisional even when they
-        # have crossed the threshold.  Mirror the JS SPA behaviour: re-check
-        # every provisional node and stabilise any that are now ready.
+        # Global stabilisation pass
         for nid in list(self.graph.nodes.keys()):
             node = self.graph.nodes.get(nid)
             if node and node.provisional:
                 self.graph._update_maturity(nid)
-                node = self.graph.nodes.get(nid)  # re-fetch (merge may remove it)
+                node = self.graph.nodes.get(nid)
                 if node and node.maturity >= self.graph.maturity_threshold:
                     self.graph._stabilize(nid)
 
@@ -536,8 +544,13 @@ class ContextAssembler:
         status["concepts_extracted"] = len(concepts)
         status["nodes_created"]      = sum(novelties)
         status["graph_summary"]      = self.graph.summary()
-
         return status
+
+    def ingest(self, speaker: str, text: str,
+               timestamp: Optional[datetime] = None) -> dict:
+        """Single-pass ingest: entities then concepts in one call (backward compat)."""
+        pos = self.ingest_entities(speaker, text, timestamp=timestamp)
+        return self.ingest_concepts(pos, speaker, text)
 
     # -------------------------------------------------------------------
     # Concept extraction — LLM-assisted (with spaCy + stopword fallback)

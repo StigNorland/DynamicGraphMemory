@@ -508,44 +508,57 @@ async def api_locomo_ingest():
 
         n_total = total_turns(_locomo_sample)
         _locomo_progress = {"done": 0, "total": n_total}
-
         last_keepalive = time.time()
-        turn_idx = 0
 
+        # Collect all turns with their timestamps for the two-pass loop
+        all_turns: list[tuple] = []   # (speaker, text, ts, session_num)
         for session in _locomo_sample.sessions:
-            # Inject a dated session header as a synthetic "system" turn.
-            # This anchors all temporal questions — the date is now in the
-            # backing store and visible to concept extraction.
             session_ts = _parse_locomo_datetime(session.datetime_str)
+            # Session header turn
             if session.datetime_str:
-                header = (
-                    f"[Session {session.session_num} — {session.datetime_str}]"
-                )
-                _assembler.ingest("system", header, timestamp=session_ts)
+                header = f"[Session {session.session_num} — {session.datetime_str}]"
+                all_turns.append(("system", header, session_ts, session.session_num))
+            for i, t in enumerate(session.turns):
+                ts = session_ts + timedelta(minutes=i) if session_ts else None
+                all_turns.append((t.speaker, t.text, ts, session.session_num))
 
-            for t in session.turns:
-                # Approximate per-turn timestamp: session start + 1 min/turn
-                ts = None
-                if session_ts is not None:
-                    ts = session_ts + timedelta(minutes=turn_idx)
-                _assembler.ingest(t.speaker, t.text, timestamp=ts)
-                # Lightweight propagation pass per turn (same as evaluate.py)
-                _assembler.graph.begin_pass()
-                propagation_pass(_assembler.graph)
-                _assembler.graph.end_pass()
+        # ── Phase 1: entity pass ─────────────────────────────────────────
+        # Write all turns to backing store and extract GROUND entities.
+        # Fast (no LLM) — builds the entity layer first.
+        yield f"data: {json.dumps({'type':'progress_msg','msg':'Phase 1/3 — entity extraction…'})}\n\n"
+        pos_list: list[int] = []
+        for idx, (speaker, text, ts, _) in enumerate(all_turns):
+            pos = _assembler.ingest_entities(speaker, text, timestamp=ts)
+            pos_list.append(pos)
 
-                turn_idx += 1
-                _locomo_progress["done"] = turn_idx
-                yield f"data: {json.dumps({'type':'progress','done':turn_idx,'total':n_total,'speaker':t.speaker})}\n\n"
+            _locomo_progress["done"] = idx + 1
+            yield f"data: {json.dumps({'type':'progress','done':idx+1,'total':n_total,'speaker':speaker,'phase':1})}\n\n"
+            now = time.time()
+            if now - last_keepalive > 10:
+                yield ": keepalive\n\n"
+                last_keepalive = now
 
-                now = time.time()
-                if now - last_keepalive > 10:
-                    yield ": keepalive\n\n"
-                    last_keepalive = now
+        # ── Phase 2: concept pass ────────────────────────────────────────
+        # Extract L1 concepts with the full entity graph already in place.
+        # LLM calls (Haiku, cached) — entity context enriches extraction.
+        yield f"data: {json.dumps({'type':'progress_msg','msg':'Phase 2/3 — concept extraction…'})}\n\n"
+        _locomo_progress = {"done": 0, "total": n_total}
+        for idx, ((speaker, text, ts, _), pos) in enumerate(zip(all_turns, pos_list)):
+            _assembler.ingest_concepts(pos, speaker, text)
+            _assembler.graph.begin_pass()
+            propagation_pass(_assembler.graph)
+            _assembler.graph.end_pass()
 
-        # Final convergence sweep + sleep consolidation
+            _locomo_progress["done"] = idx + 1
+            yield f"data: {json.dumps({'type':'progress','done':idx+1,'total':n_total,'speaker':speaker,'phase':2})}\n\n"
+            now = time.time()
+            if now - last_keepalive > 10:
+                yield ": keepalive\n\n"
+                last_keepalive = now
+
+        # ── Phase 3: sleep consolidation ─────────────────────────────────
+        yield f"data: {json.dumps({'type':'progress_msg','msg':'Phase 3/3 — sleep consolidation…'})}\n\n"
         convergence_sweep(_assembler.graph)
-        yield f"data: {json.dumps({'type':'progress_msg','msg':'Sleep consolidation — global merge pass…'})}\n\n"
         stats = sleep_consolidation(_assembler.graph)
         yield f"data: {json.dumps({'type':'consolidation','stats':stats})}\n\n"
 

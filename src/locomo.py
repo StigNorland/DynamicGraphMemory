@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 
 import anthropic
 
-from library.graph import ConceptGraph
+from library.graph import ConceptGraph, NodeLevel
 from library.convergence import ConvergenceMonitor
 
 
