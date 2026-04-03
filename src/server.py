@@ -77,7 +77,7 @@ class LoCoMoLoadRequest(BaseModel):
 
 class LoCoMoRunRequest(BaseModel):
     token_budget: int = 400
-    modes: list[str] = ["graph", "baseline", "graph_only", "field", "field_graph"]
+    modes: list[str] = ["graph", "baseline", "graph_only", "field_graph"]
     runs: int = 3          # how many times to call the API per question (same context)
 
 
