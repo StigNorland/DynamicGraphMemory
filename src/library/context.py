@@ -303,11 +303,20 @@ class ContextAssembler:
                 label, NodeType.CONCEPT, level=NodeLevel.CONCEPT)
             if node_id and score > 0.3:
                 query_node_ids.append((node_id, score))
-            # Also search ground level (L0) — entities can seed traversal
+            # Also search ground level (L0) with abstract labels
             node_id, score = self.graph._find_match(
                 label, NodeType.CONCEPT, level=NodeLevel.GROUND)
             if node_id and score > 0.3:
-                query_node_ids.append((node_id, score + 0.5))  # slight boost
+                query_node_ids.append((node_id, score + 0.5))
+
+        # Entity-level seeding: run NER on the query directly so entity names
+        # ("Jon", "dogs", "Napoleon") reach GROUND nodes — the LLM concept
+        # extractor never returns proper nouns as concept labels.
+        for ent_label, _ in _extract_entities_spacy(query):
+            node_id, score = self.graph._find_match(
+                ent_label, NodeType.CONCEPT, level=NodeLevel.GROUND)
+            if node_id and score > 0.2:
+                query_node_ids.append((node_id, score + 0.8))  # high boost: exact entity match
 
         if not query_node_ids:
             return self._fallback_context(token_budget)

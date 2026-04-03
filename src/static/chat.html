@@ -225,6 +225,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
     <p>Every message you send is ingested into a <strong>Relational Graph Memory</strong> — concepts form nodes, edges strengthen with repetition, and "aha" merge events fire when two mature concepts unify.</p>
     <p>Watch the graph panel on the right as the conversation builds. Toggle between <em>baseline</em> and <em>graph-assembled</em> context to see the difference.</p>
     <input id="akey" type="password" placeholder="sk-ant-api03-…" autocomplete="off" />
+    <div style="font-size:11px;color:var(--text2);margin-top:4px">Key is saved locally in your browser.</div>
     <div id="serr">Key should start with sk-ant-</div>
     <button onclick="startApp()">Start →</button>
   </div>
@@ -761,6 +762,8 @@ async function startApp(){
       body:    JSON.stringify({api_key: key}),
     });
     if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
+
+    localStorage.setItem('rgm_api_key', key);
 
     document.getElementById('setup').style.display = 'none';
     document.getElementById('main').style.display  = 'block';
@@ -1438,6 +1441,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('akey').addEventListener('keydown', e=>{
     if (e.key==='Enter') startApp();
   });
+
+  // Auto-fill API key from localStorage and start immediately if present
+  const savedKey = localStorage.getItem('rgm_api_key');
+  if (savedKey) {
+    document.getElementById('akey').value = savedKey;
+    startApp();
+  }
 });
 </script>
 </body>
