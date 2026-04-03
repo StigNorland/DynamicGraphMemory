@@ -1189,11 +1189,101 @@ function closeImport(){
   document.getElementById('import-overlay').classList.remove('on');
 }
 
+// ── LoCoMo format normalisation ─────────────────────────────────────────────
+
+/**
+ * Parse a human-readable datetime like "4:04 pm on 20 January, 2023"
+ * Returns a Date object (local time) or null if unparseable.
+ */
+function parseSessionDateTime(str) {
+  if (!str) return null;
+  const m = str.match(/(\d+):(\d+)\s*(am|pm)\s+on\s+(\d+)\s+(\w+),?\s*(\d{4})/i);
+  if (!m) return null;
+  let [, h, min, ampm, day, month, year] = m;
+  h = parseInt(h, 10); min = parseInt(min, 10);
+  day = parseInt(day, 10); year = parseInt(year, 10);
+  const months = {january:0,february:1,march:2,april:3,may:4,june:5,
+                  july:6,august:7,september:8,october:9,november:10,december:11};
+  const mo = months[month.toLowerCase()];
+  if (mo === undefined) return null;
+  if (ampm.toLowerCase() === 'pm' && h < 12) h += 12;
+  if (ampm.toLowerCase() === 'am' && h === 12) h = 0;
+  return new Date(year, mo, day, h, min, 0, 0);
+}
+
+/**
+ * Detect and flatten a LoCoMo-style conversation object into our standard
+ * [{speaker, text, timestamp}] array.
+ * Returns {turns, speakers, sessionCount} or null if not LoCoMo format.
+ */
+function normaliseLocomoFormat(parsed) {
+  const conv = parsed?.conversation;
+  if (!conv) return null;
+
+  const speakers = new Set();
+  const turns    = [];
+  let   sessionIdx = 1;
+
+  while (true) {
+    const key  = `session_${sessionIdx}`;
+    const dtKey = `session_${sessionIdx}_date_time`;
+    const sessionTurns = conv[key];
+    if (!sessionTurns) break;                          // no more sessions
+
+    const sessionDate = parseSessionDateTime(conv[dtKey]);
+
+    for (let i = 0; i < sessionTurns.length; i++) {
+      const t = sessionTurns[i];
+      if (!t.text) continue;
+      speakers.add(t.speaker);
+      const turn = { speaker: String(t.speaker || 'user'), text: String(t.text) };
+      if (sessionDate) {
+        // Space turns 1 min apart within the session
+        const ts = new Date(sessionDate.getTime() + i * 60_000);
+        // datetime-local format: "YYYY-MM-DDTHH:MM"
+        turn.timestamp = ts.getFullYear() + '-'
+          + String(ts.getMonth()+1).padStart(2,'0') + '-'
+          + String(ts.getDate()).padStart(2,'0') + 'T'
+          + String(ts.getHours()).padStart(2,'0') + ':'
+          + String(ts.getMinutes()).padStart(2,'0');
+      }
+      turns.push(turn);
+    }
+    sessionIdx++;
+  }
+
+  if (!turns.length) return null;
+  return { turns, speakers: [...speakers], sessionCount: sessionIdx - 1 };
+}
+
 function loadImportFile(e){
   const f = e.target.files[0];
   if (!f) return;
+  const prog = document.getElementById('import-prog');
   const reader = new FileReader();
-  reader.onload = ev => { document.getElementById('import-ta').value = ev.target.result; };
+  reader.onload = ev => {
+    const raw = ev.target.result;
+    // Try LoCoMo normalisation first
+    try {
+      const parsed = JSON.parse(raw);
+      const result = normaliseLocomoFormat(parsed);
+      if (result) {
+        const { turns, speakers, sessionCount } = result;
+        document.getElementById('import-ta').value = JSON.stringify(turns, null, 2);
+        // Set session-start from first turn's timestamp if available
+        if (turns[0]?.timestamp) {
+          document.getElementById('import-session-start').value = turns[0].timestamp;
+        }
+        prog.textContent =
+          `✓ Detected LoCoMo format — ${sessionCount} session${sessionCount>1?'s':''}, `
+          + `${turns.length} turns (${speakers.join(' ↔ ')})`;
+        return;
+      }
+    } catch (_) {}
+    // Plain JSON or raw text — paste as-is
+    document.getElementById('import-ta').value = raw;
+    prog.textContent = '';
+  };
   reader.readAsText(f);
 }
 
