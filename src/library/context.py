@@ -96,23 +96,26 @@ IMPORTANT: Output ONLY a raw JSON array. No markdown, no code fences, no explana
 First character must be [ and last character must be ]
 Extract the key concepts from this conversation turn as a JSON array of strings.
 
-A concept is a domain term that:
-- Could be a node in a knowledge graph or glossary entry
-- Means the same thing regardless of which sentence it appears in
-- Good examples: "retrieval_path", "big_five_traits", "sati", "holographic_memory",
-  "context_window", "merge_event", "bioelectric_field", "ego_dissolution"
-- Bad examples: "thing", "way", "the part that", "very", "interesting", "lot"
+A concept is a node in a knowledge graph that can be retrieved later. Include BOTH:
+- Technical/abstract ideas: "context_window", "merge_event", "bioelectric_field"
+- Everyday life concepts: "support_group", "gender_transition", "job_interview",
+  "birthday_party", "family_support", "therapy_session", "long_distance_relationship",
+  "medical_appointment", "moving_house", "college_application"
 
 Rules:
 - snake_case labels only
 - 6-12 concepts maximum, prefer fewer high-quality over many low-quality
-- Prefer specific over generic ("context_window" over "memory")
-- Multi-word concepts are fine ("bioelectric_field", "merge_event")
+- Prefer specific over generic ("support_group" over "help", "job_interview" over "work")
+- Include activities, events, relationships, health topics — not just abstract domain terms
+- Skip filler words: "thing", "way", "very", "interesting", "lot"
 - Output ONLY the JSON array, no explanation, no markdown
 
 Turn ({speaker}):
 {text}
 """
+
+# Increment when prompt changes to bust stale cached extractions
+_CONCEPT_CACHE_VERSION = "v2"
 
 
 def _extract_concepts_llm(text: str, speaker: str, client,
@@ -124,7 +127,7 @@ def _extract_concepts_llm(text: str, speaker: str, client,
     """
     # Cache lookup
     _CONCEPT_CACHE_DIR.mkdir(exist_ok=True)
-    cache_key  = _hashlib.md5(f"{speaker}:{text}".encode()).hexdigest()
+    cache_key  = _hashlib.md5(f"{_CONCEPT_CACHE_VERSION}:{speaker}:{text}".encode()).hexdigest()
     cache_file = _CONCEPT_CACHE_DIR / f"{cache_key}.json"
     if cache_file.exists():
         try:
