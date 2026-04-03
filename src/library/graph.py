@@ -286,13 +286,25 @@ class ConceptGraph:
         return node_id
 
     def _add_edge(self, source: str, target: str,
-                  edge_type: EdgeType, weight: float = 1.0) -> bool:
+                  edge_type: EdgeType, weight: float = 1.0,
+                  meta: Optional[dict] = None) -> bool:
         key = f"{source}::{target}::{edge_type.value}"
         if key in self.edges:
             self.edges[key].weight = min(
                 1.0, self.edges[key].weight + self.LEARNING_RATE
             )
             self.edges[key].last_active = self.conv_pos  # track recency
+            if meta:
+                for k, v in meta.items():
+                    existing = self.edges[key].meta.get(k)
+                    if isinstance(existing, list):
+                        for item in (v if isinstance(v, list) else [v]):
+                            if item not in existing:
+                                existing.append(item)
+                    elif isinstance(v, list):
+                        self.edges[key].meta[k] = list(v)
+                    else:
+                        self.edges[key].meta[k] = v
             return False
         else:
             self.edges[key] = Edge(
@@ -303,6 +315,7 @@ class ConceptGraph:
                 conv_pos   = self.conv_pos,
                 last_active = self.conv_pos,
                 maturity_at_creation = self.nodes[source].maturity,
+                meta       = dict(meta) if meta else {},
             )
             self._adjacency[source][target] = key
             self._adjacency[target][source] = key

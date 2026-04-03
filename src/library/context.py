@@ -14,7 +14,7 @@ Authors: Stig Norland, Claude (Anthropic)
 
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from .graph import ConceptGraph, NodeType, NodeLevel, EdgeType
@@ -81,6 +81,63 @@ def _extract_entity_fact(text: str, entity_label: str) -> Optional[str]:
         if normalized.lower() in sent.lower():
             return sent.strip()
     return None
+
+# ---------------------------------------------------------------------------
+# Temporal expression resolution
+# ---------------------------------------------------------------------------
+
+_TEMPORAL_PATTERNS: list[tuple] = [
+    # (compiled_pattern, needs_match_group, resolver)
+    (re.compile(r'\byesterday\b',              re.I), False, lambda d, _: d - timedelta(days=1)),
+    (re.compile(r'\btoday\b',                  re.I), False, lambda d, _: d),
+    (re.compile(r'\btomorrow\b',               re.I), False, lambda d, _: d + timedelta(days=1)),
+    (re.compile(r'\blast\s+week\b',            re.I), False, lambda d, _: d - timedelta(weeks=1)),
+    (re.compile(r'\blast\s+month\b',           re.I), False, lambda d, _: d - timedelta(days=30)),
+    (re.compile(r'\blast\s+year\b',            re.I), False, lambda d, _: d - timedelta(days=365)),
+    (re.compile(r'\bthis\s+(?:week|month)\b',  re.I), False, lambda d, _: d),
+    (re.compile(r'\bearlier\s+today\b',        re.I), False, lambda d, _: d),
+    (re.compile(r'\bone\s+month\s+ago\b',      re.I), False, lambda d, _: d - timedelta(days=30)),
+    (re.compile(r'\btwo\s+months?\s+ago\b',    re.I), False, lambda d, _: d - timedelta(days=60)),
+    (re.compile(r'\bthree\s+months?\s+ago\b',  re.I), False, lambda d, _: d - timedelta(days=90)),
+    (re.compile(r'\btwo\s+weeks?\s+ago\b',     re.I), False, lambda d, _: d - timedelta(weeks=2)),
+    (re.compile(r'\bthree\s+weeks?\s+ago\b',   re.I), False, lambda d, _: d - timedelta(weeks=3)),
+    (re.compile(r'\ba\s+few\s+days?\s+ago\b',  re.I), False, lambda d, _: d - timedelta(days=3)),
+    (re.compile(r'\ba\s+few\s+weeks?\s+ago\b', re.I), False, lambda d, _: d - timedelta(weeks=3)),
+    (re.compile(r'\b(\d+)\s+days?\s+ago\b',    re.I), True,  lambda d, m: d - timedelta(days=int(m.group(1)))),
+    (re.compile(r'\b(\d+)\s+weeks?\s+ago\b',   re.I), True,  lambda d, m: d - timedelta(weeks=int(m.group(1)))),
+    (re.compile(r'\b(\d+)\s+months?\s+ago\b',  re.I), True,  lambda d, m: d - timedelta(days=int(m.group(1)) * 30)),
+]
+
+_TEMPORAL_EXPRESSION_RE = re.compile(
+    r'\b(?:yesterday|today|tomorrow|this\s+(?:week|month)|earlier\s+today'
+    r'|last\s+(?:week|month|year)'
+    r'|(?:a\s+few|one|two|three|\d+)\s+(?:days?|weeks?|months?)\s+ago)\b',
+    re.I,
+)
+
+
+def _resolve_temporal(text: str, timestamp: Optional[datetime]) -> Optional[str]:
+    """
+    Scan text for a temporal expression and return a resolved date string.
+
+    Returns ISO "YYYY-MM-DD" when timestamp is known, "~<expr>" when not,
+    or None when no temporal expression is found.
+    """
+    m = _TEMPORAL_EXPRESSION_RE.search(text)
+    if not m:
+        return None
+    raw_expr = m.group(0).strip()
+    if timestamp is None:
+        return f"~{raw_expr}"
+    base = timestamp.replace(tzinfo=None)
+    for pattern, needs_match, fn in _TEMPORAL_PATTERNS:
+        pm = pattern.search(text)
+        if pm:
+            try:
+                return fn(base, pm if needs_match else None).date().isoformat()
+            except Exception:
+                return f"~{raw_expr}"
+    return f"~{raw_expr}"
 
 # ---------------------------------------------------------------------------
 # LLM concept extraction — loaded once at module level
@@ -444,6 +501,9 @@ class ContextAssembler:
                 node.meta.setdefault("entity_type", ent_type)
                 fact = _extract_entity_fact(text, ent_label)
                 if fact:
+                    date_str = _resolve_temporal(text, timestamp)
+                    if date_str:
+                        fact = f"{fact} [{date_str}]"
                     node.meta.setdefault("facts", [])
                     if fact not in node.meta["facts"]:
                         node.meta["facts"].append(fact)
@@ -465,6 +525,9 @@ class ContextAssembler:
                 node = self.graph.nodes[spk_id]
                 node.meta.setdefault("entity_type", "PERSON")
                 snippet = text[:120].rstrip() + ("…" if len(text) > 120 else "")
+                date_str = _resolve_temporal(text, timestamp)
+                if date_str:
+                    snippet = f"{snippet} [{date_str}]"
                 node.meta.setdefault("facts", [])
                 if snippet not in node.meta["facts"]:
                     node.meta["facts"].append(snippet)
@@ -485,6 +548,11 @@ class ContextAssembler:
         pos must have been returned by a prior ingest_entities() call.
         """
         self.graph.conv_pos = pos
+
+        # Retrieve the timestamp stored by ingest_entities for temporal annotation
+        turn_ts: Optional[datetime] = None
+        if 0 <= pos < len(self.store.turns):
+            turn_ts = self.store.turns[pos].timestamp
 
         concepts  = self._extract_concepts(text, speaker)
         novelties: list[bool] = []
@@ -522,9 +590,14 @@ class ContextAssembler:
             if nid in self.graph.nodes
             and self.graph.nodes[nid].level < NodeLevel.CONCEPT
         ]
+        date_str  = _resolve_temporal(text, turn_ts)
+        edge_meta = {"dates": [date_str]} if date_str else None
         for ent_id in entity_ids:
             for con_id in concept_ids:
-                self.graph._add_edge(ent_id, con_id, EdgeType.INSTANTIATES, weight=0.5)
+                self.graph._add_edge(
+                    ent_id, con_id, EdgeType.INSTANTIATES,
+                    weight=0.5, meta=edge_meta,
+                )
 
         # Append concept node ids to the turn's node list
         self.store.turns[pos].nodes = self.store.turns[pos].nodes + concept_ids
