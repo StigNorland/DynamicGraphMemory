@@ -96,18 +96,18 @@ IMPORTANT: Output ONLY a raw JSON array. No markdown, no code fences, no explana
 First character must be [ and last character must be ]
 Extract the key concepts from this conversation turn as a JSON array of strings.
 
-A concept is a node in a knowledge graph that can be retrieved later. Include BOTH:
-- Technical/abstract ideas: "context_window", "merge_event", "bioelectric_field"
-- Everyday life concepts: "support_group", "gender_transition", "job_interview",
-  "birthday_party", "family_support", "therapy_session", "long_distance_relationship",
-  "medical_appointment", "moving_house", "college_application"
+A concept is anything a person might want to look up later — activities, events,
+relationships, health, emotions, plans, or topics discussed. Examples:
+"support_group", "gender_transition", "job_interview", "birthday_party",
+"family_support", "therapy_session", "long_distance_relationship",
+"medical_appointment", "moving_house", "college_application", "grief",
+"romantic_relationship", "career_change", "mental_health", "travel_plans"
 
 Rules:
 - snake_case labels only
-- 6-12 concepts maximum, prefer fewer high-quality over many low-quality
-- Prefer specific over generic ("support_group" over "help", "job_interview" over "work")
-- Include activities, events, relationships, health topics — not just abstract domain terms
-- Skip filler words: "thing", "way", "very", "interesting", "lot"
+- 4-10 concepts per turn, prefer fewer precise labels over many vague ones
+- Specific beats generic: "support_group" not "help", "job_interview" not "work"
+- Skip filler: "thing", "way", "very", "interesting", "lot", "something"
 - Output ONLY the JSON array, no explanation, no markdown
 
 Turn ({speaker}):
@@ -115,7 +115,7 @@ Turn ({speaker}):
 """
 
 # Increment when prompt changes to bust stale cached extractions
-_CONCEPT_CACHE_VERSION = "v2"
+_CONCEPT_CACHE_VERSION = "v3"
 
 
 def _extract_concepts_llm(text: str, speaker: str, client,
