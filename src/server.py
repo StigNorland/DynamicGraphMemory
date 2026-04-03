@@ -189,6 +189,12 @@ async def api_ingest(req: IngestRequest):
             except ValueError:
                 session_ts = None
 
+        # Push session start into the assembler so all context paths see it
+        if session_ts is not None:
+            _assembler.always_prepend = (
+                f"Session timeline:\n  Session 1: {session_ts.strftime('%I:%M %p on %d %B, %Y')}"
+            )
+
         for i, turn in enumerate(req.turns):
             speaker = str(turn.get("speaker", "user")).lower()
             text    = str(turn.get("text", "")).strip()
@@ -420,28 +426,29 @@ def _field_only_context() -> str:
 
 
 def _assemble_context_for_eval(mode: str, query: str, token_budget: int) -> str:
-    """Assemble context using the current assembler."""
-    prefix = (_session_timeline + "\n\n") if _session_timeline else ""
-
+    """Assemble context using the current assembler.
+    Session timeline is injected automatically via _assembler.always_prepend."""
     if mode == "graph":
         ctx = _assembler.assemble_graph(query=query, token_budget=token_budget)
         if not ctx.strip():
             ctx = _assembler.assemble_baseline(token_budget=token_budget)
-        return prefix + ctx
+        return ctx
     if mode == "baseline":
-        return prefix + _assembler.assemble_baseline(token_budget=token_budget)
+        return _assembler.assemble_baseline(token_budget=token_budget)
     if mode == "graph_only":
-        return prefix + _graph_only_context(_assembler.graph, query, token_budget)
+        tl = (_session_timeline + "\n\n") if _session_timeline else ""
+        return tl + _graph_only_context(_assembler.graph, query, token_budget)
     if mode == "field":
-        return prefix + _field_only_context()
+        tl = (_session_timeline + "\n\n") if _session_timeline else ""
+        return tl + _field_only_context()
     if mode == "field_graph":
         field = _field_only_context()
         graph = _assembler.assemble_graph(query=query, token_budget=token_budget)
         if not graph.strip():
             graph = _assembler.assemble_baseline(token_budget=token_budget)
         parts = [p for p in [field, graph] if p.strip()]
-        return prefix + "\n\n".join(parts)
-    return prefix
+        return "\n\n".join(parts)
+    return ""
 
 
 @app.post("/api/locomo/load")
@@ -489,13 +496,14 @@ async def api_locomo_ingest():
         _reset_assembler()
         _locomo_state = "ingesting"
 
-        # Build compact session timeline — always prepended to every context
-        # so temporal questions are never answered without date anchors.
+        # Build compact session timeline and push it into the assembler so
+        # every context assembly path (chat, eval, graph, baseline) carries it.
         _session_timeline = "Session timeline:\n" + "\n".join(
             f"  Session {s.session_num}: {s.datetime_str}"
             for s in _locomo_sample.sessions
             if s.datetime_str
         )
+        _assembler.always_prepend = _session_timeline
 
         n_total = total_turns(_locomo_sample)
         _locomo_progress = {"done": 0, "total": n_total}

@@ -290,6 +290,10 @@ class ContextAssembler:
         else:
             self._field = None
 
+        # Always-prepend string: temporal anchors, session headers, etc.
+        # Prepended to every assembled context regardless of mode.
+        self.always_prepend: str = ""
+
     def assemble_graph(self, query: str, token_budget: int) -> str:
         query_labels   = self._extract_concepts(query, "query")
         query_node_ids = []
@@ -366,13 +370,18 @@ class ContextAssembler:
         context_parts.sort(key=lambda x: -x[0])
         context = "\n".join(text for _, text in context_parts)
 
-        return context.strip()
+        result = context.strip()
+        if self.always_prepend and result:
+            return self.always_prepend + "\n\n" + result
+        return self.always_prepend + result if self.always_prepend else result
 
     def assemble_baseline(self, token_budget: int) -> str:
         turns       = []
         tokens_used = 0
 
         for turn in reversed(self.store.turns):
+            if turn.speaker == "system":   # skip injected headers — covered by always_prepend
+                continue
             text   = f"{turn.speaker}: {turn.text}"
             tokens = self._count_tokens(text)
             if tokens_used + tokens > token_budget:
@@ -381,7 +390,10 @@ class ContextAssembler:
             tokens_used += tokens
 
         turns.reverse()
-        return "\n".join(turns).strip()
+        body = "\n".join(turns).strip()
+        if self.always_prepend and body:
+            return self.always_prepend + "\n\n" + body
+        return self.always_prepend + body if self.always_prepend else body
 
     # -------------------------------------------------------------------
     # Ingestion
