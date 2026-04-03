@@ -314,6 +314,33 @@ async def api_chat(req: ChatRequest):
 # LoCoMo benchmark endpoints
 # ---------------------------------------------------------------------------
 
+def _parse_locomo_datetime(dt_str: str) -> datetime | None:
+    """Parse '4:04 pm on 20 January, 2023' → UTC datetime, or None."""
+    import re as _re
+    if not dt_str:
+        return None
+    m = _re.match(
+        r'(\d+):(\d+)\s*(am|pm)\s+on\s+(\d+)\s+(\w+),?\s*(\d{4})',
+        dt_str.strip(), _re.I,
+    )
+    if not m:
+        return None
+    h, mn, ampm, day, month, year = m.groups()
+    h, mn, day, year = int(h), int(mn), int(day), int(year)
+    months = {
+        'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,
+        'july':7,'august':8,'september':9,'october':10,'november':11,'december':12,
+    }
+    mo = months.get(month.lower())
+    if mo is None:
+        return None
+    if ampm.lower() == 'pm' and h < 12:
+        h += 12
+    if ampm.lower() == 'am' and h == 12:
+        h = 0
+    return datetime(year, mo, day, h, mn, tzinfo=timezone.utc)
+
+
 def _reset_assembler():
     """Create a fresh ContextAssembler, keeping the existing client."""
     global _assembler, _cost_log
@@ -459,27 +486,42 @@ async def api_locomo_ingest():
         _reset_assembler()
         _locomo_state = "ingesting"
 
-        turns     = flatten_to_conversation(_locomo_sample)
-        n_total   = len(turns)
+        n_total = total_turns(_locomo_sample)
         _locomo_progress = {"done": 0, "total": n_total}
 
         last_keepalive = time.time()
+        turn_idx = 0
 
-        for i, (speaker, text) in enumerate(turns):
-            _assembler.ingest(speaker, text)
-            # Lightweight propagation pass per turn (same as evaluate.py)
-            _assembler.graph.begin_pass()
-            propagation_pass(_assembler.graph)
-            _assembler.graph.end_pass()
+        for session in _locomo_sample.sessions:
+            # Inject a dated session header as a synthetic "system" turn.
+            # This anchors all temporal questions — the date is now in the
+            # backing store and visible to concept extraction.
+            session_ts = _parse_locomo_datetime(session.datetime_str)
+            if session.datetime_str:
+                header = (
+                    f"[Session {session.session_num} — {session.datetime_str}]"
+                )
+                _assembler.ingest("system", header, timestamp=session_ts)
 
-            _locomo_progress["done"] = i + 1
-            yield f"data: {json.dumps({'type':'progress','done':i+1,'total':n_total,'speaker':speaker})}\n\n"
+            for t in session.turns:
+                # Approximate per-turn timestamp: session start + 1 min/turn
+                ts = None
+                if session_ts is not None:
+                    ts = session_ts + timedelta(minutes=turn_idx)
+                _assembler.ingest(t.speaker, t.text, timestamp=ts)
+                # Lightweight propagation pass per turn (same as evaluate.py)
+                _assembler.graph.begin_pass()
+                propagation_pass(_assembler.graph)
+                _assembler.graph.end_pass()
 
-            # Keepalive comment to prevent proxy/browser timeout on long ingestions
-            now = time.time()
-            if now - last_keepalive > 10:
-                yield ": keepalive\n\n"
-                last_keepalive = now
+                turn_idx += 1
+                _locomo_progress["done"] = turn_idx
+                yield f"data: {json.dumps({'type':'progress','done':turn_idx,'total':n_total,'speaker':t.speaker})}\n\n"
+
+                now = time.time()
+                if now - last_keepalive > 10:
+                    yield ": keepalive\n\n"
+                    last_keepalive = now
 
         # Final convergence sweep
         convergence_sweep(_assembler.graph)
