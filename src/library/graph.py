@@ -25,9 +25,14 @@ from typing import Optional
 # -------------------------------------------------------------------
 
 class NodeType(Enum):
-    CONCEPT  = "concept"
-    TEMPORAL = "temporal"
-    CAUSAL   = "causal"
+    CONCEPT    = "concept"
+    TEMPORAL   = "temporal"
+    CAUSAL     = "causal"
+    EVENT      = "event"
+    TIME_EXPR  = "time_expr"
+    TIME_POINT = "time_point"
+    PLACE_EXPR = "place_expr"
+    UTTERANCE  = "utterance"
 
 
 class NodeLevel(IntEnum):
@@ -42,6 +47,15 @@ class EdgeType(Enum):
     CAUSAL       = "causal"
     INSTANTIATES = "instantiates"   # level-0 entity → level-1 concept
     ABSTRACTS    = "abstracts"      # level-1 concept → level-2 meta (future)
+    ASSERTS      = "asserts"
+    HAS_SOURCE   = "has_source"
+    MENTIONS     = "mentions"
+    AGENT        = "agent"
+    PATIENT      = "patient"
+    LOCATION     = "location"
+    TIME         = "time"
+    REFERS_TO    = "refers_to"
+    RELATIVE_TO  = "relative_to"
 
 
 # -------------------------------------------------------------------

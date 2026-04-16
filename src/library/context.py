@@ -115,6 +115,14 @@ _TEMPORAL_EXPRESSION_RE = re.compile(
     re.I,
 )
 
+_PLACE_PREP_RE = re.compile(
+    r'\b(?:in|at|near|inside|outside|from|to)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)'
+)
+
+_EVENT_STOP_VERBS = {
+    "be", "have", "do", "say", "go", "make", "get", "take", "use",
+}
+
 
 def _resolve_temporal(text: str, timestamp: Optional[datetime]) -> Optional[str]:
     """
@@ -138,6 +146,75 @@ def _resolve_temporal(text: str, timestamp: Optional[datetime]) -> Optional[str]
             except Exception:
                 return f"~{raw_expr}"
     return f"~{raw_expr}"
+
+
+def _extract_temporal_expression(text: str) -> Optional[str]:
+    m = _TEMPORAL_EXPRESSION_RE.search(text)
+    return m.group(0).strip() if m else None
+
+
+def _canonical_label(text: str) -> str:
+    label = re.sub(r"[^a-z0-9_]", "_", text.lower().strip().replace(" ", "_"))
+    label = re.sub(r"_+", "_", label).strip("_")
+    return label
+
+
+def _extract_place_expressions(text: str) -> list[tuple[str, str]]:
+    """
+    Return [(surface_form, canonical_label)] for simple place expressions.
+    Keeps the textual expression ("in Oslo") separate from the location entity.
+    """
+    seen = set()
+    results = []
+    for m in _PLACE_PREP_RE.finditer(text):
+        surface = m.group(0).strip()
+        target = _canonical_label(m.group(1))
+        if surface.lower() in seen or not target:
+            continue
+        seen.add(surface.lower())
+        results.append((surface, target))
+    return results
+
+
+def _extract_event_labels(text: str) -> list[str]:
+    """
+    Best-effort event extraction.
+    Prefers spaCy verb lemmata when available, falls back to a few simple
+    English suffix patterns. Returns canonical labels such as "meet".
+    """
+    nlp = _get_nlp()
+    if nlp is not None:
+        try:
+            doc = nlp(text[:2000])
+            seen, labels = set(), []
+            for tok in doc:
+                if tok.pos_ != "VERB":
+                    continue
+                lemma = _canonical_label(tok.lemma_)
+                if not lemma or lemma in _EVENT_STOP_VERBS or lemma in seen:
+                    continue
+                seen.add(lemma)
+                labels.append(lemma)
+            if labels:
+                return labels[:3]
+        except Exception:
+            pass
+
+    labels = []
+    lowered = re.findall(r"\b[a-zA-Z]+\b", text.lower())
+    for word in lowered:
+        if word.endswith("ed") and len(word) > 4:
+            labels.append(_canonical_label(word[:-2]))
+        elif word.endswith("ing") and len(word) > 5:
+            labels.append(_canonical_label(word[:-3]))
+    deduped = []
+    seen = set()
+    for label in labels:
+        if not label or label in _EVENT_STOP_VERBS or label in seen:
+            continue
+        seen.add(label)
+        deduped.append(label)
+    return deduped[:2]
 
 # ---------------------------------------------------------------------------
 # Structured ingest logger — JSON Lines
@@ -366,12 +443,14 @@ class ContextAssembler:
                  use_llm_extraction: bool = False,
                  use_rich_payloads:  bool = False,
                  use_field:          bool = False,
+                 use_turn_level_concepts: bool = False,
                  ollama_model:       str  = "llama3.2",
                  log_path:           Optional[str] = None):
         self.graph     = graph
         self.store     = store
         self.tokenizer = tokenizer
         self._llm_client = llm_client  # stored for direct concept extraction
+        self.use_turn_level_concepts = use_turn_level_concepts
 
         # LLM-assisted extraction
         if _LLM_MODULES_AVAILABLE and llm_client and use_llm_extraction:
@@ -511,6 +590,161 @@ class ContextAssembler:
             return self.always_prepend + "\n\n" + body
         return self.always_prepend + body if self.always_prepend else body
 
+    def _upsert_text_node(self, label: str, node_type: NodeType,
+                          conv_pos: int, meta: Optional[dict] = None) -> str:
+        node_id, _ = self.graph.write(
+            label=label,
+            node_type=node_type,
+            related_to=[],
+            edge_type=EdgeType.SEMANTIC,
+            level=NodeLevel.GROUND,
+        )
+        if node_id in self.graph.nodes and meta:
+            self.graph.nodes[node_id].meta.update(meta)
+            self.graph.nodes[node_id].conv_pos = conv_pos
+        return node_id
+
+    def _build_text_graph_layer(self, pos: int, speaker: str, text: str,
+                                timestamp: Optional[datetime],
+                                entity_ids: list[str]) -> list[str]:
+        """
+        Minimal Phase 1 text graph:
+        - explicit time-expression and time-point nodes
+        - explicit place-expression nodes linked to place entities
+
+        Important: the conversation turn itself is NOT treated as a semantic
+        node. Provenance stays in node metadata (`source_turn`, `speaker`,
+        `source_text`) rather than becoming graph meaning.
+        """
+        created_ids: list[str] = []
+
+        time_surface = _extract_temporal_expression(text)
+        resolved_date = _resolve_temporal(text, timestamp)
+        if time_surface:
+            time_expr_id = self._upsert_text_node(
+                label=_canonical_label(time_surface),
+                node_type=NodeType.TIME_EXPR,
+                conv_pos=pos,
+                meta={
+                    "surface": time_surface,
+                    "resolved": resolved_date,
+                    "resolution_status": "resolved" if resolved_date and not resolved_date.startswith("~") else "unresolved",
+                    "source_turn": pos,
+                    "speaker": speaker,
+                    "source_text": text,
+                },
+            )
+            created_ids.append(time_expr_id)
+
+            if resolved_date:
+                time_point_id = self._upsert_text_node(
+                    label=resolved_date.replace("~", "approx_"),
+                    node_type=NodeType.TIME_POINT,
+                    conv_pos=pos,
+                    meta={
+                        "value_iso": resolved_date,
+                        "source_turn": pos,
+                    },
+                )
+                created_ids.append(time_point_id)
+                self.graph._add_edge(time_expr_id, time_point_id, EdgeType.REFERS_TO, weight=0.7)
+                self.graph._add_edge(time_expr_id, time_point_id, EdgeType.RELATIVE_TO, weight=0.4,
+                                     meta={"source_turn": pos, "reference_timestamp": timestamp.isoformat() if timestamp else None})
+
+        for surface, target_label in _extract_place_expressions(text):
+            place_expr_id = self._upsert_text_node(
+                label=_canonical_label(surface),
+                node_type=NodeType.PLACE_EXPR,
+                conv_pos=pos,
+                meta={
+                    "surface": surface,
+                    "canonical_target": target_label,
+                    "source_turn": pos,
+                    "speaker": speaker,
+                    "source_text": text,
+                },
+            )
+            created_ids.append(place_expr_id)
+
+            for ent_id in entity_ids:
+                node = self.graph.nodes.get(ent_id)
+                if node and node.label == target_label:
+                    self.graph._add_edge(place_expr_id, ent_id, EdgeType.REFERS_TO, weight=0.8)
+
+        return created_ids
+
+    def _build_event_layer(self, pos: int, speaker: str, text: str,
+                           timestamp: Optional[datetime],
+                           entity_ids: list[str], concept_ids: list[str]) -> list[str]:
+        """
+        Minimal event-centric graph layer.
+        Creates one or more event nodes from detected verbs and links them to
+        participants, location expressions, and time expressions.
+        """
+        created_ids: list[str] = []
+
+        event_labels = _extract_event_labels(text)
+        if not event_labels:
+            return created_ids
+
+        persons = []
+        places = []
+        for ent_id in entity_ids:
+            node = self.graph.nodes.get(ent_id)
+            if node is None:
+                continue
+            ent_type = node.meta.get("entity_type")
+            if ent_type == "PERSON":
+                persons.append(ent_id)
+            if ent_type in {"GPE", "LOC", "FAC"}:
+                places.append(ent_id)
+
+        time_expr_surface = _extract_temporal_expression(text)
+        time_expr_id = None
+        if time_expr_surface:
+            time_expr_id, _ = self.graph._find_match(
+                _canonical_label(time_expr_surface), NodeType.TIME_EXPR, level=NodeLevel.GROUND)
+
+        place_expr_ids = []
+        for surface, _ in _extract_place_expressions(text):
+            place_expr_id, _ = self.graph._find_match(
+                _canonical_label(surface), NodeType.PLACE_EXPR, level=NodeLevel.GROUND)
+            if place_expr_id:
+                place_expr_ids.append(place_expr_id)
+
+        for event_label in event_labels:
+            event_id = self._upsert_text_node(
+                label=event_label,
+                node_type=NodeType.EVENT,
+                conv_pos=pos,
+                meta={
+                    "source_text": text,
+                    "speaker": speaker,
+                    "timestamp": timestamp.isoformat() if timestamp else None,
+                    "source_turn": pos,
+                },
+            )
+            created_ids.append(event_id)
+
+            if persons:
+                self.graph._add_edge(event_id, persons[0], EdgeType.AGENT, weight=0.7)
+            for patient_id in persons[1:2]:
+                self.graph._add_edge(event_id, patient_id, EdgeType.PATIENT, weight=0.7)
+
+            if place_expr_ids:
+                self.graph._add_edge(event_id, place_expr_ids[0], EdgeType.LOCATION, weight=0.7)
+            elif places:
+                self.graph._add_edge(event_id, places[0], EdgeType.LOCATION, weight=0.6)
+
+            if time_expr_id:
+                self.graph._add_edge(event_id, time_expr_id, EdgeType.TIME, weight=0.7)
+
+            for concept_id in concept_ids[:2]:
+                if concept_id in self.graph.nodes:
+                    self.graph._add_edge(event_id, concept_id, EdgeType.SEMANTIC, weight=0.4)
+
+        return created_ids
+
     # -------------------------------------------------------------------
     # Ingestion
     # -------------------------------------------------------------------
@@ -590,7 +824,12 @@ class ContextAssembler:
                 date=_resolve_temporal(text, timestamp),
             )
 
-        self.store.turns[pos].nodes = entity_ids
+        text_layer_ids = self._build_text_graph_layer(
+            pos=pos, speaker=speaker, text=text,
+            timestamp=timestamp, entity_ids=entity_ids,
+        )
+
+        self.store.turns[pos].nodes = entity_ids + text_layer_ids
         self.graph.advance()
         self.graph.end_pass()
 
@@ -611,7 +850,7 @@ class ContextAssembler:
         if 0 <= pos < len(self.store.turns):
             turn_ts = self.store.turns[pos].timestamp
 
-        concepts  = self._extract_concepts(text, speaker)
+        concepts  = self._extract_concepts(text, speaker) if self.use_turn_level_concepts else []
         novelties: list[bool] = []
 
         self.graph.begin_pass()
@@ -644,12 +883,19 @@ class ContextAssembler:
                 turn=pos, speaker=speaker, label=concept, is_new=is_new,
             )
 
-        # INSTANTIATES edges: existing L0 entities → new L1 concepts
+        # INSTANTIATES edges: existing L0 entity nodes → new L1 concepts
         entity_ids = [
             nid for nid in self.store.turns[pos].nodes
             if nid in self.graph.nodes
             and self.graph.nodes[nid].level < NodeLevel.CONCEPT
+            and self.graph.nodes[nid].node_type == NodeType.CONCEPT
         ]
+
+        event_ids = self._build_event_layer(
+            pos=pos, speaker=speaker, text=text, timestamp=turn_ts,
+            entity_ids=entity_ids, concept_ids=concept_ids,
+        )
+
         date_str  = _resolve_temporal(text, turn_ts)
         edge_meta = {"dates": [date_str]} if date_str else None
         dates     = [date_str] if date_str else []
@@ -667,7 +913,7 @@ class ContextAssembler:
                 )
 
         # Append concept node ids to the turn's node list
-        self.store.turns[pos].nodes = self.store.turns[pos].nodes + concept_ids
+        self.store.turns[pos].nodes = self.store.turns[pos].nodes + concept_ids + event_ids
 
         self.graph.advance()
 
